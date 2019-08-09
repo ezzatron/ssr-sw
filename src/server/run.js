@@ -3,7 +3,7 @@ import {createServer} from './create.js'
 async function main () {
   const server = await createServer()
 
-  await server.listen(8080)
+  await server.listen()
 }
 
 main().catch(error => {
