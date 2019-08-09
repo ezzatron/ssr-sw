@@ -22,6 +22,7 @@ module.exports = (_, {mode = 'production'}) => {
     output: {
       filename: '[name].[contenthash].js',
       path: clientBuildPath,
+      publicPath: '/',
     },
     plugins: [
       new CleanPlugin(),

@@ -11,6 +11,14 @@ export function readOutputPath (config) {
   return outputPath
 }
 
+export function readPublicPath (config) {
+  const {output: {publicPath} = {}} = config
+
+  if (!publicPath) throw new Error('Unable to determine Webpack public path')
+
+  return publicPath
+}
+
 export async function readStats (config) {
   const outputPath = readOutputPath(config)
   const {plugins = []} = config
