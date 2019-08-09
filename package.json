@@ -1,7 +1,9 @@
 {
   "private": true,
   "scripts": {
-    "build": "webpack -p",
+    "analyze": "mkdir -p artifacts/build && NODE_ENV=production webpack -p && webpack-bundle-analyzer --mode static --no-open --report artifacts/build/release.analyze.html artifacts/build/stats.json artifacts/build/client",
+    "analyze-open": "open artifacts/build/release.analyze.html",
+    "build": "NODE_ENV=production webpack -p",
     "lint": "eslint --fix .",
     "start": "webpack -p && bin/run"
   },
@@ -40,6 +42,7 @@
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.3",
-    "eslint-plugin-standard": "^4.0.0"
+    "eslint-plugin-standard": "^4.0.0",
+    "webpack-bundle-analyzer": "^3.4.1"
   }
 }
