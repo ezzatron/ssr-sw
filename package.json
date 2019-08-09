@@ -17,11 +17,13 @@
     "react-router5": "^7.1.0",
     "react-universal-component": "^4.0.0",
     "router5": "^7.0.2",
+    "stats-webpack-plugin": "^0.7.0",
     "webpack": "^4.39.1",
     "webpack-cli": "^3.3.6",
     "webpack-flush-chunks": "^2.0.3"
   },
   "scripts": {
+    "build": "webpack -p",
     "start": "node --require @babel/register src/server/run.js"
   }
 }
