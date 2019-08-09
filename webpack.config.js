@@ -1,6 +1,7 @@
 /* eslint-disable import/no-commonjs */
 
 const StatsPlugin = require('stats-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {resolve} = require('path')
 
@@ -26,6 +27,9 @@ module.exports = (_, {mode = 'production'}) => {
       new CleanPlugin(),
       new StatsPlugin('../stats.json'),
     ],
+    optimization: {
+      minimizer: [new TerserPlugin()],
+    },
     module: {
       rules: [
         {
