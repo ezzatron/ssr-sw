@@ -3,7 +3,7 @@
   "scripts": {
     "build": "webpack -p",
     "lint": "eslint --fix .",
-    "start": "node --require @babel/register src/server/run.js"
+    "start": "bin/run"
   },
   "engines": {
     "node": "^12"
