@@ -1,3 +1,5 @@
+/* eslint-disable import/no-commonjs */
+
 const StatsPlugin = require('stats-webpack-plugin')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {resolve} = require('path')

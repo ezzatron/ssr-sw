@@ -1,5 +1,13 @@
 {
   "private": true,
+  "scripts": {
+    "build": "webpack -p",
+    "lint": "eslint --fix .",
+    "start": "node --require @babel/register src/server/run.js"
+  },
+  "engines": {
+    "node": "^12"
+  },
   "dependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
@@ -22,8 +30,15 @@
     "webpack-cli": "^3.3.6",
     "webpack-flush-chunks": "^2.0.3"
   },
-  "scripts": {
-    "build": "webpack -p",
-    "start": "node --require @babel/register src/server/run.js"
+  "devDependencies": {
+    "babel-eslint": "^10.0.2",
+    "eslint": "^6.1.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-config-standard-jsx": "^7.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-standard": "^4.0.0"
   }
 }
