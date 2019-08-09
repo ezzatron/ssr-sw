@@ -4,7 +4,7 @@
     "analyze": "yarn build && webpack-bundle-analyzer --mode static --no-open --report artifacts/build/release.analyze.html artifacts/build/stats.json artifacts/build/client",
     "analyze-open": "open artifacts/build/release.analyze.html",
     "build": "NODE_ENV=production webpack -p",
-    "create-cert": "mkdir -p artifacts/cert && openssl req -x509 -newkey rsa:4096 -keyout artifacts/cert/key.pem -out artifacts/cert/cert.pem -days 365 -nodes -subj '/CN=ssr-sw.lvh.me:8080'",
+    "create-cert": "mkdir -p artifacts/cert && openssl req -x509 -newkey rsa:4096 -keyout artifacts/cert/key.pem -out artifacts/cert/cert.pem -days 365 -nodes -subj '/CN=localhost'",
     "lint": "eslint --fix .",
     "start": "yarn create-cert && yarn build && bin/run"
   },
