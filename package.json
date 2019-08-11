@@ -28,6 +28,7 @@
     "react-router5": "^7.1.0",
     "react-universal-component": "^4.0.0",
     "router5": "^7.0.2",
+    "router5-plugin-browser": "^7.0.2",
     "stats-webpack-plugin": "^0.7.0",
     "terser-webpack-plugin": "^1.4.1",
     "webpack": "^4.39.1",
