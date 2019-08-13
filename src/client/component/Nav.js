@@ -1,8 +1,10 @@
 import React from 'react'
 import {Link} from 'react-router5'
 
+import {className} from './Nav.css'
+
 export default function Nav () {
-  return <nav>
+  return <nav className={className}>
     <ul>
       <li><Link routeName='home'>Home</Link></li>
       <li><Link routeName='foo'>Foo</Link></li>
