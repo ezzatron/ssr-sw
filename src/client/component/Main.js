@@ -1,10 +1,13 @@
 import React from 'react'
+import universal, {setHasBabelPlugin} from 'react-universal-component'
 import {startsWithSegment} from 'router5-helpers'
 import {useRouteNode} from 'react-router5'
 
-import Bar from './Bar.js'
-import Foo from './Foo.js'
-import NotFound from './NotFound.js'
+setHasBabelPlugin()
+
+const Bar = universal(import(`./Bar.js`))
+const Foo = universal(import(`./Foo.js`))
+const NotFound = universal(import(`./NotFound.js`))
 
 export default function Main () {
   const {route} = useRouteNode('')

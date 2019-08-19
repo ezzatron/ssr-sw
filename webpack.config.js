@@ -5,6 +5,7 @@ const nodeExternals = require('webpack-node-externals')
 const StatsPlugin = require('stats-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
+const {optimize} = require('webpack')
 const {resolve} = require('path')
 
 module.exports = (_, {mode = 'production'}) => {
@@ -19,7 +20,7 @@ module.exports = (_, {mode = 'production'}) => {
   const serverSrcPath = resolve(srcPath, 'server')
 
   const entryPath = resolve(clientSrcPath, 'entry.js')
-  const runPath = resolve(serverSrcPath, 'run.js')
+  const serverMainPath = resolve(serverSrcPath, 'main.js')
 
   const module = {
     rules: [
@@ -38,10 +39,17 @@ module.exports = (_, {mode = 'production'}) => {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
+              modules: {
+                localIdentName: '[name]__[local]--[hash:base64:5]',
+              },
             },
           },
         ],
+      },
+      {
+        test: /\.html$/,
+        include: [srcPath],
+        use: 'html-loader',
       },
     ],
   }
@@ -52,11 +60,12 @@ module.exports = (_, {mode = 'production'}) => {
       new ExtractCssChunksPlugin({
         filename: '[name].[contenthash].css',
       }),
-      new StatsPlugin('../stats.json'),
+      new StatsPlugin('.stats.json'),
     ]
   }
 
   const clientConfig = {
+    name: 'client',
     mode,
     entry: entryPath,
     output: {
@@ -72,19 +81,34 @@ module.exports = (_, {mode = 'production'}) => {
   }
 
   const serverConfig = {
+    name: 'server',
     mode,
     target: 'node',
-    entry: runPath,
+    entry: serverMainPath,
     externals: [
-      nodeExternals(),
+      nodeExternals({
+        whitelist: [
+          'react-universal-component',
+          'webpack-flush-chunks',
+        ],
+      }),
       /webpack\.config/,
     ],
     output: {
-      filename: 'run.js',
+      filename: 'main.js',
       libraryTarget: 'commonjs2',
       path: serverBuildPath,
     },
-    plugins: createPlugins(),
+    optimization: {
+      minimizer: [],
+    },
+    plugins: [
+      ...createPlugins(),
+
+      new optimize.LimitChunkCountPlugin({
+        maxChunks: 1,
+      }),
+    ],
     module,
   }
 

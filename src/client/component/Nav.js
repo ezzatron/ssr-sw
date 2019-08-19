@@ -1,7 +1,7 @@
 import React from 'react'
 import {Link} from 'react-router5'
 
-import {className} from './Nav.css'
+import {nav as className} from './Nav.css'
 
 export default function Nav () {
   return <nav className={className}>

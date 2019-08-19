@@ -1,24 +1,19 @@
 import fastify from 'fastify'
 import fastifyStatic from 'fastify-static'
 
-import createWebpackConfig from '../../webpack.config.js'
 import {createRenderMiddleware, createUseAsync} from './middleware.js'
-import {readOutputPath} from './webpack.js'
 
-export async function createServer () {
-  const [webpackConfig] = createWebpackConfig(null, {mode: 'production'})
-  const webpackOutputPath = readOutputPath(webpackConfig)
-
+export async function createServer (rootPath) {
   const app = fastify({
     logger: true,
   })
   const use = createUseAsync(app)
 
   app.register(fastifyStatic, {
-    root: webpackOutputPath,
+    root: rootPath,
   })
 
-  use(await createRenderMiddleware(webpackConfig))
+  use(await createRenderMiddleware(rootPath))
 
   return app
 }

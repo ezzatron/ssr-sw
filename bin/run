@@ -1,4 +1,14 @@
 #!/usr/bin/env node
 /* eslint-disable import/no-commonjs */
+
 require('@babel/register')
-require('../artifacts/build/server/run.js')
+const {resolve} = require('path')
+
+const {main} = require('../artifacts/build/server/main.js')
+
+const rootPath = resolve(__dirname, '../artifacts/build/client')
+
+main(rootPath).catch(error => {
+  console.error(error)
+  process.exit(1)
+})

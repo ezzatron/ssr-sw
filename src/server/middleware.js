@@ -1,23 +1,23 @@
 import flushChunks from 'webpack-flush-chunks'
 import {clearChunks, flushChunkNames} from 'react-universal-component/server'
 import {cloneRouter, constants as routerConstants} from 'router5'
+import {compile} from 'ejs'
 import {renderToString} from 'react-dom/server'
 import {resolve} from 'path'
 
 import App from '../client/component/App.js'
+import appTemplateContent from './app.html'
 import {createRouter, startRouter} from '../routing.js'
-import {readPublicPath, readStats} from './webpack.js'
-import {readTemplate} from './template.js'
+import {readFile} from './fs.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
-export async function createRenderMiddleware (webpackConfig) {
-  const webpackPublicPath = readPublicPath(webpackConfig)
-  const webpackStats = await readStats(webpackConfig)
+export async function createRenderMiddleware (rootPath) {
+  const webpackStatsPath = resolve(rootPath, '.stats.json')
+  const webpackStats = JSON.parse(await readFile(webpackStatsPath))
+  const {publicPath: webpackPublicPath} = webpackStats
 
-  const templatePath = resolve(__dirname, 'app.html')
-  const appTemplate = await readTemplate(templatePath)
-
+  const appTemplate = compile(appTemplateContent)
   const baseRouter = createRouter()
 
   return async function renderMiddleware (request, response, next) {

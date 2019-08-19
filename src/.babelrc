@@ -10,6 +10,6 @@
     "@babel/preset-react"
   ],
   "plugins": [
-    "babel-plugin-universal-import"
+    "universal-import"
   ]
 }
