@@ -4,9 +4,9 @@
 require('@babel/register')
 const {resolve} = require('path')
 
-const {main} = require('../artifacts/build/server/main.js')
+const {main} = require('../src/server/main.js')
 
-const rootPath = resolve(__dirname, '../artifacts/build/client')
+const rootPath = resolve(__dirname, '../artifacts/build/production')
 
 main(rootPath).catch(error => {
   console.error(error)

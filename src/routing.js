@@ -17,9 +17,9 @@ export function createRouter () {
   return router
 }
 
-export function startRouter (router, url) {
+export function startRouter (router, state) {
   return new Promise((resolve, reject) => {
-    router.start(url, (error, state) => {
+    router.start(state, (error, state) => {
       error ? reject(error) : resolve(state)
     })
   })

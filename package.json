@@ -1,11 +1,11 @@
 {
   "private": true,
   "scripts": {
-    "analyze": "yarn build && webpack-bundle-analyzer --mode static --no-open --report artifacts/build/release.analyze.html artifacts/build/stats.json artifacts/build/client",
-    "analyze-open": "open artifacts/build/release.analyze.html",
+    "analyze": "webpack-bundle-analyzer --mode static --no-open --report artifacts/build/production.analyze.html artifacts/build/production/web/.stats.json artifacts/build/production/web",
+    "analyze-open": "open artifacts/build/production.analyze.html",
     "build": "NODE_ENV=production webpack -p",
     "lint": "eslint --fix .",
-    "start": "yarn build && bin/run"
+    "start": "yarn build && NODE_ENV=production bin/run"
   },
   "engines": {
     "node": "^12"
@@ -15,20 +15,22 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.5.5",
+    "@loadable/babel-plugin": "^5.10.0",
+    "@loadable/component": "^5.10.2",
+    "@loadable/server": "^5.10.2",
+    "@loadable/webpack-plugin": "^5.7.1",
     "babel-loader": "^8.0.6",
-    "babel-plugin-universal-import": "^4.0.0",
     "clean-webpack-plugin": "^3.0.0",
     "core-js": "^3.2.1",
     "css-loader": "^3.2.0",
     "ejs": "^2.6.2",
-    "extract-css-chunks-webpack-plugin": "^4.6.0",
     "fastify": "^2.7.1",
     "fastify-static": "^2.5.0",
     "html-loader": "^0.5.5",
+    "mini-css-extract-plugin": "^0.8.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-router5": "^7.1.0",
-    "react-universal-component": "^4.0.0",
     "router5": "^7.0.2",
     "router5-helpers": "^7.0.1",
     "router5-plugin-browser": "^7.0.2",
@@ -36,7 +38,6 @@
     "terser-webpack-plugin": "^1.4.1",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.6",
-    "webpack-flush-chunks": "^2.0.3",
     "webpack-node-externals": "^1.7.2"
   },
   "devDependencies": {

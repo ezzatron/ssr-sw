@@ -1,23 +1,21 @@
-import flushChunks from 'webpack-flush-chunks'
-import {clearChunks, flushChunkNames} from 'react-universal-component/server'
+import {ChunkExtractor} from '@loadable/server'
 import {cloneRouter, constants as routerConstants} from 'router5'
 import {compile} from 'ejs'
 import {renderToString} from 'react-dom/server'
 import {resolve} from 'path'
 
-import App from '../client/component/App.js'
-import appTemplateContent from './app.html'
 import {createRouter, startRouter} from '../routing.js'
 import {readFile} from './fs.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
 export async function createRenderMiddleware (rootPath) {
-  const webpackStatsPath = resolve(rootPath, '.stats.json')
-  const webpackStats = JSON.parse(await readFile(webpackStatsPath))
-  const {publicPath: webpackPublicPath} = webpackStats
+  const nodeStatsPath = resolve(rootPath, 'node/.loadable-stats.json')
+  const webStatsPath = resolve(rootPath, 'web/.loadable-stats.json')
 
-  const appTemplate = compile(appTemplateContent)
+  const appTemplatePath = resolve(__dirname, 'app.html')
+  const appTemplateContent = await readFile(appTemplatePath)
+  const appTemplate = compile(appTemplateContent.toString(), {filename: appTemplatePath})
   const baseRouter = createRouter()
 
   return async function renderMiddleware (request, response, next) {
@@ -45,36 +43,45 @@ export async function createRenderMiddleware (rootPath) {
       return
     }
 
+    const nodeExtractor = new ChunkExtractor({statsFile: nodeStatsPath})
+    const webExtractor = new ChunkExtractor({statsFile: webStatsPath})
+
+    const {default: App} = nodeExtractor.requireEntrypoint()
+
     const props = {
       router,
     }
 
-    clearChunks()
-    const app = renderToString(App(props))
-    const chunkNames = flushChunkNames()
+    const jsx = webExtractor.collectChunks(App(props))
+    const appHtml = renderToString(jsx)
+    const linkElements = webExtractor.getLinkElements()
+    const scriptTags = webExtractor.getScriptTags()
+    const styleTags = webExtractor.getStyleTags()
 
-    const {
-      js,
-      scripts,
-      styles,
-      stylesheets,
-    } = flushChunks(webpackStats, {chunkNames})
+    const appState = {
+      router: routerState,
+    }
 
-    const html = appTemplate({app, js, routerState, styles})
+    const html = appTemplate({
+      appHtml,
+      appState,
+      scriptTags,
+      styleTags,
+    })
 
-    response.setHeader('content-type', 'text/html')
-    response.setHeader('content-length', html.length)
+    response.setHeader('Content-Type', 'text/html')
+    response.setHeader('Content-Length', html.length)
 
-    const pushAssets = []
-      .concat(stylesheets.map(asset => [asset, 'style']))
-      .concat(scripts.map(asset => [asset, 'script']))
+    if (linkElements.length > 0) {
+      const linkHeaderValue = linkElements
+        .map(linkElement => {
+          const {props: {as: type, href, rel}} = linkElement
 
-    if (pushAssets.length > 0) {
-      const linkHeaderValue = pushAssets
-        .map(([asset, type]) => `<${webpackPublicPath}${asset}>; rel=preload; as=${type}`)
+          return `<${href}>; rel=${rel}; as=${type}`
+        })
         .join(', ')
 
-      response.setHeader('link', linkHeaderValue)
+      response.setHeader('Link', linkHeaderValue)
     }
 
     response.end(html)

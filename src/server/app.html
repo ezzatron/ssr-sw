@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<%- styles %>
+<%- styleTags %>
 </head>
 <body>
-<div id="root"><%- app %></div>
-<script>window.routerState = <%- JSON.stringify(routerState) %></script>
-<%- js %>
+<div id="root"><%- appHtml %></div>
+<script>window.appState = <%- JSON.stringify(appState) %></script>
+<%- scriptTags %>
 </body>
 </html>
