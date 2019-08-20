@@ -24,10 +24,10 @@
     "core-js": "^3.2.1",
     "css-loader": "^3.2.0",
     "ejs": "^2.6.2",
-    "fastify": "^2.7.1",
-    "fastify-static": "^2.5.0",
+    "express": "^4.17.1",
     "html-loader": "^0.5.5",
     "mini-css-extract-plugin": "^0.8.0",
+    "morgan": "^1.9.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-router5": "^7.1.0",
@@ -38,7 +38,8 @@
     "terser-webpack-plugin": "^1.4.1",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.6",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^1.7.2",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.2",

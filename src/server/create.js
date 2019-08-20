@@ -1,21 +1,23 @@
-import fastify from 'fastify'
-import fastifyStatic from 'fastify-static'
+import express from 'express'
+import morgan from 'morgan'
+import {createServer} from 'http'
 import {resolve} from 'path'
 
 import {createRenderMiddleware, createUseAsync} from './middleware.js'
 
-export async function createServer (rootPath) {
-  const app = fastify({
-    logger: true,
-  })
-  const use = createUseAsync(app)
-
+export async function createAppServer (rootPath) {
   const webPath = resolve(rootPath, 'web')
-  app.register(fastifyStatic, {
-    root: webPath,
-  })
 
-  use(await createRenderMiddleware(rootPath))
+  const app = express()
+  const server = createServer(app)
+  const useAsync = createUseAsync(app)
 
-  return app
+  app.use(morgan('tiny'))
+  app.use(express.static(webPath))
+  useAsync(await createRenderMiddleware(rootPath))
+
+  app.set('trust proxy', true)
+  app.set('x-powered-by', false)
+
+  return {app, server}
 }
