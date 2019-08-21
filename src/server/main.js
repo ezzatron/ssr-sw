@@ -2,7 +2,10 @@ import {createAppServer} from './create.js'
 import {createLogger} from './logging.js'
 import {listen} from './net.js'
 
-export async function main (rootPath) {
+export async function main (services) {
+  const {process: {argv}} = services
+  const [,, rootPath] = argv
+
   if (!rootPath) throw new Error('Root path not specified')
 
   const logger = createLogger()

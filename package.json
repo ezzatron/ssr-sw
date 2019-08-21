@@ -5,7 +5,7 @@
     "analyze-open": "open artifacts/build/production.analyze.html",
     "build": "NODE_ENV=production webpack -p",
     "lint": "eslint --fix .",
-    "start": "yarn build && NODE_ENV=production bin/run"
+    "start": "NODE_ENV=production bin/run artifacts/build/production"
   },
   "engines": {
     "node": "^12"

@@ -2,13 +2,4 @@
 /* eslint-disable import/no-commonjs */
 
 require('@babel/register')
-const {resolve} = require('path')
-
-const {main} = require('../src/server/main.js')
-
-const rootPath = resolve(__dirname, '../artifacts/build/production')
-
-main(rootPath).catch(error => {
-  console.error(error)
-  process.exit(1)
-})
+require('../src/server/run.js')
