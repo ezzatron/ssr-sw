@@ -1,5 +1,6 @@
 import nodeExternals from 'webpack-node-externals'
-import {optimize} from 'webpack'
+import StartServerPlugin from 'start-server-webpack-plugin'
+import {HotModuleReplacementPlugin, optimize} from 'webpack'
 import {resolve} from 'path'
 
 export default (_, {mode = 'development'} = {}) => {
@@ -7,10 +8,18 @@ export default (_, {mode = 'development'} = {}) => {
 
   return {
     mode,
+    watch: true,
     target: 'node',
     devtool: 'source-map',
-    entry: './src/server/main.js',
-    externals: [nodeExternals()],
+    entry: [
+      'webpack/hot/signal',
+      './src/server/main.js',
+    ],
+    externals: [
+      nodeExternals({
+        whitelist: ['webpack/hot/signal']
+      }),
+    ],
     output: {
       filename: 'main.js',
       libraryTarget: 'commonjs2',
@@ -18,7 +27,14 @@ export default (_, {mode = 'development'} = {}) => {
       publicPath: '/',
     },
     plugins: [
+      new HotModuleReplacementPlugin(),
       new optimize.LimitChunkCountPlugin({maxChunks: 1}),
+      new StartServerPlugin({
+        keyboard: true,
+        name: 'main.js',
+        nodeArgs: ['--inspect'],
+        signal: true,
+      }),
     ],
     optimization: {
       minimizer: [],
