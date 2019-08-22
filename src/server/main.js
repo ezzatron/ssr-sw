@@ -1,19 +1,20 @@
 import {createServer} from 'http'
 
+let {createApp} = require('./app.js')
+
 const sockets = new Set()
 let close, server
 
-async function start () {
-  let createApp
+restartSync()
 
-  try {
-    ({createApp} = require('./app.js'))
-  } catch (error) {
-    console.error('Refusing to restart server because: ', error)
+function restartSync() {
+  restart().then(
+    () => {},
+    error => { console.error(error) },
+  )
+}
 
-    return
-  }
-
+async function restart () {
   if (close) {
     await close()
     close = null
@@ -51,15 +52,13 @@ async function start () {
   })
 }
 
-function startSync() {
-  start().then(
-    () => {},
-    error => { console.error(error) },
-  )
-}
-
-startSync()
-
 if (module.hot) {
-  module.hot.accept('./app.js', () => { startSync() })
+  module.hot.accept('./app.js', () => {
+    try {
+      ({createApp} = require('./app.js'))
+      restartSync()
+    } catch (error) {
+      console.error('[HMR] Hot update could not be applied due to error')
+    }
+  })
 }
