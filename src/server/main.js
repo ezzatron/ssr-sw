@@ -24,6 +24,14 @@ function start () {
   })
 }
 
+function replaceLogger () {
+  logger.info('[HMR] Replacing logger')
+
+  logger = createLogger()
+
+  logger.info('[HMR] Logger replaced')
+}
+
 function replaceApp () {
   logger.info('[HMR] Removing current app')
 
@@ -56,6 +64,18 @@ function replaceServer () {
 }
 
 if (module.hot) {
+  module.hot.accept('./logging.js', () => {
+    try {
+      ({createLogger} = require('./logging.js'))
+    } catch (error) {
+      logger.error('[HMR] Logger could not be replaced due to an error')
+
+      return
+    }
+
+    replaceLogger()
+  })
+
   module.hot.accept('./app.js', () => {
     try {
       ({createApp} = require('./app.js'))
