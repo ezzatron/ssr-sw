@@ -1,7 +1,5 @@
 import {createServer} from 'http'
 
-// import {createApp} from './app.js'
-
 const sockets = new Set()
 let close, server
 
@@ -51,11 +49,5 @@ function startSync() {
 startSync()
 
 if (module.hot) {
-  console.log('Yup, we hot')
-
-  module.hot.accept('./app.js', () => {
-    console.log('Got hotter')
-
-    startSync()
-  })
+  module.hot.accept('./app.js', () => { startSync() })
 }
