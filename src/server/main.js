@@ -1,64 +1,82 @@
-import {createServer} from 'http'
-
 let {createApp} = require('./app.js')
+let {createLogger} = require('./logging.js')
+let {createServer, startServer} = require('./server.js')
 
-const sockets = new Set()
-let close, server
-
-restartSync()
-
-function restartSync() {
-  restart().then(
-    () => {},
-    error => { console.error(error) },
-  )
+const listenOptions = {
+  host: '0.0.0.0',
+  port: 8080,
+  url: 'http://localhost:8080/',
 }
 
-async function restart () {
-  if (close) {
-    await close()
-    close = null
-  }
+let server, stopServer
+let isServerStopping = false
+let logger = createLogger()
+let app = createApp()
 
-  const app = createApp()
-  server = createServer(app)
+start()
 
-  function handleConnection (socket) {
-    sockets.add(socket)
-  }
+function start () {
+  server = createServer()
+  server.on('request', app)
 
-  server.on('connection', handleConnection)
-  server.once('close', () => { server.removeListener('connection', handleConnection) })
-
-  close = async () => {
-    if (!server.listening) {
-      await new Promise(resolve => {
-        server.once('listening', resolve)
-      })
-    }
-
-    sockets.forEach(socket => {
-      socket.destroy()
-      sockets.delete(socket)
-    })
-
-    return new Promise((resolve, reject) => {
-      server.close(error => { error ? reject(error) : resolve() })
-    })
-  }
-
-  server.listen(8080, '0.0.0.0', () => {
-    console.log('listening at http://127.0.0.1:8080/')
+  stopServer = startServer(server, listenOptions, () => {
+    logger.info(`Listening at ${listenOptions.url}`)
   })
+}
+
+function replaceApp () {
+  logger.info('[HMR] Removing current app')
+
+  server.removeListener('request', app)
+
+  logger.info('[HMR] Adding new app')
+
+  app = createApp()
+  server.on('request', app)
+}
+
+function replaceServer () {
+  if (isServerStopping) return
+
+  logger.info('[HMR] Stopping current server')
+
+  isServerStopping = true
+
+  stopServer()
+    .then(() => {
+      stopServer = null
+
+      logger.info('[HMR] Starting new server')
+
+      start()
+    })
+    .finally(() => {
+      isServerStopping = false
+    })
 }
 
 if (module.hot) {
   module.hot.accept('./app.js', () => {
     try {
       ({createApp} = require('./app.js'))
-      restartSync()
     } catch (error) {
-      console.error('[HMR] Hot update could not be applied due to error')
+      logger.error('[HMR] App could not be replaced due to an error')
+
+      return
     }
+
+    replaceApp()
+  })
+
+  module.hot.accept('./server.js', () => {
+    try {
+      ({createServer, startServer} = require('./server.js'))
+    } catch (error) {
+      logger.error('[HMR] Server could not be replaced due to an error')
+
+      return
+    }
+
+    replaceServer()
   })
 }
