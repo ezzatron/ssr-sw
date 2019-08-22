@@ -1,12 +1,18 @@
 {
   "private": true,
-  "scripts": {
-  },
+  "scripts": {},
   "engines": {
     "node": "^12"
   },
   "dependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "express": "^4.17.1",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7",
+    "webpack-node-externals": "^1.7.2"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
