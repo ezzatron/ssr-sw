@@ -4,9 +4,21 @@ const sockets = new Set()
 let close, server
 
 async function start () {
-  if (close) await close()
+  let createApp
 
-  const {createApp} = require('./app.js')
+  try {
+    ({createApp} = require('./app.js'))
+  } catch (error) {
+    console.error('Refusing to restart server because: ', error)
+
+    return
+  }
+
+  if (close) {
+    await close()
+    close = null
+  }
+
   const app = createApp()
   server = createServer(app)
 
