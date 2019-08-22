@@ -9,6 +9,9 @@ export default (_, {mode = 'development'} = {}) => {
   return {
     mode,
     watch: true,
+    watchOptions: {
+      ignored: /\/node_modules\//,
+    },
     target: 'node',
     devtool: 'source-map',
     entry: [
