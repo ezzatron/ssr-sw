@@ -1,6 +1,4 @@
-let {createApp} = require('./app.js')
-let {createLogger} = require('./logging.js')
-let {createServer, startServer} = require('./server.js')
+import Ansi from 'ansi-to-html'
 
 const listenOptions = {
   host: '0.0.0.0',
@@ -8,20 +6,100 @@ const listenOptions = {
   url: 'http://localhost:8080/',
 }
 
-let server, stopServer
+const errors = {
+  app: null,
+  loggger: null,
+  server: null,
+}
+
+let app, logger, createApp, createLogger, createServer, server, startServer, stop
 let isServerStopping = false
-let logger = createLogger()
-let app = createApp()
+
+if (module.hot) {
+  module.hot.accept('./logging.js', () => {
+    loadLogger(
+      () => {
+        logger.error('[HMR] Logger could not be replaced due to an error')
+      },
+      replaceLogger,
+    )
+  })
+
+  module.hot.accept('./app.js', () => {
+    loadApp(
+      () => {
+        logger.error('[HMR] App could not be replaced due to an error')
+      },
+      replaceApp,
+    )
+  })
+
+  module.hot.accept('./server.js', () => {
+    loadServer(
+      () => {
+        logger.error('[HMR] Server could not be replaced due to an error')
+      },
+      replaceServer,
+    )
+  })
+}
+
+loadLogger(
+  error => { die(error.stack) },
+  () => { logger = createLogger() }
+)
+loadServer(
+  error => { die(error.stack) }
+)
+loadApp(
+  null,
+  () => { app = createApp() }
+)
 
 start()
 
 function start () {
-  server = createServer()
-  server.on('request', app)
+  const ansi = new Ansi()
 
-  stopServer = startServer(server, listenOptions, () => {
+  function handleRequest (request, response) {
+    const {
+      app: appError,
+      loggger: loggerError,
+      server: serverError,
+    } = errors
+
+    const error = loggerError || serverError || appError
+
+    if (error) {
+      const style = '<style>body { font-size: 16px; background-color: #222; color: #EEE; }</style>'
+      const head = `<head><title>Error</title>${style}</head>`
+      const body = `<body><pre><code>${ansi.toHtml(error.message)}</code></pre></body>`
+      const html = `<html>${head}${body}</html>`
+
+      response.writeHead(500, 'Internal Server Error', {
+        'Content-Length': html.length,
+        'Content-Type': 'text/html',
+      })
+      response.end(html)
+
+      return
+    }
+
+    app(request, response)
+  }
+
+  server = createServer()
+  server.on('request', handleRequest)
+
+  const stopServer = startServer(server, listenOptions, () => {
     logger.info(`Listening at ${listenOptions.url}`)
   })
+
+  stop = async () => {
+    server.removeListener('request', handleRequest)
+
+    return stopServer()
+  }
 }
 
 function replaceLogger () {
@@ -33,14 +111,9 @@ function replaceLogger () {
 }
 
 function replaceApp () {
-  logger.info('[HMR] Removing current app')
-
-  server.removeListener('request', app)
-
-  logger.info('[HMR] Adding new app')
+  logger.info('[HMR] Replacing app')
 
   app = createApp()
-  server.on('request', app)
 }
 
 function replaceServer () {
@@ -50,9 +123,9 @@ function replaceServer () {
 
   isServerStopping = true
 
-  stopServer()
+  stop()
     .then(() => {
-      stopServer = null
+      stop = null
 
       logger.info('[HMR] Starting new server')
 
@@ -63,40 +136,47 @@ function replaceServer () {
     })
 }
 
-if (module.hot) {
-  module.hot.accept('./logging.js', () => {
-    try {
-      ({createLogger} = require('./logging.js'))
-    } catch (error) {
-      logger.error('[HMR] Logger could not be replaced due to an error')
+function loadLogger (onError, onSuccess) {
+  try {
+    const result = require('./logging.js')
+    errors.logger = null
+    createLogger = result.createLogger
 
-      return
-    }
+    onSuccess && onSuccess(result)
+  } catch (error) {
+    errors.logger = error
+    onError && onError(error)
+  }
+}
 
-    replaceLogger()
-  })
+function loadApp (onError, onSuccess) {
+  try {
+    const result = require('./app.js')
+    errors.app = null
+    createApp = result.createApp
 
-  module.hot.accept('./app.js', () => {
-    try {
-      ({createApp} = require('./app.js'))
-    } catch (error) {
-      logger.error('[HMR] App could not be replaced due to an error')
+    onSuccess && onSuccess(result)
+  } catch (error) {
+    errors.app = error
+    onError && onError(error)
+  }
+}
 
-      return
-    }
+function loadServer (onError, onSuccess) {
+  try {
+    const result = require('./server.js')
+    errors.server = null
+    createServer = result.createServer
+    startServer = result.startServer
 
-    replaceApp()
-  })
+    onSuccess && onSuccess(result)
+  } catch (error) {
+    errors.server = error
+    onError && onError(error)
+  }
+}
 
-  module.hot.accept('./server.js', () => {
-    try {
-      ({createServer, startServer} = require('./server.js'))
-    } catch (error) {
-      logger.error('[HMR] Server could not be replaced due to an error')
-
-      return
-    }
-
-    replaceServer()
-  })
+function die (message) {
+  console.log(message)
+  process.exit(1)
 }
