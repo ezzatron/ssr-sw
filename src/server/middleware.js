@@ -6,49 +6,11 @@ import {resolve} from 'path'
 
 import App from '../client/component/App.js'
 import appTemplate from './main.ejs.html'
-import {createRouter, startRouter} from '../routing.js'
+import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
-export function createServerMiddleware (options) {
-  const baseRouter = createRouter()
-  const renderMiddleware = createRenderMiddleware(options)
-
-  return async function serverMiddleware (request, response, next) {
-    const router = cloneRouter(baseRouter)
-    const routerState = await startRouter(router, request.originalUrl)
-
-    const {
-      name: routeName,
-      params: routerParams,
-      meta: {
-        options: {
-          redirected: isRedirect,
-        } = {},
-      } = {},
-    } = routerState
-
-    if (routeName === UNKNOWN_ROUTE) return next()
-
-    if (isRedirect) {
-      response.writeHead(302, {
-        location: router.buildPath(routeName, routerParams),
-      })
-      response.end()
-
-      return
-    }
-
-    request.router = router
-    request.routerState = routerState
-
-    renderMiddleware(request, response, next)
-  }
-}
-
-function createRenderMiddleware (options) {
-  const {clientStats} = options
-
+export function createRenderMiddleware (clientStats) {
   return async function renderMiddleware (request, response, next) {
     const {router, routerState} = request
 
@@ -90,5 +52,29 @@ function createRenderMiddleware (options) {
     }
 
     response.end(html)
+  }
+}
+
+export function createRouterMiddleware (baseRouter) {
+  return async function routerMiddleware (request, response, next) {
+    const router = request.router = cloneRouter(baseRouter)
+    const routerState = request.routerState = await startRouter(router, request.originalUrl)
+
+    const {
+      name: routeName,
+      params: routerParams,
+      meta: {
+        options: {
+          redirected: isRedirect,
+        } = {},
+      } = {},
+    } = routerState
+
+    if (routeName === UNKNOWN_ROUTE || !isRedirect) return next()
+
+    response.writeHead(302, {
+      location: router.buildPath(routeName, routerParams),
+    })
+    response.end()
   }
 }
