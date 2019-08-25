@@ -35,6 +35,8 @@ export function createServerMiddleware (options) {
         location: router.buildPath(routeName, routerParams),
       })
       response.end()
+
+      return
     }
 
     request.router = router
