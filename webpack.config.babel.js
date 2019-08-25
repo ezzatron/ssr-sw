@@ -44,31 +44,6 @@ export default (_, {mode = 'development'}) => {
       filename: jsFilename,
       publicPath: '/',
     },
-    module: {
-      rules: [
-        {
-          test: /\.css$/,
-          include: [srcPath],
-          use: [
-            {
-              loader: MiniCssExtractPlugin.loader,
-              options: {
-                hmr: !isProduction,
-              },
-            },
-            {
-              loader: 'css-loader',
-              options: {
-                modules: {
-                  localIdentName: '[name]__[local]--[hash:base64:5]',
-                },
-                sourceMap: true,
-              },
-            },
-          ],
-        },
-      ],
-    },
   }
 
   function createJsRule (target) {
@@ -83,6 +58,30 @@ export default (_, {mode = 'development'}) => {
           },
         },
       },
+    }
+  }
+
+  function createCssRule (target) {
+    return {
+      test: /\.css$/,
+      include: [srcPath],
+      use: [
+        {
+          loader: MiniCssExtractPlugin.loader,
+          options: {
+            hmr: !isProduction && target === 'client',
+          },
+        },
+        {
+          loader: 'css-loader',
+          options: {
+            modules: {
+              localIdentName: '[name]__[local]--[hash:base64:5]',
+            },
+            sourceMap: true,
+          },
+        },
+      ],
     }
   }
 
@@ -107,12 +106,9 @@ export default (_, {mode = 'development'}) => {
     },
     plugins: createPlugins(),
     module: {
-      ...common.module,
-
       rules: [
-        ...common.module.rules,
-
         createJsRule('client'),
+        createCssRule('client'),
       ],
     },
   }
@@ -141,12 +137,9 @@ export default (_, {mode = 'development'}) => {
       }),
     ),
     module: {
-      ...common.module,
-
       rules: [
-        ...common.module.rules,
-
         createJsRule('server'),
+        createCssRule('server'),
 
         {
           test: /\.ejs\.html$/,
