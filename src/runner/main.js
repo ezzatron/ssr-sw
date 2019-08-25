@@ -7,12 +7,16 @@ import webpackHotServerMiddleware from 'webpack-hot-server-middleware'
 import createConfig from '../../webpack.config.babel.js'
 
 const config = createConfig(null, {mode: 'development'})
+const clientConfig = config.find(({name}) => name === 'client')
 const compiler = webpack(config)
 const clientComiler = compiler.compilers.find(({name}) => name === 'client')
+
+const {output: {publicPath}} = clientConfig
 
 const app = express()
 
 app.use(webpackDevMiddleware(compiler, {
+  publicPath,
   serverSideRender: true,
 }))
 app.use(webpackHotMiddleware(clientComiler))
