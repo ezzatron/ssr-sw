@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+<%- styleTags %>
+</head>
+<body>
+<div id="root"><%- appHtml %></div>
+<script>window.appState = <%- JSON.stringify(appState) %></script>
+<%- scriptTags %>
+</body>
+</html>

@@ -1,0 +1,12 @@
+.nav > ul {
+  padding: 0;
+}
+
+.nav > ul > li {
+  display: inline;
+  padding: .2em .5em;
+  margin-right: .5em;
+  list-style-type: none;
+  background-color: #EEE;
+  border: 1px solid #CCC;
+}
