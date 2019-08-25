@@ -13,6 +13,9 @@ const {UNKNOWN_ROUTE} = routerConstants
 export function createRenderMiddleware (clientStats) {
   return async function renderMiddleware (request, response, next) {
     const {router, routerState} = request
+    const {name: routeName} = routerState
+
+    if (routeName === UNKNOWN_ROUTE) return next()
 
     const props = {
       router,
@@ -70,7 +73,7 @@ export function createRouterMiddleware (baseRouter) {
       } = {},
     } = routerState
 
-    if (routeName === UNKNOWN_ROUTE || !isRedirect) return next()
+    if (!isRedirect) return next()
 
     response.writeHead(302, {
       location: router.buildPath(routeName, routerParams),
