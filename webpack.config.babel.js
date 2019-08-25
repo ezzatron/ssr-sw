@@ -1,3 +1,4 @@
+import LoadablePlugin from '@loadable/webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import nodeExternals from 'webpack-node-externals'
 import StatsPlugin from 'stats-webpack-plugin'
@@ -26,6 +27,9 @@ export default (_, {mode = 'development'}) => {
     },
     plugins: [
       new CleanPlugin(),
+      new LoadablePlugin({
+        filename: '.loadable-stats.json',
+      }),
       new MiniCssExtractPlugin({
         filename: cssFilename,
       }),
