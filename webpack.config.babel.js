@@ -105,6 +105,11 @@ export default (_, {mode = 'development'}) => {
       path: resolve(buildPath, 'client'),
     },
     plugins: createPlugins(),
+    resolve: {
+      alias: {
+        'react-dom': '@hot-loader/react-dom',
+      },
+    },
     module: {
       rules: [
         createJsRule('client'),
