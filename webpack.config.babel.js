@@ -3,7 +3,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import nodeExternals from 'webpack-node-externals'
 import StatsPlugin from 'stats-webpack-plugin'
 import {CleanWebpackPlugin as CleanPlugin} from 'clean-webpack-plugin'
-import {optimize} from 'webpack'
+import {HotModuleReplacementPlugin, optimize} from 'webpack'
 import {resolve} from 'path'
 
 const {LimitChunkCountPlugin} = optimize
@@ -18,14 +18,8 @@ export default (_, {mode = 'development'}) => {
   const jsFilename = isProduction ? '[name].[contenthash].js' : '[name].js'
   const cssFilename = isProduction ? '[name].[contenthash].css' : '[name].css'
 
-  const common = {
-    mode,
-    devtool: 'source-map',
-    output: {
-      filename: jsFilename,
-      publicPath: '/',
-    },
-    plugins: [
+  function createPlugins (...extraPlugins) {
+    const plugins = [
       new CleanPlugin(),
       new LoadablePlugin({
         filename: '.loadable-stats.json',
@@ -34,7 +28,22 @@ export default (_, {mode = 'development'}) => {
         filename: cssFilename,
       }),
       new StatsPlugin('.stats.json'),
-    ],
+
+      ...extraPlugins,
+    ]
+
+    if (!isProduction) plugins.push(new HotModuleReplacementPlugin())
+
+    return plugins
+  }
+
+  const common = {
+    mode,
+    devtool: 'source-map',
+    output: {
+      filename: jsFilename,
+      publicPath: '/',
+    },
     module: {
       rules: [
         {
@@ -43,6 +52,9 @@ export default (_, {mode = 'development'}) => {
           use: [
             {
               loader: MiniCssExtractPlugin.loader,
+              options: {
+                hmr: !isProduction,
+              },
             },
             {
               loader: 'css-loader',
@@ -74,19 +86,20 @@ export default (_, {mode = 'development'}) => {
     }
   }
 
+  const clientEntry = ['./src/client/main.js']
+  if (!isProduction) clientEntry.push('webpack-hot-middleware/client')
+
   const client = {
     ...common,
 
     name: 'client',
-    entry: './src/client/main.js',
+    entry: clientEntry,
     output: {
       ...common.output,
 
       path: resolve(buildPath, 'client'),
     },
-    plugins: [
-      ...common.plugins,
-    ],
+    plugins: createPlugins(),
     module: {
       ...common.module,
 
@@ -116,13 +129,11 @@ export default (_, {mode = 'development'}) => {
     optimization: {
       minimize: false,
     },
-    plugins: [
-      ...common.plugins,
-
+    plugins: createPlugins(
       new LimitChunkCountPlugin({
         maxChunks: 1,
       }),
-    ],
+    ),
     module: {
       ...common.module,
 
