@@ -86,14 +86,20 @@ export default (_, {mode = 'development'}) => {
     }
   }
 
-  const clientEntry = ['./src/client/main.js']
-  if (!isProduction) clientEntry.push('webpack-hot-middleware/client')
+  const extraClientEntry = isProduction ? [] : [
+    'react-hot-loader/patch',
+    'webpack-hot-middleware/client',
+  ]
 
   const client = {
     ...common,
 
     name: 'client',
-    entry: clientEntry,
+    entry: [
+      ...extraClientEntry,
+
+      './src/client/main.js',
+    ],
     output: {
       ...common.output,
 

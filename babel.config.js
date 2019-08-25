@@ -7,6 +7,7 @@ module.exports = api => {
   return {
     plugins: [
       '@loadable/babel-plugin',
+      'react-hot-loader/babel',
     ],
     presets: [
       '@babel/preset-react',
