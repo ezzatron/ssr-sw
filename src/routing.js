@@ -6,6 +6,7 @@ const routes = [
 
   {name: 'bar', path: '/bar'},
   {name: 'foo', path: '/foo'},
+  {name: 'no-component', path: '/no-component'},
 ]
 
 export function createRouter () {
