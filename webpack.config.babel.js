@@ -15,17 +15,11 @@ export default (_, {mode = 'development'}) => {
   const srcPath = resolve(rootPath, 'src')
   const buildPath = resolve(rootPath, 'artifacts/build', mode)
 
-  const jsFilename = isProduction ? '[name].[contenthash].js' : '[name].js'
-  const cssFilename = isProduction ? '[name].[contenthash].css' : '[name].css'
-
   function createPlugins (...extraPlugins) {
     const plugins = [
       new CleanPlugin(),
       new LoadablePlugin({
         filename: '.loadable-stats.json',
-      }),
-      new MiniCssExtractPlugin({
-        filename: cssFilename,
       }),
       new StatsPlugin('.stats.json'),
 
@@ -35,15 +29,6 @@ export default (_, {mode = 'development'}) => {
     if (!isProduction) plugins.push(new HotModuleReplacementPlugin())
 
     return plugins
-  }
-
-  const common = {
-    mode,
-    devtool: 'source-map',
-    output: {
-      filename: jsFilename,
-      publicPath: '/',
-    },
   }
 
   function createJsRule (target) {
@@ -89,22 +74,28 @@ export default (_, {mode = 'development'}) => {
     'react-hot-loader/patch',
     'webpack-hot-middleware/client',
   ]
+  const jsFilename = isProduction ? '[name].[contenthash].js' : '[name].js'
+  const cssFilename = isProduction ? '[name].[contenthash].css' : '[name].css'
 
   const client = {
-    ...common,
-
     name: 'client',
+    mode,
+    devtool: 'source-map',
     entry: [
       ...extraClientEntry,
 
       './src/client/main.js',
     ],
     output: {
-      ...common.output,
-
+      filename: jsFilename,
       path: resolve(buildPath, 'client'),
+      publicPath: '/',
     },
-    plugins: createPlugins(),
+    plugins: createPlugins(
+      new MiniCssExtractPlugin({
+        filename: cssFilename,
+      }),
+    ),
     resolve: {
       alias: {
         'react-dom': '@hot-loader/react-dom',
@@ -119,24 +110,27 @@ export default (_, {mode = 'development'}) => {
   }
 
   const server = {
-    ...common,
-
     name: 'server',
+    mode,
+    devtool: 'source-map',
     target: 'node',
     entry: './src/server/main.js',
     externals: [
       nodeExternals(),
     ],
     output: {
-      ...common.output,
-
+      filename: '[name].js',
       libraryTarget: 'commonjs2',
       path: resolve(buildPath, 'server'),
+      publicPath: '/',
     },
     optimization: {
       minimize: false,
     },
     plugins: createPlugins(
+      new MiniCssExtractPlugin({
+        filename: '[name].css',
+      }),
       new LimitChunkCountPlugin({
         maxChunks: 1,
       }),
