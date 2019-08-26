@@ -1,6 +1,10 @@
 {
   "private": true,
   "scripts": {
+    "analyze": "webpack-bundle-analyzer --mode static --no-open --report artifacts/analyze/client.html artifacts/build/production/client/.stats.json artifacts/build/production/client",
+    "analyze:open": "open artifacts/analyze/client.html",
+    "analyze:server": "webpack-bundle-analyzer --mode static --no-open --report artifacts/analyze/server.html artifacts/build/production/server/.stats.json artifacts/build/production/server",
+    "analyze:server:open": "open artifacts/analyze/server.html",
     "build": "NODE_ENV=production webpack -p",
     "lint": "eslint --cache --cache-location artifacts/.eslintcache --fix .",
     "start": "node --inspect src/runner/dev.js",
@@ -48,6 +52,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-standard": "^4.0.1",
+    "webpack-bundle-analyzer": "^3.4.1",
     "webpack-cli": "^3.3.7",
     "webpack-dev-middleware": "^3.7.0",
     "webpack-hot-middleware": "^2.25.0",
