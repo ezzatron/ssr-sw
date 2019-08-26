@@ -15,6 +15,10 @@ module.exports = (_, {mode = 'development'}) => {
   const srcPath = resolve(rootPath, 'src')
   const buildPath = resolve(rootPath, 'artifacts/build', mode)
 
+  const jsFilename = isProduction ? '[name].[contenthash].js' : '[name].js'
+  const cssFilename = isProduction ? '[name].[contenthash].css' : '[name].css'
+  const fileFilename = isProduction ? '[path][name].[contenthash].[ext]' : '[path][name].[ext]'
+
   function createPlugins (...extraPlugins) {
     const plugins = [
       new CleanPlugin(),
@@ -77,12 +81,28 @@ module.exports = (_, {mode = 'development'}) => {
     }
   }
 
+  function createImageRule (target) {
+    const isClient = target === 'client'
+
+    return {
+      test: /\.(gif|jpg|png)$/,
+      include: [srcPath],
+      use: [
+        {
+          loader: 'file-loader',
+          options: {
+            emitFile: isClient,
+            name: fileFilename,
+          },
+        },
+      ],
+    }
+  }
+
   const extraClientEntry = isProduction ? [] : [
     'react-hot-loader/patch',
     'webpack-hot-middleware/client',
   ]
-  const jsFilename = isProduction ? '[name].[contenthash].js' : '[name].js'
-  const cssFilename = isProduction ? '[name].[contenthash].css' : '[name].css'
 
   const client = {
     name: 'client',
@@ -112,6 +132,7 @@ module.exports = (_, {mode = 'development'}) => {
       rules: [
         createJsRule('client'),
         createCssRule('client'),
+        createImageRule('client'),
       ],
     },
   }
@@ -126,7 +147,7 @@ module.exports = (_, {mode = 'development'}) => {
       nodeExternals(),
     ],
     output: {
-      filename: '[name].js',
+      filename: 'main.js',
       libraryTarget: 'commonjs2',
       path: resolve(buildPath, 'server'),
       publicPath: '/',
@@ -143,6 +164,7 @@ module.exports = (_, {mode = 'development'}) => {
       rules: [
         createJsRule('server'),
         createCssRule('server'),
+        createImageRule('server'),
 
         {
           test: /\.html$/,

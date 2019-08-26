@@ -1,10 +1,10 @@
 import React from 'react'
 import {Link} from 'react-router5'
 
-import {nav as className} from './Nav.css'
+import styles from './Nav.css'
 
 export default function Nav () {
-  return <nav className={className}>
+  return <nav className={styles.nav}>
     <ul>
       <li><Link routeName='home'>Home</Link></li>
       <li><Link routeName='foo'>Foo</Link></li>
