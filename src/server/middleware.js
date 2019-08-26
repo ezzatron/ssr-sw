@@ -5,12 +5,14 @@ import {renderToString} from 'react-dom/server'
 import {resolve} from 'path'
 
 import App from '../client/component/App.js'
-import appTemplate from './main.ejs.html'
+import appTemplateContent from './main.ejs.html'
 import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
 export function createRenderMiddleware (clientStats) {
+  const appTemplate = compile(appTemplateContent)
+
   return async function renderMiddleware (request, response, next) {
     const {router, routerState} = request
     const {name: routeName} = routerState

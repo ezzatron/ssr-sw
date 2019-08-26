@@ -145,11 +145,11 @@ module.exports = (_, {mode = 'development'}) => {
         createCssRule('server'),
 
         {
-          test: /\.ejs\.html$/,
+          test: /\.html$/,
           include: [srcPath],
           use: [
             {
-              loader: 'ejs-compiled-loader',
+              loader: 'html-loader',
             },
           ],
         },
