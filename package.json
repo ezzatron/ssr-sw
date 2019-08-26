@@ -1,9 +1,10 @@
 {
   "private": true,
   "scripts": {
-    "dev": "node --inspect src/runner/dev.js",
+    "build": "NODE_ENV=production webpack -p",
     "lint": "eslint --cache --cache-location artifacts/.eslintcache --fix .",
-    "prod": "node src/runner/prod.js"
+    "start": "node --inspect src/runner/dev.js",
+    "start:prod": "NODE_ENV=production node src/runner/prod.js"
   },
   "engines": {
     "node": "^12"
