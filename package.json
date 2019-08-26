@@ -24,6 +24,7 @@
     "express": "^4.17.1",
     "html-loader": "^0.5.5",
     "mini-css-extract-plugin": "^0.8.0",
+    "morgan": "^1.9.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-hot-loader": "^4.12.11",

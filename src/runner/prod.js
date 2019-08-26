@@ -4,6 +4,7 @@ const express = require('express')
 const {join} = require('path')
 
 const createConfig = require('../../webpack.config.js')
+const {createLogMiddleware} = require('./middleware.js')
 const {readFile} = require('./fs.js')
 
 async function main () {
@@ -19,6 +20,7 @@ async function main () {
 
   const app = express()
 
+  app.use(createLogMiddleware())
   app.use(express.static(clientPath))
   app.use(createMainMiddleware({clientStats}))
 
