@@ -108,10 +108,11 @@ module.exports = (_, {mode = 'development'}) => {
     name: 'client',
     mode,
     devtool: 'source-map',
+    context: srcPath,
     entry: [
       ...extraClientEntry,
 
-      './src/client/main.js',
+      './client/main.js',
     ],
     output: {
       filename: jsFilename,
@@ -142,7 +143,8 @@ module.exports = (_, {mode = 'development'}) => {
     mode,
     devtool: 'inline-source-map',
     target: 'node',
-    entry: './src/server/main.js',
+    context: srcPath,
+    entry: './server/main.js',
     externals: [
       nodeExternals(),
     ],
