@@ -1,3 +1,5 @@
+/* eslint-disable import/no-commonjs */
+
 const morgan = require('morgan')
 
 module.exports = {

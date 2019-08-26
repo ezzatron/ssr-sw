@@ -10,8 +10,8 @@ const loadableOptions = {
   fallback: <Loading />,
 }
 
-const Bar = loadable(() => import(`./Bar.js`), loadableOptions)
-const Foo = loadable(() => import(`./Foo.js`), loadableOptions)
+const Bar = loadable(() => import('./Bar.js'), loadableOptions)
+const Foo = loadable(() => import('./Foo.js'), loadableOptions)
 
 export default function Main () {
   const {route} = useRouteNode('')

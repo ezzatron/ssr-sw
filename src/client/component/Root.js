@@ -1,11 +1,11 @@
-import React, {Fragment} from 'react'
+import React from 'react'
 
 import Main from './Main.js'
 import Nav from './Nav.js'
 
 export default function Root () {
-  return <Fragment>
+  return <>
     <Nav />
     <Main />
-  </Fragment>
+  </>
 }

@@ -2,7 +2,6 @@ import {ChunkExtractor} from '@loadable/server'
 import {cloneRouter, constants as routerConstants} from 'router5'
 import {compile} from 'ejs'
 import {renderToString} from 'react-dom/server'
-import {resolve} from 'path'
 
 import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
