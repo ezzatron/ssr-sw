@@ -112,7 +112,7 @@ module.exports = (_, {mode = 'development'}) => {
   const server = {
     name: 'server',
     mode,
-    devtool: 'source-map',
+    devtool: 'inline-source-map',
     target: 'node',
     entry: './src/server/main.js',
     externals: [
