@@ -1,6 +1,8 @@
 {
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "dev": "node --inspect --require @babel/register src/runner/dev.js"
+  },
   "engines": {
     "node": "^12"
   },
