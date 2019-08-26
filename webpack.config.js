@@ -1,14 +1,14 @@
-import LoadablePlugin from '@loadable/webpack-plugin'
-import MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import nodeExternals from 'webpack-node-externals'
-import StatsPlugin from 'stats-webpack-plugin'
-import {CleanWebpackPlugin as CleanPlugin} from 'clean-webpack-plugin'
-import {HotModuleReplacementPlugin, optimize} from 'webpack'
-import {resolve} from 'path'
+/* eslint-disable import/no-commonjs */
 
-const {LimitChunkCountPlugin} = optimize
+const LoadablePlugin = require('@loadable/webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const nodeExternals = require('webpack-node-externals')
+const StatsPlugin = require('stats-webpack-plugin')
+const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
+const {HotModuleReplacementPlugin, optimize: {LimitChunkCountPlugin}} = require('webpack')
+const {resolve} = require('path')
 
-export default (_, {mode = 'development'}) => {
+module.exports = (_, {mode = 'development'}) => {
   const isProduction = mode === 'production'
 
   const rootPath = __dirname

@@ -1,4 +1,8 @@
-import fs from 'fs'
-import {promisify} from 'util'
+/* eslint-disable import/no-commonjs */
 
-export const readFile = promisify(fs.readFile)
+const {promisify} = require('util')
+const {readFile} = require('fs')
+
+module.exports = {
+  readFile: promisify(readFile),
+}

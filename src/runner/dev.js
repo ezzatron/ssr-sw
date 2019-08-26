@@ -1,10 +1,12 @@
-import express from 'express'
-import webpack from 'webpack'
-import webpackDevMiddleware from 'webpack-dev-middleware'
-import webpackHotMiddleware from 'webpack-hot-middleware'
-import webpackHotServerMiddleware from 'webpack-hot-server-middleware'
+/* eslint-disable import/no-commonjs */
 
-import createConfig from '../../webpack.config.babel.js'
+const express = require('express')
+const webpack = require('webpack')
+const webpackDevMiddleware = require('webpack-dev-middleware')
+const webpackHotMiddleware = require('webpack-hot-middleware')
+const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
+
+const createConfig = require('../../webpack.config.js')
 
 const config = createConfig(null, {mode: 'development'})
 const clientConfig = config.find(({name}) => name === 'client')

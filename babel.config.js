@@ -5,9 +5,6 @@ module.exports = api => {
   const isWebpack = api.caller(({name} = {}) => name === 'babel-loader')
 
   return {
-    ignore: [
-      './artifacts',
-    ],
     plugins: [
       '@loadable/babel-plugin',
       'react-hot-loader/babel',

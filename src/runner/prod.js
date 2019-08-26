@@ -1,8 +1,10 @@
-import express from 'express'
-import {join} from 'path'
+/* eslint-disable import/no-commonjs */
 
-import createConfig from '../../webpack.config.babel.js'
-import {readFile} from './fs.js'
+const express = require('express')
+const {join} = require('path')
+
+const createConfig = require('../../webpack.config.js')
+const {readFile} = require('./fs.js')
 
 async function main () {
   const config = createConfig(null, {mode: 'production'})
