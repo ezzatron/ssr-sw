@@ -47,26 +47,33 @@ module.exports = (_, {mode = 'development'}) => {
   }
 
   function createCssRule (target) {
+    const isClient = target === 'client'
+    const use = []
+
+    if (isClient) {
+      use.push({
+        loader: MiniCssExtractPlugin.loader,
+        options: {
+          hmr: isClient && !isProduction,
+        },
+      })
+    }
+
+    use.push({
+      loader: 'css-loader',
+      options: {
+        modules: {
+          localIdentName: '[name]__[local]--[hash:base64:5]',
+        },
+        onlyLocals: !isClient,
+        sourceMap: true,
+      },
+    })
+
     return {
       test: /\.css$/,
       include: [srcPath],
-      use: [
-        {
-          loader: MiniCssExtractPlugin.loader,
-          options: {
-            hmr: !isProduction && target === 'client',
-          },
-        },
-        {
-          loader: 'css-loader',
-          options: {
-            modules: {
-              localIdentName: '[name]__[local]--[hash:base64:5]',
-            },
-            sourceMap: true,
-          },
-        },
-      ],
+      use,
     }
   }
 
@@ -128,9 +135,6 @@ module.exports = (_, {mode = 'development'}) => {
       minimize: false,
     },
     plugins: createPlugins(
-      new MiniCssExtractPlugin({
-        filename: '[name].css',
-      }),
       new LimitChunkCountPlugin({
         maxChunks: 1,
       }),
