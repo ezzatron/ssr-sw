@@ -3,9 +3,15 @@ import React from 'react'
 import {startsWithSegment} from 'router5-helpers'
 import {useRouteNode} from 'react-router5'
 
-const Bar = loadable(() => import(`./Bar.js`))
-const Foo = loadable(() => import(`./Foo.js`))
-const NotFound = loadable(() => import(`./NotFound.js`))
+import Loading from './Loading.js'
+import NotFound from './NotFound.js'
+
+const loadableOptions = {
+  fallback: <Loading />,
+}
+
+const Bar = loadable(() => import(`./Bar.js`), loadableOptions)
+const Foo = loadable(() => import(`./Foo.js`), loadableOptions)
 
 export default function Main () {
   const {route} = useRouteNode('')
