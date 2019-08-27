@@ -101,7 +101,7 @@ module.exports = (_, {mode = 'development'}) => {
 
   const extraClientEntry = isProduction ? [] : [
     'react-hot-loader/patch',
-    'webpack-hot-middleware/client',
+    'webpack-hot-middleware/client?noInfo=true',
   ]
 
   const client = {
