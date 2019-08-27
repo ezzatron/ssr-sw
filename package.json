@@ -8,7 +8,10 @@
     "build": "NODE_ENV=production webpack -p",
     "lint": "eslint --cache --cache-location artifacts/.eslintcache --fix .",
     "start": "node --inspect src/runner/dev.js",
-    "start:prod": "NODE_ENV=production node src/runner/prod.js"
+    "start:prod": "NODE_ENV=production node src/runner/prod.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:coverage:open": "open artifacts/test/jest/coverage/lcov-report/index.html"
   },
   "engines": {
     "node": "^12"
@@ -47,15 +50,20 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
     "eslint": "^6.2.2",
     "eslint-config-standard": "^14.0.1",
     "eslint-config-standard-jsx": "^8.0.1",
     "eslint-import-resolver-babel-module": "^5.1.0",
     "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.15.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-standard": "^4.0.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^24.9.0",
+    "react-test-renderer": "^16.9.0",
     "webpack-bundle-analyzer": "^3.4.1",
     "webpack-cli": "^3.3.7",
     "webpack-dev-middleware": "^3.7.0",

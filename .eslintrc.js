@@ -2,9 +2,13 @@
 
 module.exports = {
   parser: 'babel-eslint',
+  env: {
+    jest: true,
+  },
   extends: [
     'standard',
     'standard-jsx',
+    'plugin:jest/recommended',
   ],
   settings: {
     'import/resolver': {
