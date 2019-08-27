@@ -26,6 +26,12 @@ app.use(morgan('dev'))
 app.use(webpackDevMiddleware(compiler, {
   publicPath,
   serverSideRender: true,
+  stats: {
+    colors: true,
+    entrypoints: false,
+    excludeAssets: /.*(?<!\.(js|css))$/,
+    modules: false,
+  },
 }))
 app.use(webpackHotMiddleware(clientComiler))
 app.use(webpackHotServerMiddleware(compiler))
