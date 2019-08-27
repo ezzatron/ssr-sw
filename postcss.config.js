@@ -5,7 +5,11 @@ module.exports = context => {
   const isProduction = mode === 'production'
 
   const plugins = {
-    'postcss-preset-env': {},
+    'postcss-preset-env': {
+      autoprefixer: {
+        grid: true,
+      },
+    },
   }
 
   if (isProduction) plugins.cssnano = {}
