@@ -8,6 +8,7 @@ module.exports = api => {
     plugins: [
       '@loadable/babel-plugin',
       'react-hot-loader/babel',
+      'react-require',
     ],
     presets: [
       '@babel/preset-react',

@@ -1,5 +1,3 @@
-import React from 'react'
-
 import styles from './Foo.css'
 
 export default function Foo () {

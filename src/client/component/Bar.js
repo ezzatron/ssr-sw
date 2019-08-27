@@ -1,5 +1,3 @@
-import React from 'react'
-
 import styles from './Bar.css'
 import barImageUrl from './Bar.jpg'
 

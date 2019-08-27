@@ -1,5 +1,4 @@
 import loadable from '@loadable/component'
-import React from 'react'
 import {startsWithSegment} from 'router5-helpers'
 import {useRouteNode} from 'react-router5'
 
