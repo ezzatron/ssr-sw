@@ -29,7 +29,7 @@ app.use(webpackDevMiddleware(compiler, {
   stats: {
     colors: true,
     entrypoints: false,
-    excludeAssets: /.*(?<!\.(js|css))$/,
+    excludeAssets: /(\.hot-update\.|.*(?<!\.(js|css))$)/,
     modules: false,
   },
 }))
