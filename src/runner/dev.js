@@ -1,13 +1,13 @@
 /* eslint-disable import/no-commonjs */
 
 const express = require('express')
+const morgan = require('morgan')
 const webpack = require('webpack')
 const webpackDevMiddleware = require('webpack-dev-middleware')
 const webpackHotMiddleware = require('webpack-hot-middleware')
 const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
 
 const createConfig = require('../../webpack.config.js')
-const {createLogMiddleware} = require('./middleware.js')
 
 const config = createConfig(null, {mode: 'development'})
 const clientConfig = config.find(({name}) => name === 'client')
@@ -18,7 +18,7 @@ const {output: {publicPath}} = clientConfig
 
 const app = express()
 
-app.use(createLogMiddleware())
+app.use(morgan('dev'))
 app.use(webpackDevMiddleware(compiler, {
   publicPath,
   serverSideRender: true,

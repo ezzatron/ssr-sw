@@ -1,11 +1,14 @@
 /* eslint-disable import/no-commonjs */
 
 const express = require('express')
+const morgan = require('morgan')
 const {join} = require('path')
 
 const createConfig = require('../../webpack.config.js')
-const {createLogMiddleware} = require('./middleware.js')
 const {readFile} = require('./fs.js')
+
+// this is just the 'combined' format prefixed with the Host header
+const LOG_FORMAT = ':req[Host] :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
 
 async function main () {
   const config = createConfig(null, {mode: 'production'})
@@ -20,7 +23,7 @@ async function main () {
 
   const app = express()
 
-  app.use(createLogMiddleware())
+  app.use(morgan(LOG_FORMAT))
   app.use(express.static(clientPath))
   app.use(createMainMiddleware({clientStats}))
 
