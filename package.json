@@ -39,7 +39,7 @@
     "morgan": "^1.9.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-hot-loader": "^4.12.11",
+    "react-hot-loader": "^4.12.12",
     "react-router5": "^7.1.0",
     "router5": "^7.0.2",
     "router5-helpers": "^7.0.1",
