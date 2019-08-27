@@ -18,6 +18,10 @@ const {output: {publicPath}} = clientConfig
 
 const app = express()
 
+app.set('env', 'development')
+app.set('trust proxy', true)
+app.set('x-powered-by', false)
+
 app.use(morgan('dev'))
 app.use(webpackDevMiddleware(compiler, {
   publicPath,

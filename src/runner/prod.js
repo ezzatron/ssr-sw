@@ -23,6 +23,10 @@ async function main () {
 
   const app = express()
 
+  app.set('env', 'production')
+  app.set('trust proxy', true)
+  app.set('x-powered-by', false)
+
   app.use(morgan(LOG_FORMAT))
   app.use(express.static(clientPath))
   app.use(createMainMiddleware({clientStats}))
