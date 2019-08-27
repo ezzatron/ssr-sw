@@ -1,5 +1,6 @@
 /* eslint-disable import/no-commonjs */
 
+const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const nodeExternals = require('webpack-node-externals')
@@ -22,6 +23,7 @@ module.exports = (_, {mode = 'development'}) => {
   function createPlugins (...extraPlugins) {
     const plugins = [
       new CleanPlugin(),
+      new GitVersionPlugin(),
       new LoadablePlugin({
         filename: '.loadable-stats.json',
       }),
