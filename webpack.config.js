@@ -65,16 +65,25 @@ module.exports = (_, {mode = 'development'}) => {
       })
     }
 
-    use.push({
-      loader: 'css-loader',
-      options: {
-        modules: {
-          localIdentName: '[name]__[local]--[hash:base64:5]',
+    use.push(
+      {
+        loader: 'css-loader',
+        options: {
+          importLoaders: 1,
+          modules: {
+            localIdentName: '[name]__[local]--[hash:base64:5]',
+          },
+          onlyLocals: !isClient,
+          sourceMap: true,
         },
-        onlyLocals: !isClient,
-        sourceMap: true,
       },
-    })
+      {
+        loader: 'postcss-loader',
+        options: {
+          sourceMap: true,
+        },
+      },
+    )
 
     return {
       test: /\.css$/,
