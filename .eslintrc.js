@@ -7,6 +7,9 @@ module.exports = {
     'standard-jsx',
   ],
   settings: {
+    'import/resolver': {
+      'babel-module': {},
+    },
     react: {
       version: 'detect',
     },
@@ -51,9 +54,7 @@ module.exports = {
     'import/no-useless-path-segments': 'error',
 
     'node/no-deprecated-api': 'error',
-    'node/no-extraneous-import': 'error',
     'node/no-extraneous-require': 'error',
-    'node/no-missing-import': 'error',
     'node/no-unsupported-features/es-builtins': 'error',
     'node/no-unsupported-features/node-builtins': 'error',
     'node/process-exit-as-throw': 'error',

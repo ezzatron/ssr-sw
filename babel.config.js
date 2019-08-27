@@ -8,6 +8,14 @@ module.exports = api => {
     plugins: [
       '@loadable/babel-plugin',
       'react-hot-loader/babel',
+      [
+        'module-resolver',
+        {
+          alias: {
+            '~': '.',
+          },
+        },
+      ],
       'react-require',
     ],
     presets: [
