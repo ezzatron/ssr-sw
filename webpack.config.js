@@ -21,6 +21,7 @@ module.exports = (_, {mode = 'development'}) => {
   const jsFilename = isProduction ? '[name].hash~[contenthash].js' : '[name].js'
   const cssFilename = isProduction ? '[name].hash~[contenthash].css' : '[name].css'
   const fileFilename = isProduction ? '[name].hash~[contenthash:20].[ext]' : '[path][name].[ext]'
+  const webpFilename = isProduction ? '[name].hash~[contenthash:20].webp' : '[path][name].webp'
 
   function createPlugins (target) {
     const isClient = target === 'client'
@@ -143,18 +144,41 @@ module.exports = (_, {mode = 'development'}) => {
   function createImageRule (target) {
     const isClient = target === 'client'
 
+    const plugins = [
+      {
+        use: 'imagemin-mozjpeg',
+      },
+    ]
+
+    const webpPlugins = [
+      {
+        use: 'imagemin-webp',
+      },
+    ]
+
     return {
       test: /\.(gif|jpg|png)$/,
       include: [srcPath],
-      use: [
-        {
-          loader: 'file-loader',
-          options: {
-            emitFile: isClient,
-            name: fileFilename,
+      use: info => {
+        const {resourceQuery} = info
+        const isWebp = /[?&]webp\b/.test(resourceQuery)
+
+        return [
+          {
+            loader: 'file-loader',
+            options: {
+              emitFile: isClient,
+              name: isWebp ? webpFilename : fileFilename,
+            },
           },
-        },
-      ],
+          {
+            loader: 'imagemin-loader',
+            options: {
+              plugins: isWebp ? webpPlugins : plugins,
+            },
+          },
+        ]
+      },
     }
   }
 
