@@ -5,12 +5,14 @@ import {renderToString} from 'react-dom/server'
 
 import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
+import {createHtmlProcessor} from './html.js'
 import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
 export function createRenderMiddleware (clientStats) {
   const appTemplate = compile(appTemplateContent)
+  const processHtml = createHtmlProcessor()
 
   return async function renderMiddleware (request, response, next) {
     const {router, routerState} = request
@@ -33,12 +35,12 @@ export function createRenderMiddleware (clientStats) {
       router: routerState,
     }
 
-    const html = appTemplate({
+    const html = processHtml(appTemplate({
       appHtml,
       appState,
       scriptTags,
       styleTags,
-    })
+    }))
 
     response.setHeader('Content-Type', 'text/html')
     response.setHeader('Content-Length', html.length)
