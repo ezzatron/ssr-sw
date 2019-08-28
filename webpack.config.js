@@ -1,10 +1,12 @@
 /* eslint-disable import/no-commonjs */
 
+const CompressionPlugin = require('compression-webpack-plugin')
 const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const nodeExternals = require('webpack-node-externals')
 const StatsPlugin = require('stats-webpack-plugin')
+const zopfli = require('@gfx/zopfli')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {HotModuleReplacementPlugin, optimize: {LimitChunkCountPlugin}} = require('webpack')
 const {resolve} = require('path')
@@ -16,11 +18,13 @@ module.exports = (_, {mode = 'development'}) => {
   const srcPath = resolve(rootPath, 'src')
   const buildPath = resolve(rootPath, 'artifacts/build', mode)
 
-  const jsFilename = isProduction ? '[name].[contenthash].js' : '[name].js'
-  const cssFilename = isProduction ? '[name].[contenthash].css' : '[name].css'
-  const fileFilename = isProduction ? '[name].[contenthash].[ext]' : '[path][name].[ext]'
+  const jsFilename = isProduction ? '[name].hash~[contenthash].js' : '[name].js'
+  const cssFilename = isProduction ? '[name].hash~[contenthash].css' : '[name].css'
+  const fileFilename = isProduction ? '[name].hash~[contenthash:20].[ext]' : '[path][name].[ext]'
 
-  function createPlugins (...extraPlugins) {
+  function createPlugins (target) {
+    const isClient = target === 'client'
+
     const plugins = [
       new CleanPlugin(),
       new GitVersionPlugin(),
@@ -28,11 +32,55 @@ module.exports = (_, {mode = 'development'}) => {
         filename: '.loadable-stats.json',
       }),
       new StatsPlugin('.stats.json'),
-
-      ...extraPlugins,
     ]
 
-    if (!isProduction) plugins.push(new HotModuleReplacementPlugin())
+    if (!isProduction) {
+      plugins.push(new HotModuleReplacementPlugin())
+    }
+
+    if (isClient) {
+      plugins.push(
+        new MiniCssExtractPlugin({
+          filename: cssFilename,
+        }),
+      )
+
+      if (isProduction) {
+        const minRatio = 0.8
+        const test = /^[^.].*(?<!\.map)$/
+        const threshold = 1024
+
+        plugins.push(
+          new CompressionPlugin({
+            algorithm: 'brotliCompress',
+            compressionOptions: {
+              level: 11,
+            },
+            filename: '[path].br[query]',
+            minRatio,
+            test,
+            threshold,
+          }),
+          new CompressionPlugin({
+            algorithm (input, compressionOptions, callback) {
+              return zopfli.gzip(input, compressionOptions, callback)
+            },
+            compressionOptions: {
+              numiterations: 15,
+            },
+            minRatio,
+            test,
+            threshold,
+          }),
+        )
+      }
+    } else {
+      plugins.push(
+        new LimitChunkCountPlugin({
+          maxChunks: 1,
+        }),
+      )
+    }
 
     return plugins
   }
@@ -130,11 +178,7 @@ module.exports = (_, {mode = 'development'}) => {
       path: resolve(buildPath, 'client'),
       publicPath: '/',
     },
-    plugins: createPlugins(
-      new MiniCssExtractPlugin({
-        filename: cssFilename,
-      }),
-    ),
+    plugins: createPlugins('client'),
     resolve: {
       alias: {
         'react-dom': '@hot-loader/react-dom',
@@ -168,11 +212,7 @@ module.exports = (_, {mode = 'development'}) => {
     optimization: {
       minimize: false,
     },
-    plugins: createPlugins(
-      new LimitChunkCountPlugin({
-        maxChunks: 1,
-      }),
-    ),
+    plugins: createPlugins('server'),
     module: {
       rules: [
         createJsRule('server'),

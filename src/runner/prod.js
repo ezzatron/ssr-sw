@@ -1,10 +1,12 @@
 /* eslint-disable import/no-commonjs */
 
+const createStaticMiddleware = require('express-static-gzip')
 const express = require('express')
 const morgan = require('morgan')
-const {join} = require('path')
+const {basename, join} = require('path')
 
 const createConfig = require('../../webpack.config.js')
+const {cacheControlByBasename} = require('./caching.js')
 const {readFile} = require('./fs.js')
 
 // this is just the 'combined' format prefixed with the Host header
@@ -28,7 +30,14 @@ async function main () {
   app.set('x-powered-by', false)
 
   app.use(morgan(LOG_FORMAT))
-  app.use(express.static(clientPath))
+  app.use(createStaticMiddleware(clientPath, {
+    enableBrotli: true,
+    index: false,
+    orderPreference: ['br'],
+    setHeaders (response, urlPath) {
+      response.setHeader('Cache-Control', cacheControlByBasename(basename(urlPath)))
+    },
+  }))
   app.use(createMainMiddleware({clientStats}))
 
   app.listen(8080, '0.0.0.0', () => {
