@@ -35,7 +35,7 @@ export function createRenderMiddleware (clientStats) {
       router: routerState,
     }
 
-    const html = processHtml(appTemplate({
+    const html = await processHtml(appTemplate({
       appHtml,
       appState,
       scriptTags,
