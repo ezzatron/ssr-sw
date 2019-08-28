@@ -18,7 +18,7 @@ module.exports = (_, {mode = 'development'}) => {
 
   const jsFilename = isProduction ? '[name].[contenthash].js' : '[name].js'
   const cssFilename = isProduction ? '[name].[contenthash].css' : '[name].css'
-  const fileFilename = isProduction ? '[path][name].[contenthash].[ext]' : '[path][name].[ext]'
+  const fileFilename = isProduction ? '[name].[contenthash].[ext]' : '[path][name].[ext]'
 
   function createPlugins (...extraPlugins) {
     const plugins = [
