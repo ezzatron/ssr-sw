@@ -5,6 +5,7 @@ const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const nodeExternals = require('webpack-node-externals')
+const responsiveLoaderSharp = require('responsive-loader/sharp')
 const StatsPlugin = require('stats-webpack-plugin')
 const zopfli = require('@gfx/zopfli')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
@@ -20,7 +21,7 @@ module.exports = (_, {mode = 'development'}) => {
 
   const jsFilename = isProduction ? '[name].hash~[contenthash].js' : '[name].js'
   const cssFilename = isProduction ? '[name].hash~[contenthash].css' : '[name].css'
-  const fileFilename = isProduction ? '[name].hash~[contenthash:20].[ext]' : '[path][name].[ext]'
+  const imageFilename = isProduction ? '[name]-[width]x[height].hash~[contenthash:20].[ext]' : '[path][name]-[width]x[height].[ext]'
 
   function createPlugins (target) {
     const isClient = target === 'client'
@@ -141,17 +142,15 @@ module.exports = (_, {mode = 'development'}) => {
   }
 
   function createImageRule (target) {
-    const isClient = target === 'client'
-
     return {
       test: /\.(gif|jpg|png)$/,
       include: [srcPath],
       use: [
         {
-          loader: 'file-loader',
+          loader: 'responsive-loader',
           options: {
-            emitFile: isClient,
-            name: fileFilename,
+            adapter: responsiveLoaderSharp,
+            name: imageFilename,
           },
         },
       ],
