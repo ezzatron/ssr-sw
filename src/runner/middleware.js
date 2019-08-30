@@ -55,8 +55,6 @@ function createPreloadAsMiddleware () {
 
       const linkKey = parsedUrl.toString()
 
-      console.log({linkKey})
-
       if (!mapping[refererKey]) mapping[refererKey] = {}
 
       mapping[refererKey][linkKey] = {
