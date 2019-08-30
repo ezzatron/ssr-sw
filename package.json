@@ -40,6 +40,7 @@
     "express-static-gzip": "^2.0.3",
     "file-loader": "^4.2.0",
     "html-loader": "^0.5.5",
+    "lru-cache": "^5.1.1",
     "mini-css-extract-plugin": "^0.8.0",
     "morgan": "^1.9.1",
     "postcss-loader": "^3.0.0",
@@ -52,6 +53,7 @@
     "router5-helpers": "^7.0.1",
     "router5-plugin-browser": "^7.0.2",
     "stats-webpack-plugin": "^0.7.0",
+    "url-parse": "^1.4.7",
     "webpack": "^4.39.2",
     "webpack-node-externals": "^1.7.2"
   },

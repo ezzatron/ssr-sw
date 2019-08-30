@@ -43,7 +43,7 @@ export function createRenderMiddleware (clientStats) {
     if (isClientOnly) {
       html = clientOnlyHtml
 
-      response.setHeader('Link', clientOnlyLinkHeaderValue)
+      response.append('Link', clientOnlyLinkHeaderValue)
     } else {
       const props = {
         router,
@@ -76,7 +76,7 @@ export function createRenderMiddleware (clientStats) {
           })
           .join(', ')
 
-        response.setHeader('Link', linkHeaderValue)
+        response.append('Link', linkHeaderValue)
       }
     }
 

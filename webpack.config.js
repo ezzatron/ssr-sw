@@ -146,29 +146,13 @@ module.exports = (_, {mode = 'development'}) => {
     return {
       test: /\.(gif|jpg|png)$/,
       include: [srcPath],
-      oneOf: [
+      use: [
         {
-          resourceQuery: /\bpushable\b/,
-          use: [
-            {
-              loader: 'file-loader',
-              options: {
-                emitFile: isClient,
-                name: `${fileFilename}?pushable`,
-              },
-            },
-          ],
-        },
-        {
-          use: [
-            {
-              loader: 'file-loader',
-              options: {
-                emitFile: isClient,
-                name: fileFilename,
-              },
-            },
-          ],
+          loader: 'file-loader',
+          options: {
+            emitFile: isClient,
+            name: fileFilename,
+          },
         },
       ],
     }
