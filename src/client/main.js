@@ -1,21 +1,44 @@
-import {hydrate} from 'react-dom'
+import {hydrate, render} from 'react-dom'
 import {loadableReady} from '@loadable/component'
 
 import App from './component/App.js'
 import {createRouter, startRouter} from '../routing.js'
 
+const {appState} = window
 const router = createRouter()
 
-Promise.all([
-  startRouter(router, window.appState.router),
-  new Promise(resolve => { loadableReady(resolve) }),
-])
-  .then(() => {
-    hydrate(
-      <App router={router} />,
-      document.getElementById('root'),
-    )
-  })
-  .catch(error => {
-    console.error(error)
-  })
+if (appState) {
+  const {router: routerState} = appState
+
+  Promise.all([
+    startRouter(router, routerState),
+    new Promise(resolve => { loadableReady(resolve) }),
+  ])
+    .then(() => {
+      hydrate(
+        <App router={router} />,
+        document.getElementById('root'),
+      )
+    })
+    .catch(error => {
+      console.error(error)
+    })
+} else {
+  Promise.all([
+    startRouter(router),
+    new Promise(resolve => {
+      if (document.readyState !== 'loading') return resolve()
+
+      document.addEventListener('DOMContentLoaded', resolve)
+    }),
+  ])
+    .then(() => {
+      render(
+        <App router={router} />,
+        document.getElementById('root'),
+      )
+    })
+    .catch(error => {
+      console.error(error)
+    })
+}

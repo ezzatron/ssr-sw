@@ -5,6 +5,7 @@ import {renderToString} from 'react-dom/server'
 
 import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
+import {buildEntryTags} from './webpack.js'
 import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
@@ -12,48 +13,75 @@ const {UNKNOWN_ROUTE} = routerConstants
 export function createRenderMiddleware (clientStats) {
   const appTemplate = compile(appTemplateContent)
 
+  const {
+    linkHeader: clientOnlyLinkHeaderValue,
+    scriptTags,
+    styleTags,
+  } = buildEntryTags(clientStats)
+
+  const clientOnlyHtml = appTemplate({
+    appHtml: '',
+    appState: null,
+    scriptTags: scriptTags.join('\n'),
+    styleTags: styleTags.join('\n'),
+  })
+
   return async function renderMiddleware (request, response, next) {
     const {router, routerState} = request
-    const {name: routeName} = routerState
+
+    const {
+      name: routeName,
+      meta: {
+        isClientOnly,
+      },
+    } = routerState
 
     if (routeName === UNKNOWN_ROUTE) return next()
 
-    const props = {
-      router,
+    let html
+
+    if (isClientOnly) {
+      html = clientOnlyHtml
+
+      response.setHeader('Link', clientOnlyLinkHeaderValue)
+    } else {
+      const props = {
+        router,
+      }
+
+      const webExtractor = new ChunkExtractor({stats: clientStats})
+      const jsx = webExtractor.collectChunks(App(props))
+      const appHtml = renderToString(jsx)
+      const linkElements = webExtractor.getLinkElements()
+      const scriptTags = webExtractor.getScriptTags()
+      const styleTags = webExtractor.getStyleTags()
+
+      const appState = {
+        router: routerState,
+      }
+
+      html = appTemplate({
+        appHtml,
+        appState,
+        scriptTags,
+        styleTags,
+      })
+
+      if (linkElements.length > 0) {
+        const linkHeaderValue = linkElements
+          .map(linkElement => {
+            const {props: {as: type, href, rel}} = linkElement
+
+            return `<${href}>; rel=${rel}; as=${type}`
+          })
+          .join(', ')
+
+        response.setHeader('Link', linkHeaderValue)
+      }
     }
-
-    const webExtractor = new ChunkExtractor({stats: clientStats})
-    const jsx = webExtractor.collectChunks(App(props))
-    const appHtml = renderToString(jsx)
-    const linkElements = webExtractor.getLinkElements()
-    const scriptTags = webExtractor.getScriptTags()
-    const styleTags = webExtractor.getStyleTags()
-
-    const appState = {
-      router: routerState,
-    }
-
-    const html = appTemplate({
-      appHtml,
-      appState,
-      scriptTags,
-      styleTags,
-    })
 
     response.setHeader('Content-Type', 'text/html')
     response.setHeader('Content-Length', html.length)
-
-    if (linkElements.length > 0) {
-      const linkHeaderValue = linkElements
-        .map(linkElement => {
-          const {props: {as: type, href, rel}} = linkElement
-
-          return `<${href}>; rel=${rel}; as=${type}`
-        })
-        .join(', ')
-
-      response.setHeader('Link', linkHeaderValue)
-    }
 
     response.end(html)
   }

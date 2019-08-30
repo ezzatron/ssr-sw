@@ -8,6 +8,7 @@ export default function Nav () {
       <li><Link routeName='home'>Home</Link></li>
       <li><Link routeName='foo'>Foo</Link></li>
       <li><Link routeName='bar'>Bar</Link></li>
+      <li><Link routeName='client-only'>Client-only</Link></li>
       <li><Link routeName='no-component'>No component</Link></li>
       <li><a href='/non-existent'>Non-existent</a></li>
     </ul>

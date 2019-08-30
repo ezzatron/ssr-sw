@@ -6,8 +6,15 @@ const routes = [
 
   {name: 'bar', path: '/bar'},
   {name: 'foo', path: '/foo'},
+  {name: 'client-only', path: '/client-only', isClientOnly: true},
   {name: 'no-component', path: '/no-component'},
 ]
+
+const routesByName = routes.reduce((routes, route) => {
+  routes[route.name] = route
+
+  return routes
+}, {})
 
 export function createRouter () {
   const router = createRouter5(routes, {
@@ -15,14 +22,25 @@ export function createRouter () {
   })
   router.usePlugin(browserPlugin())
 
+  router.useMiddleware(router => toState => {
+    const {name} = toState
+    const route = routesByName[name]
+
+    toState.meta.isClientOnly = !!(route && route.isClientOnly)
+
+    return true
+  })
+
   return router
 }
 
 export function startRouter (router, state) {
   return new Promise((resolve, reject) => {
-    router.start(state, (error, state) => {
+    function handleStart (error, state) {
       error ? reject(error) : resolve(state)
-    })
+    }
+
+    state ? router.start(state, handleStart) : router.start(handleStart)
   })
 }
 

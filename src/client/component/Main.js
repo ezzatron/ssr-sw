@@ -10,6 +10,7 @@ const loadableOptions = {
 }
 
 const Bar = loadable(() => import('./Bar.js'), loadableOptions)
+const ClientOnly = loadable(() => import('./ClientOnly.js'), loadableOptions)
 const Foo = loadable(() => import('./Foo.js'), loadableOptions)
 
 export default function Main () {
@@ -17,6 +18,7 @@ export default function Main () {
   const testRoute = startsWithSegment(route)
 
   if (testRoute('bar')) return <Bar />
+  if (testRoute('client-only')) return <ClientOnly />
   if (testRoute('foo')) return <Foo />
 
   return <NotFound />
