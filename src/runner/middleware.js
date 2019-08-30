@@ -4,33 +4,48 @@
 const urlParse = require('url-parse')
 
 module.exports = {
-  createPushableMiddleware,
+  createPreloadAsMiddleware,
 }
 
-function createPushableMiddleware () {
-  const pushable = {}
+function createPreloadAsMiddleware () {
+  const mapping = {}
 
-  return function pushableMiddleware (request, response, next) {
-    const fullUrl = `${request.protocol}://${request.get('host')}${request.originalUrl}`
-    const pushables = pushable[fullUrl]
+  return function preloadAsMiddleware (request, response, next) {
+    const {
+      headers: {
+        host,
+        referer,
+      },
+      url,
+    } = request
 
-    if (pushables) {
-      for (const entry of pushables) {
-        const [url, asType] = entry.split(',')
+    const links = mapping[`${host}${url}`]
 
-        response.append('Link', `<${url}>; rel=preload; as=${asType}`)
+    if (links) {
+      const linkHeaderValues = []
+
+      for (const preloadUrl in links) {
+        const {asType, isPushable} = links[preloadUrl]
+        const nopush = isPushable ? '' : '; nopush'
+
+        linkHeaderValues.push(`<${preloadUrl}>; rel=preload; as=${asType}${nopush}`)
       }
+
+      response.append('Link', linkHeaderValues.join(', '))
     }
 
-    const {query} = urlParse(request.url, true)
-    const pushableAs = query.pushable
+    const {query = {}} = urlParse(url, true)
+    const {'preload-as': preloadAs} = query
 
-    if (pushableAs) {
-      const {referer} = request.headers
+    if (preloadAs) {
+      const refererKey = referer && referer.replace(/^https?:\/\//, '')
 
-      if (!pushable[referer]) pushable[referer] = new Set()
+      if (!mapping[refererKey]) mapping[refererKey] = {}
 
-      pushable[referer].add(`${request.url},${pushableAs}`)
+      mapping[refererKey][url] = {
+        asType: preloadAs,
+        isPushable: typeof query['preload-nopush'] === 'undefined',
+      }
     }
 
     return next()

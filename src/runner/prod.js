@@ -5,9 +5,11 @@ const express = require('express')
 const morgan = require('morgan')
 const {basename, join} = require('path')
 
-const createConfig = require('../../webpack.config.js')
 const {cacheControlByBasename} = require('./caching.js')
+const {createPreloadAsMiddleware} = require('./middleware.js')
 const {readFile} = require('./fs.js')
+
+const createConfig = require('../../webpack.config.js')
 
 // this is just the 'combined' format prefixed with the Host header
 const LOG_FORMAT = ':req[Host] :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
@@ -30,6 +32,7 @@ async function main () {
   app.set('x-powered-by', false)
 
   app.use(morgan(LOG_FORMAT))
+  app.use(createPreloadAsMiddleware())
   app.use(createStaticMiddleware(clientPath, {
     enableBrotli: true,
     index: false,

@@ -10,7 +10,7 @@ export default function Bar () {
       href='https://commons.wikimedia.org/wiki/File:Cocktail-Bar_(Kleines_Phi)_in_Hamburg.jpg'
     >
       <img
-        src={`${barImageUrl}?pushable=image`}
+        src={`${barImageUrl}?preload-as=image`}
         className={styles.image}
         alt='Cocktail-Bar (Kleines Phi) in Hamburg'
         title="It's a bar. Get it?"

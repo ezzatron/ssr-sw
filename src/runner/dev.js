@@ -7,7 +7,7 @@ const webpackDevMiddleware = require('webpack-dev-middleware')
 const webpackHotMiddleware = require('webpack-hot-middleware')
 const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
 
-const {createPushableMiddleware} = require('./middleware.js')
+const {createPreloadAsMiddleware} = require('./middleware.js')
 
 const createConfig = require('../../webpack.config.js')
 
@@ -25,7 +25,7 @@ app.set('trust proxy', true)
 app.set('x-powered-by', false)
 
 app.use(morgan('dev'))
-app.use(createPushableMiddleware())
+app.use(createPreloadAsMiddleware())
 app.use(webpackDevMiddleware(compiler, {
   publicPath,
   serverSideRender: true,
