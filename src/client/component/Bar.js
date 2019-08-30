@@ -1,5 +1,5 @@
 import styles from './Bar.css'
-import barImageUrl from './Bar.jpg'
+import barImageUrl from './Bar.jpg?pushable'
 
 export default function Bar () {
   return <div className={styles.bar}>
