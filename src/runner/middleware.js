@@ -24,27 +24,45 @@ function createPreloadAsMiddleware () {
     if (links) {
       const linkHeaderValues = []
 
-      for (const preloadUrl in links) {
-        const {asType, isPushable} = links[preloadUrl]
+      for (const linkKey in links) {
+        const {
+          isPushable,
+          preloadAs,
+          preloadUrl,
+        } = links[linkKey]
+
         const nopush = isPushable ? '' : '; nopush'
 
-        linkHeaderValues.push(`<${preloadUrl}>; rel=preload; as=${asType}${nopush}`)
+        linkHeaderValues.push(`<${preloadUrl}>; rel=preload; as=${preloadAs}${nopush}`)
       }
 
       response.append('Link', linkHeaderValues.join(', '))
     }
 
-    const {query = {}} = urlParse(url, true)
-    const {'preload-as': preloadAs} = query
+    if (!referer) return next()
+
+    const parsedUrl = urlParse(url, true)
+    const preloadAs = parsedUrl.query['preload-as']
+    const isPushable = typeof parsedUrl.query['preload-nopush'] === 'undefined'
 
     if (preloadAs) {
-      const refererKey = referer && referer.replace(/^https?:\/\//, '')
+      const refererKey = referer.replace(/^https?:\/\//, '')
+
+      parsedUrl.protocol = ''
+      parsedUrl.slashes = false
+      delete parsedUrl.query['preload-as']
+      delete parsedUrl.query['preload-nopush']
+
+      const linkKey = parsedUrl.toString()
+
+      console.log({linkKey})
 
       if (!mapping[refererKey]) mapping[refererKey] = {}
 
-      mapping[refererKey][url] = {
-        asType: preloadAs,
-        isPushable: typeof query['preload-nopush'] === 'undefined',
+      mapping[refererKey][linkKey] = {
+        isPushable,
+        preloadAs,
+        preloadUrl: url,
       }
     }
 
