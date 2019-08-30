@@ -41,27 +41,29 @@ function createPreloadAsMiddleware () {
 
     if (!referer) return next()
 
+    const refererKey = referer.replace(/^https?:\/\//, '')
+
     const parsedUrl = urlParse(url, true)
     const preloadAs = parsedUrl.query['preload-as']
     const isPushable = typeof parsedUrl.query['preload-nopush'] === 'undefined'
 
+    parsedUrl.protocol = ''
+    parsedUrl.slashes = false
+    delete parsedUrl.query['preload-as']
+    delete parsedUrl.query['preload-nopush']
+
+    const linkKey = parsedUrl.toString()
+
+    if (!mapping[refererKey]) mapping[refererKey] = {}
+
     if (preloadAs) {
-      const refererKey = referer.replace(/^https?:\/\//, '')
-
-      parsedUrl.protocol = ''
-      parsedUrl.slashes = false
-      delete parsedUrl.query['preload-as']
-      delete parsedUrl.query['preload-nopush']
-
-      const linkKey = parsedUrl.toString()
-
-      if (!mapping[refererKey]) mapping[refererKey] = {}
-
       mapping[refererKey][linkKey] = {
         isPushable,
         preloadAs,
         preloadUrl: url,
       }
+    } else {
+      delete mapping[refererKey][linkKey]
     }
 
     return next()
