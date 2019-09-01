@@ -14,19 +14,31 @@ const preCompression = require('./webpack/transform/pre-compression.js')
 const qualityOfLife = require('./webpack/transform/quality-of-life.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
 const saneDefaults = require('./webpack/transform/sane-defaults.js')
+const sharedPlugins = require('./webpack/transform/shared-plugins.js')
 const targetNode = require('./webpack/transform/target-node.js')
 const writeStats = require('./webpack/transform/write-stats.js')
 const {processConfig} = require('./webpack/process.js')
 
 module.exports = processConfig(
   [
+    pathConventions({
+      rootPath: __dirname,
+    }),
+    sharedPlugins({
+      createPlugins () {
+        return [
+          new CleanPlugin(),
+          new GitVersionPlugin(),
+        ]
+      },
+    }),
+
     hotModuleReplacement(),
     loadableComponents(),
     loadBabel(),
     loadCssModules(),
     loadHtml(),
     loadImages(),
-    pathConventions({rootPath: __dirname}),
     preCompression(),
     qualityOfLife(),
     reactHotLoader(),
@@ -35,24 +47,15 @@ module.exports = processConfig(
     writeStats(),
   ],
   (_, {mode = 'development'}) => {
-    function createPlugins () {
-      return [
-        new CleanPlugin(),
-        new GitVersionPlugin(),
-      ]
-    }
-
     const client = {
       mode,
       name: 'client',
-      plugins: createPlugins(),
     }
 
     const server = {
       mode,
       name: 'server',
       target: 'node',
-      plugins: createPlugins(),
     }
 
     return [client, server]
