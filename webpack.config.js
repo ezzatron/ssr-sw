@@ -3,7 +3,6 @@
 const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const StatsPlugin = require('stats-webpack-plugin')
-const WebpackbarPlugin = require('webpackbar')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {resolve} = require('path')
 
@@ -13,6 +12,7 @@ const loadCssModules = require('./webpack/transform/load-css-modules.js')
 const loadHtml = require('./webpack/transform/load-html.js')
 const loadImages = require('./webpack/transform/load-images.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
+const qualityOfLife = require('./webpack/transform/quality-of-life.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
 const saneDefaults = require('./webpack/transform/sane-defaults.js')
 const targetNode = require('./webpack/transform/target-node.js')
@@ -26,6 +26,7 @@ module.exports = processConfig(
     loadHtml(),
     loadImages(),
     preCompression(),
+    qualityOfLife(),
     reactHotLoader(),
     saneDefaults(),
     targetNode(),
@@ -35,7 +36,7 @@ module.exports = processConfig(
     const srcPath = resolve(rootPath, 'src')
     const buildPath = resolve(rootPath, 'artifacts/build', mode)
 
-    function createPlugins (target) {
+    function createPlugins () {
       return [
         new CleanPlugin(),
         new GitVersionPlugin(),
@@ -43,9 +44,6 @@ module.exports = processConfig(
           filename: '.loadable-stats.json',
         }),
         new StatsPlugin('.stats.json'),
-        new WebpackbarPlugin({
-          name: target,
-        }),
       ]
     }
 
@@ -58,7 +56,7 @@ module.exports = processConfig(
       output: {
         path: resolve(buildPath, 'client'),
       },
-      plugins: createPlugins('client'),
+      plugins: createPlugins(),
     }
 
     const server = {
@@ -70,7 +68,7 @@ module.exports = processConfig(
       output: {
         path: resolve(buildPath, 'server'),
       },
-      plugins: createPlugins('server'),
+      plugins: createPlugins(),
     }
 
     return [client, server]
