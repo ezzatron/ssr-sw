@@ -10,14 +10,16 @@ const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {optimize: {LimitChunkCountPlugin}} = require('webpack')
 const {resolve} = require('path')
 
-const preCompression = require('./webpack/transform/pre-compression.js')
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
+const preCompression = require('./webpack/transform/pre-compression.js')
+const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
 const {processConfig} = require('./webpack/util.js')
 
 module.exports = processConfig(
   [
     hotModuleReplacement(),
     preCompression(),
+    reactHotLoader(),
   ],
   (_, {mode = 'development'}) => {
     const isProduction = mode === 'production'
@@ -135,31 +137,18 @@ module.exports = processConfig(
       }
     }
 
-    const extraClientEntry = isProduction ? [] : [
-      'react-hot-loader/patch',
-    ]
-
     const client = {
       name: 'client',
       mode,
       devtool: 'source-map',
       context: srcPath,
-      entry: [
-        ...extraClientEntry,
-
-        './client/main.js',
-      ],
+      entry: './client/main.js',
       output: {
         filename: jsFilename,
         path: resolve(buildPath, 'client'),
         publicPath: '/',
       },
       plugins: createPlugins('client'),
-      resolve: {
-        alias: {
-          'react-dom': '@hot-loader/react-dom',
-        },
-      },
       module: {
         rules: [
           createJsRule('client'),

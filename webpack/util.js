@@ -37,21 +37,33 @@ function normalizeConfig (config) {
     entry,
     module: moduleConfig = {},
     plugins = [],
+    resolve = {},
   } = config || {}
 
   const {
     rules = [],
   } = moduleConfig
 
+  const {
+    alias = {},
+  } = resolve
+
   return {
     ...config,
 
     entry: normalizeEntry(entry),
     plugins,
+
     module: {
       ...moduleConfig,
 
       rules,
+    },
+
+    resolve: {
+      ...resolve,
+
+      alias,
     },
   }
 }
