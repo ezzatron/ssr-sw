@@ -15,6 +15,7 @@ function normalizeConfig (config) {
     output = {},
     plugins = [],
     resolve = {},
+    target = 'web',
   } = config || {}
 
   const {
@@ -33,6 +34,7 @@ function normalizeConfig (config) {
     optimization,
     output,
     plugins,
+    target,
 
     module: {
       ...moduleConfig,

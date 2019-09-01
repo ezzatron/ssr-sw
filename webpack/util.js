@@ -22,7 +22,7 @@ function isConfigProduction (config) {
 
 function isConfigTargeting (target, config) {
   const targetType = trueTypeOf(target)
-  const {target: actualTarget = 'web'} = config
+  const {target: actualTarget} = config
 
   if (targetType === 'string') return actualTarget === target
   if (targetType === 'function') return target(actualTarget)

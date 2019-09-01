@@ -8,6 +8,7 @@ const WebpackbarPlugin = require('webpackbar')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {resolve} = require('path')
 
+const babelLoader = require('./webpack/transform/babel-loader.js')
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
@@ -17,6 +18,7 @@ const {processConfig} = require('./webpack/process.js')
 
 module.exports = processConfig(
   [
+    babelLoader(),
     hotModuleReplacement(),
     preCompression(),
     reactHotLoader(),
@@ -58,21 +60,6 @@ module.exports = processConfig(
       }
 
       return plugins
-    }
-
-    function createJsRule (target) {
-      return {
-        test: /\.js$/,
-        include: [srcPath],
-        use: {
-          loader: 'babel-loader',
-          options: {
-            caller: {
-              target,
-            },
-          },
-        },
-      }
     }
 
     function createCssRule (target) {
@@ -143,7 +130,6 @@ module.exports = processConfig(
       plugins: createPlugins('client'),
       module: {
         rules: [
-          createJsRule('client'),
           createCssRule('client'),
           createImageRule('client'),
         ],
@@ -162,7 +148,6 @@ module.exports = processConfig(
       plugins: createPlugins('server'),
       module: {
         rules: [
-          createJsRule('server'),
           createCssRule('server'),
           createImageRule('server'),
 
