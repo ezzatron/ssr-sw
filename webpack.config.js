@@ -7,14 +7,16 @@ const nodeExternals = require('webpack-node-externals')
 const StatsPlugin = require('stats-webpack-plugin')
 const WebpackbarPlugin = require('webpackbar')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
-const {HotModuleReplacementPlugin, optimize: {LimitChunkCountPlugin}} = require('webpack')
+const {optimize: {LimitChunkCountPlugin}} = require('webpack')
 const {resolve} = require('path')
 
-const preCompression = require('./webpack/pre-compression.js')
+const preCompression = require('./webpack/transform/pre-compression.js')
+const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const {processConfig} = require('./webpack/util.js')
 
 module.exports = processConfig(
   [
+    hotModuleReplacement(),
     preCompression(),
   ],
   (_, {mode = 'development'}) => {
@@ -42,10 +44,6 @@ module.exports = processConfig(
           name: target,
         }),
       ]
-
-      if (!isProduction) {
-        plugins.push(new HotModuleReplacementPlugin())
-      }
 
       if (isClient) {
         plugins.push(
@@ -139,7 +137,6 @@ module.exports = processConfig(
 
     const extraClientEntry = isProduction ? [] : [
       'react-hot-loader/patch',
-      'webpack-hot-middleware/client?noInfo=true',
     ]
 
     const client = {

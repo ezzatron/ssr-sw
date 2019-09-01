@@ -1,6 +1,8 @@
 /* eslint-disable import/no-commonjs */
 
 module.exports = {
+  isConfigProduction,
+  isConfigTargeting,
   processConfig,
 }
 
@@ -26,8 +28,55 @@ function applyTransforms (transforms, config) {
 
       return apply(config) || config
     },
-    config,
+    normalizeConfig(config),
   )
+}
+
+function normalizeConfig (config) {
+  const {
+    entry,
+    module: moduleConfig = {},
+    plugins = [],
+  } = config || {}
+
+  const {
+    rules = [],
+  } = moduleConfig
+
+  return {
+    ...config,
+
+    entry: normalizeEntry(entry),
+    plugins,
+    module: {
+      ...moduleConfig,
+
+      rules,
+    },
+  }
+}
+
+function normalizeEntry (entryConfig) {
+  if (!entryConfig) return {main: ['./src']}
+
+  const entryConfigType = trueTypeOf(entryConfig)
+
+  if (entryConfigType === 'string') return {main: [entryConfig]}
+  if (entryConfigType === 'array') return {main: entryConfig}
+
+  if (entryConfigType === 'object') {
+    for (const name in entryConfig) {
+      const entrypoint = entryConfig[name]
+      const entrypointType = trueTypeOf(entrypoint)
+
+      if (entryConfigType === 'array') continue
+      if (entryConfigType === 'string') entryConfig[name] = [entrypoint]
+
+      throw new Error(`Unsupported entrypoint type "${entrypointType}"`)
+    }
+  }
+
+  throw new Error(`Unsupported entry config type "${entryConfigType}"`)
 }
 
 function isConfigMatch (constraints, config) {
