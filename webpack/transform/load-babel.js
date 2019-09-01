@@ -14,15 +14,17 @@ module.exports = function loadBabel (options = {}) {
           test,
           include,
           exclude,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              caller: {
-                target: config.name || config.target,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                caller: {
+                  target: config.name || config.target,
+                },
+                sourceMaps: true,
               },
-              sourceMaps: true,
             },
-          },
+          ],
         },
       )
     },

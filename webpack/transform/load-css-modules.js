@@ -35,6 +35,7 @@ module.exports = function loadCssModules (options = {}) {
 
         use.push({
           loader: MiniCssExtractPlugin.loader,
+          options: {},
         })
       }
 

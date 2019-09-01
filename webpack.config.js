@@ -33,31 +33,31 @@ module.exports = processConfig(
       },
     }),
 
-    hotModuleReplacement(),
-    loadableComponents(),
+    saneDefaults(),
+    qualityOfLife(),
+    targetNode(),
+    writeStats(),
+
     loadBabel(),
     loadCssModules(),
     loadHtml(),
     loadImages(),
+
+    loadableComponents(),
     preCompression(),
-    qualityOfLife(),
+
+    hotModuleReplacement(),
     reactHotLoader(),
-    saneDefaults(),
-    targetNode(),
-    writeStats(),
   ],
-  (_, {mode = 'development'}) => {
-    const client = {
+  (_, {mode = 'development'}) => [
+    {
       mode,
       name: 'client',
-    }
-
-    const server = {
+    },
+    {
       mode,
       name: 'server',
       target: 'node',
-    }
-
-    return [client, server]
-  },
+    },
+  ],
 )
