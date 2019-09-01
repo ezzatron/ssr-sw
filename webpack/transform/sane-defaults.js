@@ -18,12 +18,14 @@ module.exports = function saneDefaults (options = {}) {
       const defaultFilename = isNode || !isProduction ? filenameDev : filenameProd
 
       const {
+        devtool = 'source-map',
         output: {
           filename = defaultFilename,
           publicPath = '/',
         },
       } = config
 
+      config.devtool = devtool
       config.output.filename = filename
       config.output.publicPath = publicPath
     },

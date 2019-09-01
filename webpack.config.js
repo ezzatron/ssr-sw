@@ -50,7 +50,6 @@ module.exports = processConfig(
     const client = {
       name: 'client',
       mode,
-      devtool: 'source-map',
       context: srcPath,
       entry: './client/main.js',
       output: {
