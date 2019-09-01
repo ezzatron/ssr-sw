@@ -1,6 +1,6 @@
 /* eslint-disable import/no-commonjs */
 
-module.exports = function babelLoader (options = {}) {
+module.exports = function loadBabel (options = {}) {
   const {
     include,
     exclude = /\/node_modules\//,

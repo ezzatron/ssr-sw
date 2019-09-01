@@ -8,8 +8,8 @@ const WebpackbarPlugin = require('webpackbar')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {resolve} = require('path')
 
-const babelLoader = require('./webpack/transform/babel-loader.js')
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
+const loadBabel = require('./webpack/transform/load-babel.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
 const saneDefaults = require('./webpack/transform/sane-defaults.js')
@@ -18,8 +18,8 @@ const {processConfig} = require('./webpack/process.js')
 
 module.exports = processConfig(
   [
-    babelLoader(),
     hotModuleReplacement(),
+    loadBabel(),
     preCompression(),
     reactHotLoader(),
     saneDefaults(),
