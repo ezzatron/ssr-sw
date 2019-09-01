@@ -2,7 +2,7 @@
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
-const {isConfigProduction, isConfigTargeting} = require('../util.js')
+const {isConfigHot, isConfigProduction, isConfigTargeting} = require('../util.js')
 
 module.exports = function loadCssModules (options = {}) {
   const {
@@ -35,7 +35,9 @@ module.exports = function loadCssModules (options = {}) {
 
         use.push({
           loader: MiniCssExtractPlugin.loader,
-          options: {},
+          options: {
+            hmr: isConfigHot(config),
+          },
         })
       }
 

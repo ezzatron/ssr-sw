@@ -33,8 +33,12 @@ module.exports = processConfig(
       },
     }),
 
-    saneDefaults(),
+    hotModuleReplacement(),
+    loadableComponents(),
+    preCompression(),
     qualityOfLife(),
+    reactHotLoader(),
+    saneDefaults(),
     targetNode(),
     writeStats(),
 
@@ -42,12 +46,6 @@ module.exports = processConfig(
     loadCssModules(),
     loadHtml(),
     loadImages(),
-
-    loadableComponents(),
-    preCompression(),
-
-    hotModuleReplacement(),
-    reactHotLoader(),
   ],
   (_, {mode = 'development'}) => [
     {

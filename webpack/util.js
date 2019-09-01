@@ -1,10 +1,17 @@
 /* eslint-disable import/no-commonjs */
 
+const {HotModuleReplacementPlugin} = require('webpack')
+
 module.exports = {
+  isConfigHot,
   isConfigMatch,
   isConfigProduction,
   isConfigTargeting,
   trueTypeOf,
+}
+
+function isConfigHot (config) {
+  return config.plugins.some(plugin => plugin instanceof HotModuleReplacementPlugin)
 }
 
 function isConfigMatch (constraints, config) {
