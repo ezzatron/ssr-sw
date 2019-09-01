@@ -10,9 +10,7 @@ module.exports = function reactHotLoader () {
     apply (config) {
       config.resolve.alias['react-dom'] = '@hot-loader/react-dom'
 
-      for (const name in config.entry) {
-        config.entry[name].push('react-hot-loader/patch')
-      }
+      for (const name in config.entry) config.entry[name].push('react-hot-loader/patch')
     },
   }
 }

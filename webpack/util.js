@@ -1,100 +1,10 @@
 /* eslint-disable import/no-commonjs */
 
 module.exports = {
+  isConfigMatch,
   isConfigProduction,
   isConfigTargeting,
-  processConfig,
-}
-
-function processConfig (transforms, configSource) {
-  if (typeof configSource === 'function') return (...args) => processStaticConfig(transforms, configSource(...args))
-
-  return processStaticConfig(transforms, configSource)
-}
-
-function processStaticConfig (transforms, config) {
-  const configType = trueTypeOf(config)
-
-  if (configType === 'object') return applyTransforms(transforms, config)
-  if (configType === 'array') return config.map(childConfig => applyTransforms(transforms, childConfig))
-
-  throw new Error(`Unsupported config type "${configType}"`)
-}
-
-function applyTransforms (transforms, config) {
-  return transforms.reduce(
-    (config, {apply, constraints}) => {
-      if (constraints && !isConfigMatch(constraints, config)) return config
-
-      return apply(config) || config
-    },
-    normalizeConfig(config),
-  )
-}
-
-function normalizeConfig (config) {
-  const {
-    entry,
-    externals = [],
-    module: moduleConfig = {},
-    optimization = {},
-    output = {},
-    plugins = [],
-    resolve = {},
-  } = config || {}
-
-  const {
-    rules = [],
-  } = moduleConfig
-
-  const {
-    alias = {},
-  } = resolve
-
-  return {
-    ...config,
-
-    entry: normalizeEntry(entry),
-    externals,
-    optimization,
-    output,
-    plugins,
-
-    module: {
-      ...moduleConfig,
-
-      rules,
-    },
-
-    resolve: {
-      ...resolve,
-
-      alias,
-    },
-  }
-}
-
-function normalizeEntry (entryConfig) {
-  if (!entryConfig) return {main: ['./src']}
-
-  const entryConfigType = trueTypeOf(entryConfig)
-
-  if (entryConfigType === 'string') return {main: [entryConfig]}
-  if (entryConfigType === 'array') return {main: entryConfig}
-
-  if (entryConfigType === 'object') {
-    for (const name in entryConfig) {
-      const entrypoint = entryConfig[name]
-      const entrypointType = trueTypeOf(entrypoint)
-
-      if (entryConfigType === 'array') continue
-      if (entryConfigType === 'string') entryConfig[name] = [entrypoint]
-
-      throw new Error(`Unsupported entrypoint type "${entrypointType}"`)
-    }
-  }
-
-  throw new Error(`Unsupported entry config type "${entryConfigType}"`)
+  trueTypeOf,
 }
 
 function isConfigMatch (constraints, config) {

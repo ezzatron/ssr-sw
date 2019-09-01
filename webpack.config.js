@@ -12,7 +12,7 @@ const hotModuleReplacement = require('./webpack/transform/hot-module-replacement
 const preCompression = require('./webpack/transform/pre-compression.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
 const targetNode = require('./webpack/transform/target-node.js')
-const {processConfig} = require('./webpack/util.js')
+const {processConfig} = require('./webpack/process.js')
 
 module.exports = processConfig(
   [
@@ -80,9 +80,6 @@ module.exports = processConfig(
       if (isClient) {
         use.push({
           loader: MiniCssExtractPlugin.loader,
-          options: {
-            hmr: isClient && !isProduction,
-          },
         })
       }
 
