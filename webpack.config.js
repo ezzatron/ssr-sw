@@ -4,13 +4,13 @@ const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const StatsPlugin = require('stats-webpack-plugin')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
-const {resolve} = require('path')
 
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const loadBabel = require('./webpack/transform/load-babel.js')
 const loadCssModules = require('./webpack/transform/load-css-modules.js')
 const loadHtml = require('./webpack/transform/load-html.js')
 const loadImages = require('./webpack/transform/load-images.js')
+const pathConventions = require('./webpack/transform/path-conventions.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
 const qualityOfLife = require('./webpack/transform/quality-of-life.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
@@ -25,6 +25,7 @@ module.exports = processConfig(
     loadCssModules(),
     loadHtml(),
     loadImages(),
+    pathConventions({rootPath: __dirname}),
     preCompression(),
     qualityOfLife(),
     reactHotLoader(),
@@ -32,10 +33,6 @@ module.exports = processConfig(
     targetNode(),
   ],
   (_, {mode = 'development'}) => {
-    const rootPath = __dirname
-    const srcPath = resolve(rootPath, 'src')
-    const buildPath = resolve(rootPath, 'artifacts/build', mode)
-
     function createPlugins () {
       return [
         new CleanPlugin(),
@@ -48,25 +45,15 @@ module.exports = processConfig(
     }
 
     const client = {
-      name: 'client',
       mode,
-      context: srcPath,
-      entry: './client/main.js',
-      output: {
-        path: resolve(buildPath, 'client'),
-      },
+      name: 'client',
       plugins: createPlugins(),
     }
 
     const server = {
-      name: 'server',
       mode,
+      name: 'server',
       target: 'node',
-      context: srcPath,
-      entry: './server/main.js',
-      output: {
-        path: resolve(buildPath, 'server'),
-      },
       plugins: createPlugins(),
     }
 
