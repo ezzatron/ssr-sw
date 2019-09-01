@@ -10,6 +10,7 @@ const {resolve} = require('path')
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const loadBabel = require('./webpack/transform/load-babel.js')
 const loadCssModules = require('./webpack/transform/load-css-modules.js')
+const loadHtml = require('./webpack/transform/load-html.js')
 const loadImages = require('./webpack/transform/load-images.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
@@ -22,6 +23,7 @@ module.exports = processConfig(
     hotModuleReplacement(),
     loadBabel(),
     loadCssModules(),
+    loadHtml(),
     loadImages(),
     preCompression(),
     reactHotLoader(),
@@ -69,19 +71,6 @@ module.exports = processConfig(
         path: resolve(buildPath, 'server'),
       },
       plugins: createPlugins('server'),
-      module: {
-        rules: [
-          {
-            test: /\.html$/,
-            include: [srcPath],
-            use: [
-              {
-                loader: 'html-loader',
-              },
-            ],
-          },
-        ],
-      },
     }
 
     return [client, server]
