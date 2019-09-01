@@ -2,7 +2,6 @@
 
 const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const StatsPlugin = require('stats-webpack-plugin')
 const WebpackbarPlugin = require('webpackbar')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
@@ -10,6 +9,7 @@ const {resolve} = require('path')
 
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const loadBabel = require('./webpack/transform/load-babel.js')
+const loadCssModules = require('./webpack/transform/load-css-modules.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
 const saneDefaults = require('./webpack/transform/sane-defaults.js')
@@ -20,6 +20,7 @@ module.exports = processConfig(
   [
     hotModuleReplacement(),
     loadBabel(),
+    loadCssModules(),
     preCompression(),
     reactHotLoader(),
     saneDefaults(),
@@ -33,13 +34,10 @@ module.exports = processConfig(
     const buildPath = resolve(rootPath, 'artifacts/build', mode)
 
     const jsFilename = isProduction ? '[name].hash~[contenthash].js' : '[name].js'
-    const cssFilename = isProduction ? '[name].hash~[contenthash].css' : '[name].css'
     const fileFilename = isProduction ? '[name].hash~[contenthash:20].[ext]' : '[path][name].[ext]'
 
     function createPlugins (target) {
-      const isClient = target === 'client'
-
-      const plugins = [
+      return [
         new CleanPlugin(),
         new GitVersionPlugin(),
         new LoadablePlugin({
@@ -50,53 +48,6 @@ module.exports = processConfig(
           name: target,
         }),
       ]
-
-      if (isClient) {
-        plugins.push(
-          new MiniCssExtractPlugin({
-            filename: cssFilename,
-          }),
-        )
-      }
-
-      return plugins
-    }
-
-    function createCssRule (target) {
-      const isClient = target === 'client'
-      const use = []
-
-      if (isClient) {
-        use.push({
-          loader: MiniCssExtractPlugin.loader,
-        })
-      }
-
-      use.push(
-        {
-          loader: 'css-loader',
-          options: {
-            importLoaders: 1,
-            modules: {
-              localIdentName: '[name]__[local]--[hash:base64:5]',
-            },
-            onlyLocals: !isClient,
-            sourceMap: true,
-          },
-        },
-        {
-          loader: 'postcss-loader',
-          options: {
-            sourceMap: true,
-          },
-        },
-      )
-
-      return {
-        test: /\.css$/,
-        include: [srcPath],
-        use,
-      }
     }
 
     function createImageRule (target) {
@@ -130,7 +81,6 @@ module.exports = processConfig(
       plugins: createPlugins('client'),
       module: {
         rules: [
-          createCssRule('client'),
           createImageRule('client'),
         ],
       },
@@ -148,7 +98,6 @@ module.exports = processConfig(
       plugins: createPlugins('server'),
       module: {
         rules: [
-          createCssRule('server'),
           createImageRule('server'),
 
           {

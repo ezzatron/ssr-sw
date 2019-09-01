@@ -20,6 +20,7 @@ module.exports = function loadBabel (options = {}) {
               caller: {
                 target: config.name || config.target,
               },
+              sourceMaps: true,
             },
           },
         },
