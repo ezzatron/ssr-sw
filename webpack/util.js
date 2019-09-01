@@ -35,7 +35,10 @@ function applyTransforms (transforms, config) {
 function normalizeConfig (config) {
   const {
     entry,
+    externals = [],
     module: moduleConfig = {},
+    optimization = {},
+    output = {},
     plugins = [],
     resolve = {},
   } = config || {}
@@ -52,6 +55,9 @@ function normalizeConfig (config) {
     ...config,
 
     entry: normalizeEntry(entry),
+    externals,
+    optimization,
+    output,
     plugins,
 
     module: {

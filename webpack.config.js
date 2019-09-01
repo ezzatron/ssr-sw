@@ -3,16 +3,15 @@
 const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const nodeExternals = require('webpack-node-externals')
 const StatsPlugin = require('stats-webpack-plugin')
 const WebpackbarPlugin = require('webpackbar')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
-const {optimize: {LimitChunkCountPlugin}} = require('webpack')
 const {resolve} = require('path')
 
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
+const targetNode = require('./webpack/transform/target-node.js')
 const {processConfig} = require('./webpack/util.js')
 
 module.exports = processConfig(
@@ -20,6 +19,7 @@ module.exports = processConfig(
     hotModuleReplacement(),
     preCompression(),
     reactHotLoader(),
+    targetNode(),
   ],
   (_, {mode = 'development'}) => {
     const isProduction = mode === 'production'
@@ -51,12 +51,6 @@ module.exports = processConfig(
         plugins.push(
           new MiniCssExtractPlugin({
             filename: cssFilename,
-          }),
-        )
-      } else {
-        plugins.push(
-          new LimitChunkCountPlugin({
-            maxChunks: 1,
           }),
         )
       }
@@ -161,21 +155,12 @@ module.exports = processConfig(
     const server = {
       name: 'server',
       mode,
-      devtool: 'inline-source-map',
       target: 'node',
       context: srcPath,
       entry: './server/main.js',
-      externals: [
-        nodeExternals(),
-      ],
       output: {
-        filename: 'main.js',
-        libraryTarget: 'commonjs2',
         path: resolve(buildPath, 'server'),
         publicPath: '/',
-      },
-      optimization: {
-        minimize: false,
       },
       plugins: createPlugins('server'),
       module: {
