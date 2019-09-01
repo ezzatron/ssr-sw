@@ -11,6 +11,7 @@ const {resolve} = require('path')
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const preCompression = require('./webpack/transform/pre-compression.js')
 const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
+const saneDefaults = require('./webpack/transform/sane-defaults.js')
 const targetNode = require('./webpack/transform/target-node.js')
 const {processConfig} = require('./webpack/process.js')
 
@@ -19,6 +20,7 @@ module.exports = processConfig(
     hotModuleReplacement(),
     preCompression(),
     reactHotLoader(),
+    saneDefaults(),
     targetNode(),
   ],
   (_, {mode = 'development'}) => {
@@ -137,7 +139,6 @@ module.exports = processConfig(
       output: {
         filename: jsFilename,
         path: resolve(buildPath, 'client'),
-        publicPath: '/',
       },
       plugins: createPlugins('client'),
       module: {
@@ -157,7 +158,6 @@ module.exports = processConfig(
       entry: './server/main.js',
       output: {
         path: resolve(buildPath, 'server'),
-        publicPath: '/',
       },
       plugins: createPlugins('server'),
       module: {
