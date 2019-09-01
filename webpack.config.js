@@ -33,7 +33,6 @@ module.exports = processConfig(
     const srcPath = resolve(rootPath, 'src')
     const buildPath = resolve(rootPath, 'artifacts/build', mode)
 
-    const jsFilename = isProduction ? '[name].hash~[contenthash].js' : '[name].js'
     const fileFilename = isProduction ? '[name].hash~[contenthash:20].[ext]' : '[path][name].[ext]'
 
     function createPlugins (target) {
@@ -75,7 +74,6 @@ module.exports = processConfig(
       context: srcPath,
       entry: './client/main.js',
       output: {
-        filename: jsFilename,
         path: resolve(buildPath, 'client'),
       },
       plugins: createPlugins('client'),
