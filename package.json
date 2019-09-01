@@ -53,7 +53,8 @@
     "router5-plugin-browser": "^7.0.2",
     "stats-webpack-plugin": "^0.7.0",
     "webpack": "^4.39.2",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^1.7.2",
+    "webpackbar": "^4.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",

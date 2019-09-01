@@ -6,6 +6,7 @@ const LoadablePlugin = require('@loadable/webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const nodeExternals = require('webpack-node-externals')
 const StatsPlugin = require('stats-webpack-plugin')
+const WebpackbarPlugin = require('webpackbar')
 const zopfli = require('@gfx/zopfli')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const {HotModuleReplacementPlugin, optimize: {LimitChunkCountPlugin}} = require('webpack')
@@ -32,6 +33,9 @@ module.exports = (_, {mode = 'development'}) => {
         filename: '.loadable-stats.json',
       }),
       new StatsPlugin('.stats.json'),
+      new WebpackbarPlugin({
+        name: target,
+      }),
     ]
 
     if (!isProduction) {
