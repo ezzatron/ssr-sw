@@ -3,6 +3,8 @@
 const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 
+const FileResourceHintsPlugin = require('./webpack/file-resource-hints-plugin.js')
+
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const loadableComponents = require('./webpack/transform/loadable-components.js')
 const loadBabel = require('./webpack/transform/load-babel.js')
@@ -29,6 +31,7 @@ module.exports = processConfig(
         return [
           new CleanPlugin(),
           new GitVersionPlugin(),
+          new FileResourceHintsPlugin(),
         ]
       },
     }),
