@@ -24,6 +24,9 @@ app.set('x-powered-by', false)
 
 app.use(morgan('dev'))
 app.use(webpackDevMiddleware(compiler, {
+  headers: {
+    'Cache-Control': 'no-cache',
+  },
   publicPath,
   serverSideRender: true,
   stats: {
