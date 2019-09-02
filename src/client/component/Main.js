@@ -9,9 +9,9 @@ const loadableOptions = {
   fallback: <Loading />,
 }
 
-const Bar = loadable(() => import('./Bar.js'), loadableOptions)
+const Bar = loadable(() => import(/* webpackPrefetch: true */ './Bar.js'), loadableOptions)
 const ClientOnly = loadable(() => import('./ClientOnly.js'), loadableOptions)
-const Foo = loadable(() => import('./Foo.js'), loadableOptions)
+const Foo = loadable(() => import(/* webpackPrefetch: true */ './Foo.js'), loadableOptions)
 
 export default function Main () {
   const {route} = useRouteNode('')
