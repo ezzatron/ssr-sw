@@ -10,6 +10,10 @@ export default function createApp (options) {
   const baseRouter = createRouter()
   const app = express()
 
+  app.get('/server-only', (request, response) => {
+    response.end('This is server-only.')
+  })
+
   app.use(asyncMiddleware(createRouterMiddleware(baseRouter)))
   app.use(asyncMiddleware(createRenderMiddleware(clientStats)))
 

@@ -24,7 +24,9 @@ export function createRouter () {
   router.usePlugin(serverOnlyPlugin)
   router.usePlugin(browserPlugin())
 
-  router.useMiddleware(router => toState => {
+  const isBrowser = typeof window === 'object' && window.history
+
+  router.useMiddleware(router => (toState, fromState, done) => {
     const {name} = toState
     const route = routesByName[name]
 
@@ -33,6 +35,8 @@ export function createRouter () {
 
       toState.meta.isClient = isClient
       toState.meta.isServer = isServer
+
+      if (isBrowser && !isClient && fromState) return done({isServerOnly: true})
     }
 
     return true
@@ -52,14 +56,9 @@ export function startRouter (router, state) {
 }
 
 function serverOnlyPlugin (router) {
-  if (typeof window !== 'object' || !window.history) return {}
-
   return {
-    onTransitionStart (toState) {
-      const {name, path} = toState
-      const {isClient = true} = routesByName[name] || {}
-
-      if (!isClient) window.location.href = path
+    onTransitionError (toState, fromState, error) {
+      if (error.isServerOnly) window.location = toState.path
     },
   }
 }
