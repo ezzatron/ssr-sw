@@ -6,7 +6,8 @@ const routes = [
 
   {name: 'bar', path: '/bar'},
   {name: 'foo', path: '/foo'},
-  {name: 'client-only', path: '/client-only', isClientOnly: true},
+  {name: 'client-only', path: '/client-only', isServer: false},
+  {name: 'server-only', path: '/server-only', isClient: false},
   {name: 'no-component', path: '/no-component'},
 ]
 
@@ -20,13 +21,19 @@ export function createRouter () {
   const router = createRouter5(routes, {
     allowNotFound: true,
   })
+  router.usePlugin(serverOnlyPlugin)
   router.usePlugin(browserPlugin())
 
   router.useMiddleware(router => toState => {
     const {name} = toState
     const route = routesByName[name]
 
-    toState.meta.isClientOnly = !!(route && route.isClientOnly)
+    if (route) {
+      const {isClient = true, isServer = true} = route
+
+      toState.meta.isClient = isClient
+      toState.meta.isServer = isServer
+    }
 
     return true
   })
@@ -42,6 +49,19 @@ export function startRouter (router, state) {
 
     state ? router.start(state, handleStart) : router.start(handleStart)
   })
+}
+
+function serverOnlyPlugin (router) {
+  if (typeof window !== 'object' || !window.history) return {}
+
+  return {
+    onTransitionStart (toState) {
+      const {name, path} = toState
+      const {isClient = true} = routesByName[name] || {}
+
+      if (!isClient) window.location.href = path
+    },
+  }
 }
 
 function redirect (name, params) {

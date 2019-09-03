@@ -32,7 +32,7 @@ export function createRenderMiddleware (clientStats) {
     const {
       name: routeName,
       meta: {
-        isClientOnly,
+        isServer,
       },
     } = routerState
 
@@ -40,11 +40,7 @@ export function createRenderMiddleware (clientStats) {
 
     let html
 
-    if (isClientOnly) {
-      html = clientOnlyHtml
-
-      response.setHeader('Link', clientOnlyLinkHeaderValue)
-    } else {
+    if (isServer) {
       const props = {
         router,
       }
@@ -78,6 +74,10 @@ export function createRenderMiddleware (clientStats) {
 
         response.setHeader('Link', linkHeaderValue)
       }
+    } else {
+      html = clientOnlyHtml
+
+      response.setHeader('Link', clientOnlyLinkHeaderValue)
     }
 
     response.setHeader('Content-Type', 'text/html')
