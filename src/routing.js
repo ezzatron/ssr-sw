@@ -2,11 +2,12 @@ import browserPlugin from 'router5-plugin-browser'
 import {createRouter as createRouter5} from 'router5'
 
 const routes = [
-  {name: 'home', path: '/', canActivate: redirect('foo')},
+  {name: 'home', path: '/', canActivate: redirect('dashboard')},
 
+  {name: 'dashboard', path: '/dashboard'},
   {name: 'sign-in', path: '/sign-in'},
-  {name: 'bar', path: '/bar'},
-  {name: 'foo', path: '/foo'},
+
+  {name: 'universal', path: '/universal'},
   {name: 'client-only', path: '/client-only', isServer: false},
   {name: 'server-only', path: '/server-only', isClient: false},
   {name: 'no-component', path: '/no-component'},

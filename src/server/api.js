@@ -14,7 +14,7 @@ export function createApiV1 (router) {
     if (!isValid) return response.sendStatus(400)
 
     response.cookie('userId', userId, {httpOnly: true})
-    response.redirect(router.buildPath('foo'))
+    response.redirect(router.buildPath('dashboard'))
   })
 
   app.post('/sign-out', (request, response) => {
