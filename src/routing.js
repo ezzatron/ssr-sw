@@ -2,36 +2,12 @@ import browserPlugin from 'router5-plugin-browser'
 import transitionPath from 'router5-transition-path'
 import {createRouter as createRouter5} from 'router5'
 
-const routes = [
-  {name: 'home', path: '/', canActivate: redirect('dashboard')},
-
-  {name: 'dashboard', path: '/dashboard'},
-  {name: 'sign-in', path: '/sign-in'},
-  {name: 'sign-out', path: '/sign-out'},
-
-  {name: 'universal', path: '/universal'},
-  {name: 'client-only', path: '/client-only', isServer: false},
-  {name: 'server-only', path: '/server-only', isClient: false},
-  {name: 'no-component', path: '/no-component'},
-
-  {name: 'api-user', path: '/api/v1/user', isClient: false},
-]
-
-function fetchRootData (context, dependencies) {
-  const {authClient: {fetchUser}} = dependencies
-
-  return {
-    user: fetchUser(),
-  }
-}
-
-export function createRouter (dependencies) {
+export function createRouter (routes) {
   const router = createRouter5(
-    routes,
+    routes.filter(({name}) => name !== ''),
     {
       allowNotFound: true,
     },
-    dependencies,
   )
 
   router.usePlugin(universalPlugin)
@@ -41,9 +17,15 @@ export function createRouter (dependencies) {
   const routesByName = buildRouteMap(routes)
 
   router.useMiddleware(createUniversalMiddleware({isBrowser, routesByName}))
-  router.useMiddleware(createDataMiddleware({fetchRootData, isBrowser, routesByName}))
+  router.useMiddleware(createDataMiddleware({isBrowser, routesByName}))
 
   return router
+}
+
+export function redirect (name, params) {
+  return router => (toState, fromState, done) => {
+    done({redirect: {name, params}})
+  }
 }
 
 export function startRouter (router, state) {
@@ -97,11 +79,12 @@ function createUniversalMiddleware (options) {
 }
 
 function createDataMiddleware (options) {
-  const {fetchRootData, isBrowser, routesByName} = options
+  const {isBrowser, routesByName} = options
 
   return function dataMiddleware (router, dependencies) {
     return (toState, fromState) => {
       const {toActivate, toDeactivate} = transitionPath(toState, fromState)
+      if (!fromState) toActivate.unshift('')
 
       const fetchers = toActivate
         .map(segment => {
@@ -111,7 +94,6 @@ function createDataMiddleware (options) {
           return fetchData ? [segment, fetchData] : null
         })
         .filter(Boolean)
-      if (!fromState && fetchRootData) fetchers.unshift(['', fetchRootData])
 
       const data = fromState ? {...fromState.data} : {}
       for (const segment of toDeactivate) delete data[segment]
@@ -179,10 +161,4 @@ function buildRouteMap (routes) {
 
     return routes
   }, {})
-}
-
-function redirect (name, params) {
-  return router => (toState, fromState, done) => {
-    done({redirect: {name, params}})
-  }
 }

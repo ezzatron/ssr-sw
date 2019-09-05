@@ -14,9 +14,7 @@ export function RouteDataProvider (props) {
       const init = {}
 
       for (const segment in routeData) {
-        const segmentInit = {}
-        for (const key in routeData[segment]) segmentInit[key] = undefined
-        init[segment] = segmentInit
+        for (const key in routeData[segment]) init[key] = undefined
       }
 
       setData(init)
@@ -26,21 +24,8 @@ export function RouteDataProvider (props) {
 
         for (const key in fetcher) {
           Promise.resolve(fetcher[key])
-            .then(
-              value => [undefined, value],
-              error => [error],
-            )
-            .then(result => {
-              setData(data => {
-                return {
-                  ...data,
-                  [segment]: {
-                    ...data[segment],
-                    [key]: result,
-                  },
-                }
-              })
-            })
+            .then(value => [undefined, value], error => [error])
+            .then(result => setData(data => ({...data, [key]: result})))
         }
       }
     },
