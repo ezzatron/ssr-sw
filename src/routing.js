@@ -145,7 +145,7 @@ function createDataMiddleware (options) {
             const error = new Error(`Unable to fetch data for ${toState.name}:\n\n${errorList.join('\n\n')}`)
             error.isDataError = true
             error.errors = errors
-            delete error.stack
+            error.stack = ''
 
             throw error
           })
