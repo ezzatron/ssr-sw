@@ -137,7 +137,7 @@ function createDataMiddleware (options) {
             if (Object.keys(errors).length < 1) return {...toState, data: Object.fromEntries(entries)}
 
             const errorList = Object.entries(errors).map(([key, error]) => {
-              const message = error instanceof Error ? error.stack : '' + error
+              const message = error.stack || '' + error
 
               return `- Fetching "${key}" failed:\n\n${message.split('\n').map(line => `  ${line}`).join('\n')}`
             })
