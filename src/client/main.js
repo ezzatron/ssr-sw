@@ -2,13 +2,18 @@ import {hydrate, render} from 'react-dom'
 import {loadableReady} from '@loadable/component'
 
 import App from './component/App.js'
+import {createAuthClient} from './auth-client.js'
 import {createRouter, startRouter} from '../routing.js'
 
-const {appState} = window
 const router = createRouter()
+router.setDependencies({
+  authClient: createAuthClient({router}),
+})
+
+const {appState} = window
 
 if (appState) {
-  const {auth, router: routerState} = appState
+  const {router: routerState} = appState
 
   Promise.all([
     startRouter(router, routerState),
@@ -16,7 +21,7 @@ if (appState) {
   ])
     .then(() => {
       hydrate(
-        <App auth={auth} router={router} />,
+        <App router={router} />,
         document.getElementById('root'),
       )
     })

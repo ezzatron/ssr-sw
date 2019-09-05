@@ -5,16 +5,7 @@ import {createRouter as createRouter5} from 'router5'
 const routes = [
   {name: 'home', path: '/', canActivate: redirect('dashboard')},
 
-  {
-    name: 'dashboard',
-    path: '/dashboard',
-    onActivate (context) {
-      return {
-        test: Promise.resolve('this worked'),
-      }
-    },
-  },
-
+  {name: 'dashboard', path: '/dashboard'},
   {name: 'sign-in', path: '/sign-in'},
   {name: 'sign-out', path: '/sign-out'},
 
@@ -26,21 +17,31 @@ const routes = [
   {name: 'api-user', path: '/api/v1/user', isClient: false},
 ]
 
-export function createRouter () {
-  const router = createRouter5(routes, {
-    allowNotFound: true,
-  })
+function fetchRootData (context, dependencies) {
+  const {authClient: {fetchUser}} = dependencies
+
+  return {
+    user: fetchUser(),
+  }
+}
+
+export function createRouter (dependencies) {
+  const router = createRouter5(
+    routes,
+    {
+      allowNotFound: true,
+    },
+    dependencies,
+  )
 
   router.usePlugin(universalPlugin)
   router.usePlugin(browserPlugin())
 
-  const options = {
-    isBrowser: typeof window === 'object' && window.history,
-    routesByName: buildRouteMap(routes),
-  }
+  const isBrowser = typeof window === 'object' && window.history
+  const routesByName = buildRouteMap(routes)
 
-  router.useMiddleware(createUniversalMiddleware(options))
-  router.useMiddleware(createDataMiddleware(options))
+  router.useMiddleware(createUniversalMiddleware({isBrowser, routesByName}))
+  router.useMiddleware(createDataMiddleware({fetchRootData, isBrowser, routesByName}))
 
   return router
 }
@@ -58,7 +59,7 @@ export function startRouter (router, state) {
       const realError = new Error('Unable to start router')
       realError.error = error
 
-      return reject(realError)
+      reject(realError)
     }
 
     state ? router.start(state, handleStart) : router.start(handleStart)
@@ -90,66 +91,84 @@ function createUniversalMiddleware (options) {
         if (isBrowser && !isClient && fromState) return done({isServerOnly: true})
       }
 
-      return done()
+      done()
     }
   }
 }
 
 function createDataMiddleware (options) {
-  const {isBrowser, routesByName} = options
+  const {fetchRootData, isBrowser, routesByName} = options
 
-  return function dataMiddleware (router) {
+  return function dataMiddleware (router, dependencies) {
     return (toState, fromState) => {
-      const {toActivate} = transitionPath(toState, fromState)
-      const onActivateHandlers = toActivate
+      const {toActivate, toDeactivate} = transitionPath(toState, fromState)
+
+      const fetchers = toActivate
         .map(segment => {
           const route = routesByName[segment]
+          const fetchData = route && route.fetchData
 
-          return route && route.onActivate
+          return fetchData ? [segment, fetchData] : null
         })
         .filter(Boolean)
+      if (!fromState && fetchRootData) fetchers.unshift(['', fetchRootData])
 
-      const data = {}
+      const data = fromState ? {...fromState.data} : {}
+      for (const segment of toDeactivate) delete data[segment]
 
-      for (const onActivateHandler of onActivateHandlers) {
-        const segmentData = onActivateHandler({
-          data,
-          params: toState.params,
-        })
-
-        Object.assign(data, segmentData)
+      for (const [segment, fetchData] of fetchers) {
+        data[segment] = fetchData(
+          {
+            data,
+            params: toState.params,
+          },
+          dependencies,
+        )
       }
 
       if (isBrowser) {
         toState.data = data
-      } else {
-        const errors = {}
 
-        return Promise.all(
-          Object.entries(data).map(([key, promise]) => {
-            return promise.then(
-              result => [key, result],
-              error => { errors[key] = error },
-            )
-          }),
-        )
-          .then(entries => {
-            if (Object.keys(errors).length < 1) return {...toState, data: Object.fromEntries(entries)}
-
-            const errorList = Object.entries(errors).map(([key, error]) => {
-              const message = error.stack || '' + error
-
-              return `- Fetching "${key}" failed:\n\n${message.split('\n').map(line => `  ${line}`).join('\n')}`
-            })
-
-            const error = new Error(`Unable to fetch data for ${toState.name}:\n\n${errorList.join('\n\n')}`)
-            error.isDataError = true
-            error.errors = errors
-            error.stack = ''
-
-            throw error
-          })
+        return true
       }
+
+      return Promise.all(
+        Object.entries(data).flatMap(([segment, values]) => {
+          return Object.entries(values).map(([key, promise]) => {
+            return promise.then(
+              result => [segment, key, null, result],
+              error => [segment, key, error],
+            )
+          })
+        }),
+      )
+        .then(resolutions => {
+          const errors = resolutions.filter(([,, error]) => error)
+
+          if (errors.length < 1) {
+            const nextData = resolutions.reduce((data, [segment, key, , value]) => {
+              data[segment][key] = value
+
+              return data
+            }, data)
+
+            return {...toState, data: nextData}
+          }
+
+          const errorList = Object.entries(errors).map(([segment, key, error]) => {
+            const message = error.stack || '' + error
+            const lines = message.split('\n').map(line => `  ${line}`).join('\n')
+
+            return `- Fetching "${segment}.${key}" failed:\n\n${lines}`
+          })
+
+          const error = new Error(`Unable to fetch data for ${toState.name}:\n\n${errorList.join('\n\n')}`)
+          error.isDataError = true
+          error.errors = errors
+          error.stack = ''
+
+          throw error
+        })
     }
   }
 }

@@ -6,36 +6,10 @@ import {renderToString} from 'react-dom/server'
 import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
 import {buildEntryTags} from './webpack.js'
+import {createAuthClient} from './auth-client.js'
 import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
-
-export function createAuthMiddleware () {
-  return async function authMiddleware (request, response, next) {
-    await new Promise(resolve => setTimeout(resolve, 300))
-
-    const {userId} = request.signedCookies
-
-    switch (userId) {
-      case '111': {
-        request.user = {id: 111, name: 'Amy A.', username: 'amy'}
-
-        break
-      }
-
-      case '222': {
-        request.user = {id: 222, name: 'Bob B.', username: 'bob'}
-
-        break
-      }
-
-      default:
-        request.user = null
-    }
-
-    next()
-  }
-}
 
 export function createRenderMiddleware (clientStats) {
   const appTemplate = compile(appTemplateContent)
@@ -72,12 +46,7 @@ export function createRenderMiddleware (clientStats) {
     let html
 
     if (isServer) {
-      const auth = request.user
-        ? {status: 'authenticated', user: request.user}
-        : {status: 'anonymous', user: null}
-
       const props = {
-        auth,
         router,
       }
 
@@ -89,7 +58,6 @@ export function createRenderMiddleware (clientStats) {
       const styleTags = webExtractor.getStyleTags()
 
       const appState = {
-        auth,
         router: routerState,
       }
 
@@ -128,7 +96,10 @@ export function createRenderMiddleware (clientStats) {
 
 export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
-    const router = request.router = cloneRouter(baseRouter)
+    const router = request.router = cloneRouter(baseRouter, {
+      authClient: createAuthClient({request}),
+    })
+
     const routerState = request.routerState = await startRouter(router, request.originalUrl)
 
     const {
