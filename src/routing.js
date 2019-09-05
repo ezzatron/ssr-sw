@@ -1,10 +1,20 @@
 import browserPlugin from 'router5-plugin-browser'
+import transitionPath from 'router5-transition-path'
 import {createRouter as createRouter5} from 'router5'
 
 const routes = [
   {name: 'home', path: '/', canActivate: redirect('dashboard')},
 
-  {name: 'dashboard', path: '/dashboard'},
+  {
+    name: 'dashboard',
+    path: '/dashboard',
+    onActivate (context) {
+      return {
+        test: Promise.resolve('this worked'),
+      }
+    },
+  },
+
   {name: 'sign-in', path: '/sign-in'},
   {name: 'sign-out', path: '/sign-out'},
 
@@ -16,36 +26,21 @@ const routes = [
   {name: 'api-user', path: '/api/v1/user', isClient: false},
 ]
 
-const routesByName = routes.reduce((routes, route) => {
-  routes[route.name] = route
-
-  return routes
-}, {})
-
 export function createRouter () {
   const router = createRouter5(routes, {
     allowNotFound: true,
   })
-  router.usePlugin(serverOnlyPlugin)
+
+  router.usePlugin(universalPlugin)
   router.usePlugin(browserPlugin())
 
-  const isBrowser = typeof window === 'object' && window.history
+  const options = {
+    isBrowser: typeof window === 'object' && window.history,
+    routesByName: buildRouteMap(routes),
+  }
 
-  router.useMiddleware(router => (toState, fromState, done) => {
-    const {name} = toState
-    const route = routesByName[name]
-
-    if (route) {
-      const {isClient = true, isServer = true} = route
-
-      toState.meta.isClient = isClient
-      toState.meta.isServer = isServer
-
-      if (isBrowser && !isClient && fromState) return done({isServerOnly: true})
-    }
-
-    return true
-  })
+  router.useMiddleware(createUniversalMiddleware(options))
+  router.useMiddleware(createDataMiddleware(options))
 
   return router
 }
@@ -60,12 +55,96 @@ export function startRouter (router, state) {
   })
 }
 
-function serverOnlyPlugin (router) {
+function universalPlugin (router) {
   return {
     onTransitionError (toState, fromState, error) {
       if (error.isServerOnly) window.location = toState.path
     },
   }
+}
+
+function createUniversalMiddleware (options) {
+  const {isBrowser, routesByName} = options
+
+  return function universalMiddleware (router) {
+    return (toState, fromState, done) => {
+      const {name} = toState
+      const route = routesByName[name]
+
+      if (route) {
+        const {isClient = true, isServer = true} = route
+
+        toState.meta.isClient = isClient
+        toState.meta.isServer = isServer
+
+        if (isBrowser && !isClient && fromState) return done({isServerOnly: true})
+      }
+
+      return true
+    }
+  }
+}
+
+function createDataMiddleware (options) {
+  const {isBrowser, routesByName} = options
+
+  return function dataMiddleware (router) {
+    return (toState, fromState, done) => {
+      const {toActivate} = transitionPath(toState, fromState)
+      const onActivateHandlers = toActivate
+        .map(segment => {
+          const route = routesByName[segment]
+
+          return route && route.onActivate
+        })
+        .filter(Boolean)
+
+      const data = {}
+
+      for (const onActivateHandler of onActivateHandlers) {
+        const segmentData = onActivateHandler({
+          data,
+          params: toState.params,
+        })
+
+        Object.assign(data, segmentData)
+      }
+
+      if (isBrowser) {
+        toState.data = data
+      } else {
+        const errors = {}
+
+        Promise.all(
+          Object.entries(data).map(([key, promise]) => {
+            return promise.then(
+              result => {
+                data[key] = result
+              },
+              error => {
+                errors[key] = error
+                delete data[key]
+              },
+            )
+          }),
+        )
+          .then(() => {
+            if (Object.keys(errors).length > 0) return done({isDataError: true, errors})
+
+            toState.data = data
+            done()
+          })
+      }
+    }
+  }
+}
+
+function buildRouteMap (routes) {
+  return routes.reduce((routes, route) => {
+    routes[route.name] = route
+
+    return routes
+  }, {})
 }
 
 function redirect (name, params) {

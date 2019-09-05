@@ -53,6 +53,7 @@
     "router5": "^7.0.2",
     "router5-helpers": "^7.0.1",
     "router5-plugin-browser": "^7.0.2",
+    "router5-transition-path": "^7.0.1",
     "safe-require": "^1.0.3",
     "stats-webpack-plugin": "^0.7.0",
     "webpack": "^4.39.2",
