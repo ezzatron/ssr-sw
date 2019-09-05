@@ -38,7 +38,10 @@ async function main () {
       response.setHeader('Cache-Control', cacheControlByBasename(basename(urlPath)))
     },
   }))
-  app.use(createMainMiddleware({clientStats}))
+  app.use(createMainMiddleware({
+    clientStats,
+    secret: 'prod-secret',
+  }))
 
   app.listen(8080, '0.0.0.0', () => {
     console.log('Listening at http://127.0.0.1:8080/')

@@ -37,7 +37,11 @@ app.use(webpackDevMiddleware(compiler, {
   },
 }))
 app.use(webpackHotMiddleware(clientComiler))
-app.use(webpackHotServerMiddleware(compiler))
+app.use(webpackHotServerMiddleware(compiler, {
+  serverRendererOptions: {
+    secret: 'dev-secret',
+  },
+}))
 
 app.listen(8080, '0.0.0.0', () => {
   console.log('Listening at http://127.0.0.1:8080/')

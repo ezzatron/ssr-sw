@@ -27,7 +27,11 @@ export function createRenderMiddleware (clientStats) {
   })
 
   return async function renderMiddleware (request, response, next) {
-    const {router, routerState} = request
+    const {method, router, routerState} = request
+    const isGet = method === 'GET'
+    const isHead = method === 'HEAD'
+
+    if (!isGet && !isHead) return next()
 
     const {
       name: routeName,
@@ -82,6 +86,8 @@ export function createRenderMiddleware (clientStats) {
 
     response.setHeader('Content-Type', 'text/html')
     response.setHeader('Content-Length', html.length)
+
+    if (isHead) response.end()
 
     response.end(html)
   }

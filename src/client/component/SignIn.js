@@ -4,7 +4,7 @@ import styles from './SignIn.css'
 
 export default function SignIn () {
   const router = useRouter()
-  const signInAction = router.buildPath('api-sign-in')
+  const signInAction = router.buildPath('sign-in')
 
   return <div className={styles.signIn}>
     <h1>Sign in</h1>

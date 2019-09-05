@@ -6,14 +6,12 @@ const routes = [
 
   {name: 'dashboard', path: '/dashboard'},
   {name: 'sign-in', path: '/sign-in'},
+  {name: 'sign-out', path: '/sign-out'},
 
   {name: 'universal', path: '/universal'},
   {name: 'client-only', path: '/client-only', isServer: false},
   {name: 'server-only', path: '/server-only', isClient: false},
   {name: 'no-component', path: '/no-component'},
-
-  {name: 'api-sign-in', path: '/api/v1/sign-in', isClient: false},
-  {name: 'api-sign-out', path: '/api/v1/sign-out', isClient: false},
 ]
 
 const routesByName = routes.reduce((routes, route) => {

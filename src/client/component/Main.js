@@ -12,16 +12,19 @@ const loadableOptions = {
 const Universal = loadable(() => import('./Universal.js'), loadableOptions)
 const ClientOnly = loadable(() => import('./ClientOnly.js'), loadableOptions)
 const Dashboard = loadable(() => import(/* webpackPrefetch: true */ './Dashboard.js'), loadableOptions)
-const SignIn = loadable(() => import(/* webpackPrefetch: true */ './SignIn.js'), loadableOptions)
+const SignIn = loadable(() => import('./SignIn.js'), loadableOptions)
+const SignOut = loadable(() => import('./SignOut.js'), loadableOptions)
 
 export default function Main () {
   const {route} = useRouteNode('')
   const testRoute = startsWithSegment(route)
 
-  if (testRoute('universal')) return <Universal />
-  if (testRoute('sign-in')) return <SignIn />
-  if (testRoute('client-only')) return <ClientOnly />
   if (testRoute('dashboard')) return <Dashboard />
+  if (testRoute('sign-in')) return <SignIn />
+  if (testRoute('sign-out')) return <SignOut />
+
+  if (testRoute('universal')) return <Universal />
+  if (testRoute('client-only')) return <ClientOnly />
 
   return <NotFound />
 }

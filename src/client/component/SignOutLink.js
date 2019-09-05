@@ -5,7 +5,7 @@ import styles from './SignOutLink.css'
 
 export default function SignOutLink () {
   const router = useRouter()
-  const signOutAction = router.buildPath('api-sign-out')
+  const signOutAction = router.buildPath('sign-out')
 
   const formEl = useRef(null)
   const handleClick = useCallback(event => {
