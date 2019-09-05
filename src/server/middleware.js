@@ -10,6 +10,33 @@ import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
+export function createAuthMiddleware () {
+  return async function authMiddleware (request, response, next) {
+    await new Promise(resolve => setTimeout(resolve, 300))
+
+    const {userId} = request.signedCookies
+
+    switch (userId) {
+      case '111': {
+        request.user = {id: 111, name: 'Amy A.', username: 'amy'}
+
+        break
+      }
+
+      case '222': {
+        request.user = {id: 222, name: 'Bob B.', username: 'bob'}
+
+        break
+      }
+
+      default:
+        request.user = null
+    }
+
+    next()
+  }
+}
+
 export function createRenderMiddleware (clientStats) {
   const appTemplate = compile(appTemplateContent)
 
@@ -45,7 +72,12 @@ export function createRenderMiddleware (clientStats) {
     let html
 
     if (isServer) {
+      const auth = request.user
+        ? {status: 'authenticated', user: request.user}
+        : {status: 'anonymous', user: null}
+
       const props = {
+        auth,
         router,
       }
 
@@ -57,6 +89,7 @@ export function createRenderMiddleware (clientStats) {
       const styleTags = webExtractor.getStyleTags()
 
       const appState = {
+        auth,
         router: routerState,
       }
 

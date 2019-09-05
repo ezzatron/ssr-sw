@@ -8,7 +8,7 @@ const {appState} = window
 const router = createRouter()
 
 if (appState) {
-  const {router: routerState} = appState
+  const {auth, router: routerState} = appState
 
   Promise.all([
     startRouter(router, routerState),
@@ -16,7 +16,7 @@ if (appState) {
   ])
     .then(() => {
       hydrate(
-        <App router={router} />,
+        <App auth={auth} router={router} />,
         document.getElementById('root'),
       )
     })

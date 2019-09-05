@@ -12,6 +12,8 @@ const routes = [
   {name: 'client-only', path: '/client-only', isServer: false},
   {name: 'server-only', path: '/server-only', isClient: false},
   {name: 'no-component', path: '/no-component'},
+
+  {name: 'api-user', path: '/api/v1/user', isClient: false},
 ]
 
 const routesByName = routes.reduce((routes, route) => {

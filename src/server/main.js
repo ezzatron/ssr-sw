@@ -4,7 +4,7 @@ import express from 'express'
 
 import {asyncMiddleware} from './express.js'
 import {createApiV1} from './api.js'
-import {createRenderMiddleware, createRouterMiddleware} from './middleware.js'
+import {createAuthMiddleware, createRenderMiddleware, createRouterMiddleware} from './middleware.js'
 import {createRouter} from '../routing.js'
 
 export default function createApp (options) {
@@ -19,6 +19,8 @@ export default function createApp (options) {
 
   app.use(bodyParser.urlencoded({extended: false}))
   app.use(cookieParser(secret))
+
+  app.use(asyncMiddleware(createAuthMiddleware()))
 
   app.post('/sign-in', (request, response) => {
     const {userId} = request.body

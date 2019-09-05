@@ -1,5 +1,7 @@
 import express from 'express'
 
+import {asyncMiddleware} from './express.js'
+
 export function createApiV1 () {
   const app = express()
 
@@ -7,11 +9,10 @@ export function createApiV1 () {
   app.set('trust proxy', true)
   app.set('x-powered-by', false)
 
-  app.get('/user', (request, response) => {
-    const {userId} = request.signedCookies
-
-    response.end(userId)
-  })
+  app.get('/user', asyncMiddleware(async (request, response) => {
+    response.setHeader('Cache-Control', 'no-cache')
+    response.json(request.user)
+  }))
 
   return app
 }
