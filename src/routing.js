@@ -48,7 +48,17 @@ export function createRouter () {
 export function startRouter (router, state) {
   return new Promise((resolve, reject) => {
     function handleStart (error, state) {
-      error ? reject(error) : resolve(state)
+      if (!error) return resolve(state)
+
+      const {promiseError} = error
+
+      if (promiseError) return reject(promiseError)
+      if (error instanceof Error) return reject(error)
+
+      const realError = new Error('Unable to start router')
+      realError.error = error
+
+      return reject(realError)
     }
 
     state ? router.start(state, handleStart) : router.start(handleStart)
@@ -80,7 +90,7 @@ function createUniversalMiddleware (options) {
         if (isBrowser && !isClient && fromState) return done({isServerOnly: true})
       }
 
-      return true
+      return done()
     }
   }
 }
@@ -89,7 +99,7 @@ function createDataMiddleware (options) {
   const {isBrowser, routesByName} = options
 
   return function dataMiddleware (router) {
-    return (toState, fromState, done) => {
+    return (toState, fromState) => {
       const {toActivate} = transitionPath(toState, fromState)
       const onActivateHandlers = toActivate
         .map(segment => {
@@ -115,24 +125,29 @@ function createDataMiddleware (options) {
       } else {
         const errors = {}
 
-        Promise.all(
+        return Promise.all(
           Object.entries(data).map(([key, promise]) => {
             return promise.then(
-              result => {
-                data[key] = result
-              },
-              error => {
-                errors[key] = error
-                delete data[key]
-              },
+              result => [key, result],
+              error => { errors[key] = error },
             )
           }),
         )
-          .then(() => {
-            if (Object.keys(errors).length > 0) return done({isDataError: true, errors})
+          .then(entries => {
+            if (Object.keys(errors).length < 1) return {...toState, data: Object.fromEntries(entries)}
 
-            toState.data = data
-            done()
+            const errorList = Object.entries(errors).map(([key, error]) => {
+              const message = error instanceof Error ? error.stack : '' + error
+
+              return `- Fetching "${key}" failed:\n\n${message.split('\n').map(line => `  ${line}`).join('\n')}`
+            })
+
+            const error = new Error(`Unable to fetch data for ${toState.name}:\n\n${errorList.join('\n\n')}`)
+            error.isDataError = true
+            error.errors = errors
+            delete error.stack
+
+            throw error
           })
       }
     }

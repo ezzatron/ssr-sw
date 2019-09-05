@@ -129,15 +129,7 @@ export function createRenderMiddleware (clientStats) {
 export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
     const router = request.router = cloneRouter(baseRouter)
-    let routerState
-
-    try {
-      routerState = request.routerState = await startRouter(router, request.originalUrl)
-    } catch (error) {
-      console.error('Unable to start router:', error)
-
-      return response.sendStatus(500)
-    }
+    const routerState = request.routerState = await startRouter(router, request.originalUrl)
 
     const {
       name: routeName,
