@@ -39,5 +39,7 @@ export default [
   {name: 'server-only', path: '/server-only', isClient: false},
   {name: 'no-component', path: '/no-component'},
 
-  {name: 'api-user', path: '/api/v1/user', isClient: false},
+  {name: 'api', path: '/api', isClient: false},
+  {name: 'api.v1', path: '/v1', isClient: false},
+  {name: 'api.v1.user', path: '/user', isClient: false},
 ]
