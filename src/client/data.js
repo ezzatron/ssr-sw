@@ -11,8 +11,13 @@ export function createDataFetcher (initialData = {}) {
       return [segment, results]
     }),
   )
+  let data = buildData(dataBySegment)
 
   return {
+    currentData () {
+      return data
+    },
+
     routeDataHandler (toState, toUpdate, toRemove) {
       let needsPublish = false
 
@@ -62,7 +67,7 @@ export function createDataFetcher (initialData = {}) {
         subscribers.delete(subscriber)
       }
 
-      return [unsubscribe, buildData(dataBySegment)]
+      return [unsubscribe, data]
     },
   }
 
@@ -74,7 +79,7 @@ export function createDataFetcher (initialData = {}) {
   }
 
   function publish () {
-    const data = buildData(dataBySegment)
+    data = buildData(dataBySegment)
     subscribers.forEach(subscriber => subscriber(data))
   }
 }

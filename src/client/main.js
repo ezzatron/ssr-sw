@@ -16,11 +16,15 @@ router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const {routeDataHandler, subscribeToData} = createDataFetcher(routerData)
+const {currentData, routeDataHandler, subscribeToData} = createDataFetcher(routerData)
+const data = currentData()
 router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
 
-const [, initialData] = subscribeToData(data => { console.log('Updated data:', data) })
-console.log('Initial data:', initialData)
+const props = {
+  data,
+  router,
+  subscribeToData,
+}
 
 if (shouldHydrate) {
   Promise.all([
@@ -31,7 +35,7 @@ if (shouldHydrate) {
   ])
     .then(() => {
       hydrate(
-        <App router={router} />,
+        <App {...props} />,
         document.getElementById('root'),
       )
     })
@@ -49,7 +53,7 @@ if (shouldHydrate) {
   ])
     .then(() => {
       render(
-        <App router={router} />,
+        <App {...props} />,
         document.getElementById('root'),
       )
     })

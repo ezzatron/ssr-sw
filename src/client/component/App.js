@@ -2,13 +2,16 @@ import {hot} from 'react-hot-loader/root'
 import {RouterProvider} from 'react-router5'
 
 import Root from './Root.js'
+import {DataProvider} from '../context/data.js'
 
 export default hot(App)
 
 function App (props) {
-  const {router} = props
+  const {data, router, subscribeToData} = props
 
   return <RouterProvider router={router}>
-    <Root />
+    <DataProvider data={data} subscribeToData={subscribeToData}>
+      <Root />
+    </DataProvider>
   </RouterProvider>
 }
