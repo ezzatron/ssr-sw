@@ -5,10 +5,11 @@ import {renderToString} from 'react-dom/server'
 
 import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
+import routes from '../routes.js'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'
-import {createDataFetcher} from './routing.js'
-import {startRouter} from '../routing.js'
+import {createDataFetcher} from './data.js'
+import {createDataMiddleware, startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
@@ -99,12 +100,13 @@ export function createRenderMiddleware (clientStats) {
 
 export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
-    const {handleFetchData, resolveData} = createDataFetcher()
+    const {routeDataHandler, resolveData} = createDataFetcher()
+    const dataMiddleware = createDataMiddleware({handler: routeDataHandler, routes})
 
     const router = request.router = cloneRouter(baseRouter, {
       authClient: createAuthClient({request}),
-      handleFetchData,
     })
+    router.useMiddleware(dataMiddleware)
 
     const routerState = request.routerState = await startRouter(router, request.originalUrl)
     request.routerData = await resolveData()

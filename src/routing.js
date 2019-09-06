@@ -14,13 +14,47 @@ export function createRouter (routes) {
   router.usePlugin(browserPlugin())
 
   const isBrowser = typeof window === 'object' && window.history
-  const routesByName = buildRouteMap(routes)
+  const routesByName = routes.reduce((routes, route) => {
+    routes[route.name] = route
+
+    return routes
+  }, {})
 
   router.useMiddleware(createRedirectMiddleware({routesByName}))
   router.useMiddleware(createUniversalMiddleware({isBrowser, routesByName}))
-  router.useMiddleware(createDataMiddleware({isBrowser, routesByName}))
 
   return router
+}
+
+export function createDataMiddleware (options) {
+  const {handler, routes} = options
+
+  const fetchDataByRoute = routes.reduce((byRoute, route) => {
+    const {fetchData, name} = route
+    if (fetchData) byRoute[name] = fetchData
+
+    return byRoute
+  }, {})
+
+  return function dataMiddleware (router, dependencies) {
+    return (toState, fromState) => {
+      const {toActivate, toDeactivate} = transitionPath(toState, fromState)
+      if (!fromState) toActivate.unshift('')
+
+      const toRemove = toDeactivate.filter(segment => fetchDataByRoute[segment])
+      const toUpdate = toActivate
+        .filter(segment => fetchDataByRoute[segment])
+        .map(segment => {
+          const fetchData = fetchDataByRoute[segment]
+
+          return [segment, () => fetchData(dependencies, toState.params)]
+        })
+
+      handler(toState, toUpdate, toRemove)
+
+      return true
+    }
+  }
 }
 
 export function startRouter (router, state) {
@@ -92,43 +126,4 @@ function createUniversalMiddleware (options) {
       done()
     }
   }
-}
-
-function createDataMiddleware (options) {
-  return function dataMiddleware (router, dependencies) {
-    const {handleFetchData} = dependencies
-
-    if (!handleFetchData) return () => true
-
-    const {routesByName} = options
-    const fetchDataByRoute = {}
-    for (const name in routesByName) fetchDataByRoute[name] = routesByName[name].fetchData
-
-    return (toState, fromState) => {
-      const {toActivate, toDeactivate} = transitionPath(toState, fromState)
-      if (!fromState) toActivate.unshift('')
-
-      const toRemove = toDeactivate.filter(segment => fetchDataByRoute[segment])
-      const toUpdate = toActivate
-        .filter(segment => fetchDataByRoute[segment])
-        .map(segment => {
-          return [
-            segment,
-            () => fetchDataByRoute[segment](dependencies, toState.params),
-          ]
-        })
-
-      handleFetchData(toState, toUpdate, toRemove)
-
-      return true
-    }
-  }
-}
-
-function buildRouteMap (routes) {
-  return routes.reduce((routes, route) => {
-    routes[route.name] = route
-
-    return routes
-  }, {})
 }

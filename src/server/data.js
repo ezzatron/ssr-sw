@@ -3,7 +3,16 @@ export function createDataFetcher () {
   let toStateName
 
   return {
-    handleFetchData (toState, toUpdate) {
+    async resolveData () {
+      const results = await Promise.all(fetches)
+      const errors = results.filter(([error]) => error)
+
+      if (errors.length > 0) throw buildError(errors)
+
+      return buildData(results)
+    },
+
+    routeDataHandler (toState, toUpdate) {
       toStateName = toState.name
 
       for (const [segment, fetcher] of toUpdate) {
@@ -16,15 +25,6 @@ export function createDataFetcher () {
           ))
         }
       }
-    },
-
-    async resolveData () {
-      const results = await Promise.all(fetches)
-      const errors = results.filter(([error]) => error)
-
-      if (errors.length > 0) throw buildError(errors)
-
-      return buildData(results)
     },
   }
 
