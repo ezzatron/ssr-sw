@@ -22,6 +22,8 @@ export function buildEntryTags (clientStats) {
         }
 
         case '.js': {
+          if (asset.match(/\.hot-update\./)) break
+
           const href = encodeUriPath(join(publicPath, asset))
 
           linkHeaderParts.push(`<${href}>; rel=preload; as=script`)
