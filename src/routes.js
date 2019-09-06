@@ -1,7 +1,7 @@
 export default [
   {
     name: '',
-    fetchData: (_, {authClient}) => ({
+    fetchData: ({authClient}) => ({
       user: authClient.fetchUser(),
     }),
   },

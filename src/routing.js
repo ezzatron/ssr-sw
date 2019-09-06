@@ -95,78 +95,32 @@ function createUniversalMiddleware (options) {
 }
 
 function createDataMiddleware (options) {
-  const {isBrowser, routesByName} = options
-
   return function dataMiddleware (router, dependencies) {
+    const {handleFetchData} = dependencies
+
+    if (!handleFetchData) return () => true
+
+    const {routesByName} = options
+    const fetchDataByRoute = {}
+    for (const name in routesByName) fetchDataByRoute[name] = routesByName[name].fetchData
+
     return (toState, fromState) => {
       const {toActivate, toDeactivate} = transitionPath(toState, fromState)
       if (!fromState) toActivate.unshift('')
 
-      const fetchers = toActivate
+      const toRemove = toDeactivate.filter(segment => fetchDataByRoute[segment])
+      const toUpdate = toActivate
+        .filter(segment => fetchDataByRoute[segment])
         .map(segment => {
-          const route = routesByName[segment]
-          const fetchData = route && route.fetchData
-
-          return fetchData ? [segment, fetchData] : null
+          return [
+            segment,
+            () => fetchDataByRoute[segment](dependencies, toState.params),
+          ]
         })
-        .filter(Boolean)
 
-      const data = {}
-      for (const segment of toDeactivate) delete data[segment]
+      handleFetchData(toState, toUpdate, toRemove)
 
-      for (const [segment, fetchData] of fetchers) {
-        data[segment] = fetchData(
-          {
-            data,
-            params: toState.params,
-          },
-          dependencies,
-        )
-      }
-
-      if (isBrowser) {
-        toState.data = data
-
-        return true
-      }
-
-      return Promise.all(
-        Object.entries(data).flatMap(([segment, values]) => {
-          return Object.entries(values).map(([key, promise]) => {
-            return promise.then(
-              result => [segment, key, undefined, result],
-              error => [segment, key, error],
-            )
-          })
-        }),
-      )
-        .then(resolutions => {
-          const errors = resolutions.filter(([,, error]) => error)
-
-          if (errors.length < 1) {
-            for (const resolution of resolutions) {
-              const [segment, key, , value] = resolution
-
-              data[segment][key] = value
-            }
-
-            return {...toState, data}
-          }
-
-          const errorList = errors.map(([segment, key, error]) => {
-            const message = error.stack || '' + error
-            const lines = message.split('\n').map(line => `  ${line}`).join('\n')
-
-            return `- Fetching "${key}" for route segment "${segment}" failed:\n\n${lines}`
-          })
-
-          const error = new Error(`Unable to fetch data for ${toState.name}:\n\n${errorList.join('\n\n')}`)
-          error.isDataError = true
-          error.errors = errors
-          error.stack = ''
-
-          throw error
-        })
+      return true
     }
   }
 }

@@ -7,6 +7,7 @@ import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'
+import {createDataFetcher} from './routing.js'
 import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
@@ -28,7 +29,7 @@ export function createRenderMiddleware (clientStats) {
   })
 
   return async function renderMiddleware (request, response, next) {
-    const {method, router, routerState} = request
+    const {method, router, routerData, routerState} = request
     const isGet = method === 'GET'
     const isHead = method === 'HEAD'
 
@@ -58,6 +59,7 @@ export function createRenderMiddleware (clientStats) {
       const styleTags = webExtractor.getStyleTags()
 
       const appData = {
+        routerData: routerData,
         routerState: routerState,
         shouldHydrate: true,
       }
@@ -97,11 +99,15 @@ export function createRenderMiddleware (clientStats) {
 
 export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
+    const {handleFetchData, resolveData} = createDataFetcher()
+
     const router = request.router = cloneRouter(baseRouter, {
       authClient: createAuthClient({request}),
+      handleFetchData,
     })
 
     const routerState = request.routerState = await startRouter(router, request.originalUrl)
+    request.routerData = await resolveData()
 
     const {
       name: routeName,
