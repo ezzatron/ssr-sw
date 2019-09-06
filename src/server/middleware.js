@@ -7,6 +7,7 @@ import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'
+import {dataAttrs} from './html.js'
 import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
@@ -22,7 +23,7 @@ export function createRenderMiddleware (clientStats) {
 
   const clientOnlyHtml = appTemplate({
     appHtml: '',
-    routerState: null,
+    dataAttrs: '',
     scriptTags: scriptTags.join('\n'),
     styleTags: styleTags.join('\n'),
   })
@@ -57,9 +58,14 @@ export function createRenderMiddleware (clientStats) {
       const scriptTags = webExtractor.getScriptTags()
       const styleTags = webExtractor.getStyleTags()
 
+      const data = {
+        hydrate: true,
+        routerState: routerState,
+      }
+
       html = appTemplate({
         appHtml,
-        routerState,
+        dataAttrs: dataAttrs(data),
         scriptTags,
         styleTags,
       })

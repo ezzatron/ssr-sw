@@ -41,6 +41,7 @@
     "express": "^4.17.1",
     "express-static-gzip": "^2.0.3",
     "file-loader": "^4.2.0",
+    "html-entities": "^1.2.1",
     "html-loader": "^0.5.5",
     "mini-css-extract-plugin": "^0.8.0",
     "morgan": "^1.9.1",

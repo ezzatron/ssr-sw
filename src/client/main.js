@@ -11,11 +11,9 @@ router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const {routerState} = document.documentElement.dataset
-
-if (routerState) {
+if (readData('hydrate')) {
   Promise.all([
-    startRouter(router, JSON.parse(routerState)),
+    startRouter(router, readData('routerState')),
     new Promise(resolve => { loadableReady(resolve) }),
   ])
     .then(() => {
@@ -45,4 +43,12 @@ if (routerState) {
     .catch(error => {
       console.error(error)
     })
+}
+
+function readData (key) {
+  const value = document.documentElement.dataset[key]
+
+  if (value === '') return true
+
+  return value ? JSON.parse(atob(value)) : undefined
 }
