@@ -111,7 +111,7 @@ function createDataMiddleware (options) {
         })
         .filter(Boolean)
 
-      const data = fromState ? {...fromState.data} : {}
+      const data = {}
       for (const segment of toDeactivate) delete data[segment]
 
       for (const [segment, fetchData] of fetchers) {
