@@ -30,7 +30,7 @@ export function createRenderMiddleware (clientStats) {
   })
 
   return async function renderMiddleware (request, response, next) {
-    const {method, router, routerData, routerState} = request
+    const {method, routerState} = request
     const isGet = method === 'GET'
     const isHead = method === 'HEAD'
 
@@ -48,12 +48,22 @@ export function createRenderMiddleware (clientStats) {
     let html
 
     if (isServer) {
+      const {router, routerData} = request
+      const data = {}
+
+      for (const segment in routerData) {
+        const segmentData = routerData[segment]
+        for (const key in segmentData) data[key] = [undefined, segmentData[key]]
+      }
+
       const props = {
+        data,
         router,
+        subscribeToData: () => [noop, data],
       }
 
       const webExtractor = new ChunkExtractor({stats: clientStats})
-      const jsx = webExtractor.collectChunks(App(props))
+      const jsx = webExtractor.collectChunks(<App {...props} />)
       const appHtml = renderToString(jsx)
       const linkElements = webExtractor.getLinkElements()
       const scriptTags = webExtractor.getScriptTags()
@@ -128,3 +138,5 @@ export function createRouterMiddleware (baseRouter) {
     response.end()
   }
 }
+
+function noop () {}
