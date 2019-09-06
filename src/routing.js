@@ -134,7 +134,7 @@ function createDataMiddleware (options) {
         Object.entries(data).flatMap(([segment, values]) => {
           return Object.entries(values).map(([key, promise]) => {
             return promise.then(
-              result => [segment, key, null, result],
+              result => [segment, key, undefined, result],
               error => [segment, key, error],
             )
           })
@@ -144,20 +144,20 @@ function createDataMiddleware (options) {
           const errors = resolutions.filter(([,, error]) => error)
 
           if (errors.length < 1) {
-            const nextData = resolutions.reduce((data, [segment, key, , value]) => {
+            for (const resolution of resolutions) {
+              const [segment, key, , value] = resolution
+
               data[segment][key] = value
+            }
 
-              return data
-            }, data)
-
-            return {...toState, data: nextData}
+            return {...toState, data}
           }
 
-          const errorList = Object.entries(errors).map(([segment, key, error]) => {
+          const errorList = errors.map(([segment, key, error]) => {
             const message = error.stack || '' + error
             const lines = message.split('\n').map(line => `  ${line}`).join('\n')
 
-            return `- Fetching "${segment}.${key}" failed:\n\n${lines}`
+            return `- Fetching "${key}" for route segment "${segment}" failed:\n\n${lines}`
           })
 
           const error = new Error(`Unable to fetch data for ${toState.name}:\n\n${errorList.join('\n\n')}`)
