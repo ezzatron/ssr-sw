@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html<%- dataAttrs %>>
+<html>
 <head>
 <%- styleTags %>
-</head>
+<% if (typeof appData !== 'undefined') { %><script id="__app_data" type="application/json"><%- JSON.stringify(appData) %></script>
+<% } %></head>
 <body>
 <div id="root"><%- appHtml %></div>
 <%- scriptTags %>

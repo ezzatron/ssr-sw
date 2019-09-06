@@ -11,9 +11,13 @@ router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-if (readData('hydrate')) {
+const appDataElement = document.getElementById('__app_data')
+const appData = appDataElement && JSON.parse(appDataElement.innerText)
+const {routerState, shouldHydrate} = appData || {}
+
+if (shouldHydrate) {
   Promise.all([
-    startRouter(router, readData('routerState')),
+    startRouter(router, routerState),
     new Promise(resolve => { loadableReady(resolve) }),
   ])
     .then(() => {
@@ -43,12 +47,4 @@ if (readData('hydrate')) {
     .catch(error => {
       console.error(error)
     })
-}
-
-function readData (key) {
-  const value = document.documentElement.dataset[key]
-
-  if (value === '') return true
-
-  return value ? JSON.parse(atob(value)) : undefined
 }
