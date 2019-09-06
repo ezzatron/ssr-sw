@@ -1,5 +1,3 @@
-import {redirect} from './routing.js'
-
 export default [
   {
     name: '',
@@ -8,7 +6,7 @@ export default [
     }),
   },
 
-  {name: 'home', path: '/', canActivate: redirect('dashboard')},
+  {name: 'home', path: '/', redirectTo: 'dashboard'},
 
   {name: 'dashboard', path: '/dashboard'},
   {name: 'sign-in', path: '/sign-in'},

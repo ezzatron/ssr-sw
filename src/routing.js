@@ -16,16 +16,11 @@ export function createRouter (routes) {
   const isBrowser = typeof window === 'object' && window.history
   const routesByName = buildRouteMap(routes)
 
+  router.useMiddleware(createRedirectMiddleware({routesByName}))
   router.useMiddleware(createUniversalMiddleware({isBrowser, routesByName}))
   router.useMiddleware(createDataMiddleware({isBrowser, routesByName}))
 
   return router
-}
-
-export function redirect (name, params) {
-  return router => (toState, fromState, done) => {
-    done({redirect: {name, params}})
-  }
 }
 
 export function startRouter (router, state) {
@@ -46,6 +41,27 @@ export function startRouter (router, state) {
 
     state ? router.start(state, handleStart) : router.start(handleStart)
   })
+}
+
+function createRedirectMiddleware (options) {
+  const {routesByName} = options
+
+  return function redirectMiddleware (router) {
+    return (toState, fromState, done) => {
+      const {name} = toState
+      const route = routesByName[name]
+
+      if (!route) return done()
+
+      const {redirectTo} = route
+      const redirectType = typeof redirectTo
+
+      if (redirectType === 'string') return done({redirect: {name: redirectTo}})
+      if (redirectType === 'object') return done({redirect: redirectTo})
+
+      done()
+    }
+  }
 }
 
 function universalPlugin (router) {
