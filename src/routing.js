@@ -58,6 +58,21 @@ export function createDataMiddleware (options) {
   }
 }
 
+export function expandServerData (data) {
+  const expanded = {}
+
+  for (const segment in data) {
+    const segmentData = data[segment]
+    const expandedSegmentData = {}
+
+    for (const key in segmentData) expandedSegmentData[key] = [undefined, segmentData[key]]
+
+    expanded[segment] = expandedSegmentData
+  }
+
+  return expanded
+}
+
 export function startRouter (router, state) {
   return new Promise((resolve, reject) => {
     function handleStart (error, state) {

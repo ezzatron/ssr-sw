@@ -16,8 +16,8 @@ router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const {currentData, routeDataHandler, subscribeToData} = createDataFetcher(routerData)
-const data = currentData()
+const {getCurrentData, routeDataHandler, subscribeToData} = createDataFetcher(routerData)
+const data = getCurrentData()
 router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
 
 const props = {

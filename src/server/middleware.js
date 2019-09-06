@@ -9,7 +9,7 @@ import routes from '../routes.js'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'
 import {createDataFetcher} from './data.js'
-import {createDataMiddleware, startRouter} from '../routing.js'
+import {createDataMiddleware, expandServerData, startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
@@ -49,12 +49,7 @@ export function createRenderMiddleware (clientStats) {
 
     if (isServer) {
       const {router, routerData} = request
-      const data = {}
-
-      for (const segment in routerData) {
-        const segmentData = routerData[segment]
-        for (const key in segmentData) data[key] = [undefined, segmentData[key]]
-      }
+      const data = expandServerData(routerData)
 
       const props = {
         data,

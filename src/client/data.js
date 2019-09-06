@@ -1,20 +1,14 @@
+import {expandServerData} from '../routing.js'
+
 export function createDataFetcher (initialData = {}) {
   const subscribers = new Set()
   const counters = {}
 
-  const dataBySegment = Object.fromEntries(
-    Object.entries(initialData).map(([segment, data]) => {
-      const results = Object.fromEntries(
-        Object.entries(data).map(([key, value]) => [key, [undefined, value]]),
-      )
-
-      return [segment, results]
-    }),
-  )
+  const dataBySegment = expandServerData(initialData)
   let data = buildData(dataBySegment)
 
   return {
-    currentData () {
+    getCurrentData () {
       return data
     },
 
