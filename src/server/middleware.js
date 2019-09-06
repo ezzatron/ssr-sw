@@ -22,7 +22,7 @@ export function createRenderMiddleware (clientStats) {
 
   const clientOnlyHtml = appTemplate({
     appHtml: '',
-    appState: null,
+    routerState: null,
     scriptTags: scriptTags.join('\n'),
     styleTags: styleTags.join('\n'),
   })
@@ -57,13 +57,9 @@ export function createRenderMiddleware (clientStats) {
       const scriptTags = webExtractor.getScriptTags()
       const styleTags = webExtractor.getStyleTags()
 
-      const appState = {
-        router: routerState,
-      }
-
       html = appTemplate({
         appHtml,
-        appState,
+        routerState,
         scriptTags,
         styleTags,
       })

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html<% if (routerState) { %> data-router-state="<%= JSON.stringify(routerState) %>"<% } %>>
 <head>
 <%- styleTags %>
 </head>
 <body>
 <div id="root"><%- appHtml %></div>
-<script>window.appState = <%- JSON.stringify(appState) %></script>
 <%- scriptTags %>
 </body>
 </html>

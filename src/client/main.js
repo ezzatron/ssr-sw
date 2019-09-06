@@ -11,13 +11,11 @@ router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const {appState} = window
+const {routerState} = document.documentElement.dataset
 
-if (appState) {
-  const {router: routerState} = appState
-
+if (routerState) {
   Promise.all([
-    startRouter(router, routerState),
+    startRouter(router, JSON.parse(routerState)),
     new Promise(resolve => { loadableReady(resolve) }),
   ])
     .then(() => {
