@@ -15,6 +15,10 @@ export default function Nav () {
       <li><Link routeName='server-only' routeOptions={{reload: true}}>Server-only</Link></li>
       <li><Link routeName='no-component'>No component</Link></li>
       <li><a href='/non-existent'>Non-existent</a></li>
+      <li><Link routeName='a'>A</Link></li>
+      <li><Link routeName='a.b'>A.B</Link></li>
+      <li><Link routeName='a.b.c'>A.B.C</Link></li>
+      <li><Link routeName='a.d'>A.D</Link></li>
     </ul>
   </nav>
 }

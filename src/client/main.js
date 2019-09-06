@@ -4,21 +4,30 @@ import {loadableReady} from '@loadable/component'
 import App from './component/App.js'
 import routes from '../routes.js'
 import {createAuthClient} from './auth-client.js'
-import {createRouter, startRouter} from '../routing.js'
+import {createDataFetcher} from './data.js'
+import {createDataMiddleware, createRouter, startRouter} from '../routing.js'
+
+const appDataElement = document.getElementById('__APP_DATA__')
+const appData = appDataElement && JSON.parse(appDataElement.innerText)
+const {routerData, routerState, shouldHydrate} = appData || {}
 
 const router = createRouter(routes)
 router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const appDataElement = document.getElementById('__APP_DATA__')
-const appData = appDataElement && JSON.parse(appDataElement.innerText)
-const {routerState, shouldHydrate} = appData || {}
+const {routeDataHandler, subscribeToData} = createDataFetcher(routerData)
+router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
+
+const [, initialData] = subscribeToData(data => { console.log('Updated data:', data) })
+console.log('Initial data:', initialData)
 
 if (shouldHydrate) {
   Promise.all([
     startRouter(router, routerState),
-    new Promise(resolve => { loadableReady(resolve) }),
+    new Promise(resolve => {
+      loadableReady(resolve)
+    }),
   ])
     .then(() => {
       hydrate(
@@ -31,7 +40,7 @@ if (shouldHydrate) {
     })
 } else {
   Promise.all([
-    startRouter(router),
+    startRouter(router, routerState),
     new Promise(resolve => {
       if (document.readyState !== 'loading') return resolve()
 

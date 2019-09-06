@@ -33,6 +33,13 @@ export default [
       c: Promise.resolve('c'),
     }),
   },
+  {
+    name: 'a.d',
+    path: '/d',
+    fetchData: () => ({
+      d: Promise.resolve('d'),
+    }),
+  },
 
   {name: 'universal', path: '/universal'},
   {name: 'client-only', path: '/client-only', isServer: false},

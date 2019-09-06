@@ -15,14 +15,16 @@ export function createDataFetcher () {
     routeDataHandler (toState, toUpdate) {
       toStateName = toState.name
 
-      for (const [segment, fetcher] of toUpdate) {
-        const promises = fetcher()
+      for (const [segment, fetchData] of toUpdate) {
+        const toFetch = fetchData()
 
-        for (const key in promises) {
-          fetches.push(promises[key].then(
-            result => [undefined, result, segment, key],
-            error => [error, undefined, segment, key],
-          ))
+        for (const key in toFetch) {
+          fetches.push(
+            Promise.resolve(toFetch[key]).then(
+              result => [undefined, result, segment, key],
+              error => [error, undefined, segment, key],
+            ),
+          )
         }
       }
     },

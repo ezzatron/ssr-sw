@@ -50,7 +50,8 @@ export function createDataMiddleware (options) {
           return [segment, () => fetchData(dependencies, toState.params)]
         })
 
-      handler(toState, toUpdate, toRemove)
+      const needsHandling = toUpdate.length > 0 || toRemove.length > 0
+      if (needsHandling) handler(toState, toUpdate, toRemove)
 
       return true
     }

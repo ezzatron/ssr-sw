@@ -100,13 +100,12 @@ export function createRenderMiddleware (clientStats) {
 
 export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
-    const {routeDataHandler, resolveData} = createDataFetcher()
-    const dataMiddleware = createDataMiddleware({handler: routeDataHandler, routes})
-
     const router = request.router = cloneRouter(baseRouter, {
       authClient: createAuthClient({request}),
     })
-    router.useMiddleware(dataMiddleware)
+
+    const {routeDataHandler, resolveData} = createDataFetcher()
+    router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
 
     const routerState = request.routerState = await startRouter(router, request.originalUrl)
     request.routerData = await resolveData()
