@@ -11,7 +11,7 @@ router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const appDataElement = document.getElementById('__app_data')
+const appDataElement = document.getElementById('__APP_DATA__')
 const appData = appDataElement && JSON.parse(appDataElement.innerText)
 const {routerState, shouldHydrate} = appData || {}
 
