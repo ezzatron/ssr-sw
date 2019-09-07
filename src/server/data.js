@@ -5,14 +5,16 @@ export function createDataFetcher () {
   return {
     async resolveData () {
       const results = await Promise.all(fetches)
-      const errors = results.filter(([error]) => error)
 
-      if (errors.length > 0) throw buildError(errors)
+      const error = buildError(results)
+      if (error) throw error
 
       return buildData(results)
     },
 
-    routeDataHandler (toState, toUpdate) {
+    routeDataHandler (context) {
+      const {toState, toUpdate} = context
+
       toStateName = toState.name
 
       for (const [segment, fetchData] of toUpdate) {
@@ -21,8 +23,8 @@ export function createDataFetcher () {
         for (const key in toFetch) {
           fetches.push(
             Promise.resolve(toFetch[key]).then(
-              result => [undefined, result, segment, key],
-              error => [error, undefined, segment, key],
+              result => [null, result, segment, key],
+              error => [error, null, segment, key],
             ),
           )
         }
@@ -30,7 +32,11 @@ export function createDataFetcher () {
     },
   }
 
-  function buildError (errors) {
+  function buildError (results) {
+    const errors = results.filter(([error]) => error)
+
+    if (errors.length < 1) return null
+
     const errorList = errors.map(([segment, key, error]) => {
       const message = error.stack || '' + error
       const lines = message.split('\n').map(line => `  ${line}`).join('\n')
@@ -50,10 +56,10 @@ export function createDataFetcher () {
     const data = {}
 
     for (const result of results) {
-      const [, value, segment, key] = result
+      const [error, value, segment, key] = result
 
       data[segment] = data[segment] || {}
-      data[segment][key] = value
+      data[segment][key] = [error, value]
     }
 
     return data

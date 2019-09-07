@@ -4,11 +4,11 @@ const DataContext = createContext()
 
 export function DataProvider (props) {
   const {children, data: initialData, subscribeToData} = props
-  const [data, setData] = useState(initialData)
+  const [data, setData] = useState(collapseSegments(initialData))
 
   useEffect(() => {
-    const [unsubscribe, currentData] = subscribeToData(setData)
-    setData(currentData)
+    const [unsubscribe, currentData] = subscribeToData(data => setData(collapseSegments(data)))
+    if (currentData !== initialData) setData(collapseSegments(currentData))
 
     return unsubscribe
   }, [])
@@ -19,3 +19,10 @@ export function DataProvider (props) {
 }
 
 export const useData = selector => selector(useContext(DataContext))
+
+function collapseSegments (dataBySegment) {
+  const data = {}
+  for (const segment in dataBySegment) Object.assign(data, dataBySegment[segment])
+
+  return data
+}

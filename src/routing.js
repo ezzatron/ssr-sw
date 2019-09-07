@@ -51,7 +51,7 @@ export function createDataMiddleware (options) {
         })
 
       const needsHandling = toUpdate.length > 0 || toRemove.length > 0
-      if (needsHandling) handler(toState, toUpdate, toRemove)
+      if (needsHandling) handler({toRemove, toState, toUpdate})
 
       return true
     }

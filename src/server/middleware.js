@@ -48,19 +48,12 @@ export function createRenderMiddleware (clientStats) {
     let html
 
     if (isServer) {
-      const {router, routerData} = request
-      const data = {}
-
-      for (const segment in routerData) {
-        const segmentData = routerData[segment]
-
-        for (const key in segmentData) data[key] = [undefined, segmentData[key]]
-      }
+      const {router, routeData} = request
 
       const props = {
-        data,
+        data: routeData,
         router,
-        subscribeToData: () => [noop, data],
+        subscribeToData: () => [noop, routeData],
       }
 
       const webExtractor = new ChunkExtractor({stats: clientStats})
@@ -71,7 +64,7 @@ export function createRenderMiddleware (clientStats) {
       const styleTags = webExtractor.getStyleTags()
 
       const appData = {
-        routerData: routerData,
+        data: routeData,
         routerState: routerState,
         shouldHydrate: true,
       }
@@ -119,7 +112,7 @@ export function createRouterMiddleware (baseRouter) {
     router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
 
     const routerState = request.routerState = await startRouter(router, request.originalUrl)
-    request.routerData = await resolveData()
+    request.routeData = await resolveData()
 
     const {
       name: routeName,

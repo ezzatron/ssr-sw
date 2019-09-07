@@ -1,55 +1,13 @@
-export function createDataFetcher (initialData = {}) {
+export function createDataFetcher (data) {
   const subscribers = new Set()
   const counters = {}
 
-  const dataBySegment = expandServerData(initialData)
-  let data = buildData(dataBySegment)
-
   return {
-    getCurrentData () {
-      return data
-    },
+    routeDataHandler (context) {
+      const {toRemove, toUpdate} = context
 
-    routeDataHandler (toState, toUpdate, toRemove) {
-      let needsPublish = false
-
-      for (const segment of toRemove) {
-        delete dataBySegment[segment]
-        needsPublish = true
-      }
-
-      for (const [segment] of toUpdate) {
-        if (!dataBySegment[segment]) continue
-
-        delete dataBySegment[segment]
-        needsPublish = true
-      }
-
-      if (needsPublish) publish()
-
-      for (const [segment, fetchData] of toUpdate) {
-        const previousCount = counters[segment]
-        const expectedCount = previousCount ? previousCount + 1 : 0
-        counters[segment] = expectedCount
-
-        const toFetch = fetchData()
-
-        for (const key in toFetch) {
-          Promise.resolve(toFetch[key])
-            .then(
-              value => [undefined, value],
-              error => [error, undefined],
-            )
-            .then(result => {
-              if (counters[segment] !== expectedCount) return
-
-              dataBySegment[segment] = dataBySegment[segment] || {}
-              dataBySegment[segment][key] = result
-
-              publish()
-            })
-        }
-      }
+      deleteSegments(toUpdate, toRemove)
+      updateSegments(toUpdate)
     },
 
     subscribeToData (subscriber) {
@@ -63,30 +21,57 @@ export function createDataFetcher (initialData = {}) {
     },
   }
 
-  function buildData (dataBySegment) {
-    const data = {}
-    for (const segment in dataBySegment) Object.assign(data, dataBySegment[segment])
+  function deleteSegments (toUpdate, toRemove) {
+    const nextData = {...data}
+    let needsUpdate = false
 
-    return data
+    for (const segment of toRemove) {
+      delete nextData[segment]
+      needsUpdate = true
+    }
+
+    for (const [segment] of toUpdate) {
+      if (!nextData[segment]) continue
+
+      delete nextData[segment]
+      needsUpdate = true
+    }
+
+    if (needsUpdate) publish(nextData)
   }
 
-  function publish () {
-    data = buildData(dataBySegment)
-    subscribers.forEach(subscriber => subscriber(data))
+  function updateSegments (toUpdate) {
+    for (const [segment, fetchData] of toUpdate) {
+      const previousCount = counters[segment]
+      const expectedCount = previousCount ? previousCount + 1 : 0
+      counters[segment] = expectedCount
+
+      const toFetch = fetchData()
+
+      for (const key in toFetch) {
+        Promise.resolve(toFetch[key])
+          .then(
+            value => [null, value],
+            error => [error, null],
+          )
+          .then(result => {
+            if (counters[segment] === expectedCount) publishResult(segment, key, result)
+          })
+      }
+    }
   }
-}
 
-function expandServerData (data) {
-  const expanded = {}
+  function publish (nextData) {
+    data = nextData
+    subscribers.forEach(subscriber => subscriber(nextData))
+  }
 
-  for (const segment in data) {
+  function publishResult (segment, key, result) {
     const segmentData = data[segment]
-    const expandedSegmentData = {}
+    const nextSegment = segmentData
+      ? {...segmentData, [key]: result}
+      : {[key]: result}
 
-    for (const key in segmentData) expandedSegmentData[key] = [undefined, segmentData[key]]
-
-    expanded[segment] = expandedSegmentData
+    publish({...data, [segment]: nextSegment})
   }
-
-  return expanded
 }
