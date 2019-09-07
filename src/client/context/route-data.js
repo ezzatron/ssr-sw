@@ -1,15 +1,19 @@
 import {createContext, useContext, useEffect, useState} from 'react'
+import {useRouter} from 'react-router5'
 
 const RouteDataContext = createContext()
 
 export function RouteDataProvider (props) {
-  const {
-    children,
-    routeDataFetcher: {getData, subscribeToData},
-  } = props
+  const {children} = props
 
+  const {getData, subscribeToData} = useRouter()
   const [data, setData] = useState(getData())
-  useEffect(() => subscribeToData(data => setData(data), data), [])
+
+  useEffect(() => {
+    const {unsubscribe} = subscribeToData(data => setData(data), data)
+
+    return unsubscribe
+  }, [])
 
   return <RouteDataContext.Provider value={data}>
     {children}

@@ -7,10 +7,10 @@ import {RouteDataProvider} from '../context/route-data.js'
 export default hot(App)
 
 function App (props) {
-  const {routeDataFetcher, router} = props
+  const {router} = props
 
   return <RouterProvider router={router}>
-    <RouteDataProvider routeDataFetcher={routeDataFetcher}>
+    <RouteDataProvider>
       <Root />
     </RouteDataProvider>
   </RouterProvider>

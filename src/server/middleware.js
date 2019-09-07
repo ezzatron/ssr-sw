@@ -5,11 +5,11 @@ import {renderToString} from 'react-dom/server'
 
 import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
+import dataPlugin from '../router5-plugin-data/server.js'
 import routes from '../routes.js'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'
-import {createDataMiddleware, startRouter} from '../routing.js'
-import {createRouteDataFetcher} from './route-data.js'
+import {startRouter} from '../routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
@@ -48,10 +48,9 @@ export function createRenderMiddleware (clientStats) {
     let html
 
     if (isServer) {
-      const {routeDataFetcher, router} = request
+      const {router} = request
 
       const props = {
-        routeDataFetcher,
         router,
       }
 
@@ -63,7 +62,7 @@ export function createRenderMiddleware (clientStats) {
       const styleTags = webExtractor.getStyleTags()
 
       const appData = {
-        routeData: routeDataFetcher.getSegmentedData(),
+        routeData: router.getDataState(),
         routerState: routerState,
         shouldHydrate: true,
       }
@@ -106,14 +105,10 @@ export function createRouterMiddleware (baseRouter) {
     const router = cloneRouter(baseRouter, {
       authClient: createAuthClient({request}),
     })
-
-    const routeDataFetcher = createRouteDataFetcher()
-    router.useMiddleware(createDataMiddleware({routeDataFetcher, routes}))
-
+    router.usePlugin(dataPlugin(routes))
     const routerState = await startRouter(router, request.originalUrl)
 
     request.router = router
-    request.routeDataFetcher = routeDataFetcher
     request.routerState = routerState
 
     const {
@@ -133,7 +128,7 @@ export function createRouterMiddleware (baseRouter) {
       response.end()
     }
 
-    await routeDataFetcher.waitUntilFetched()
+    await router.waitForData()
     next()
   }
 }

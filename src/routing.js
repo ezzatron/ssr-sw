@@ -1,15 +1,7 @@
 import browserPlugin from 'router5-plugin-browser'
-import transitionPath from 'router5-transition-path'
 import {createRouter as createRouter5} from 'router5'
 
-export function collapseSegmentedData (segmented) {
-  const data = {}
-  for (const segment in segmented) Object.assign(data, segmented[segment])
-
-  return data
-}
-
-export function createRouter (routes) {
+export function createRouter (routes, plugins = []) {
   const router = createRouter5(
     routes.filter(({name}) => name !== ''),
     {
@@ -19,6 +11,7 @@ export function createRouter (routes) {
 
   router.usePlugin(universalPlugin)
   router.usePlugin(browserPlugin())
+  for (const plugin of plugins) router.usePlugin(plugin)
 
   const isBrowser = typeof window === 'object' && window.history
   const routesByName = routes.reduce((routes, route) => {
@@ -31,41 +24,6 @@ export function createRouter (routes) {
   router.useMiddleware(createUniversalMiddleware({isBrowser, routesByName}))
 
   return router
-}
-
-export function createDataMiddleware (options) {
-  const {
-    routeDataFetcher: {handleRoute},
-    routes,
-  } = options
-
-  const fetchDataByRoute = routes.reduce((byRoute, route) => {
-    const {fetchData, name} = route
-    if (fetchData) byRoute[name] = fetchData
-
-    return byRoute
-  }, {})
-
-  return function dataMiddleware (router, dependencies) {
-    return (toState, fromState) => {
-      const {toActivate, toDeactivate} = transitionPath(toState, fromState)
-      if (!fromState) toActivate.unshift('')
-
-      const toRemove = toDeactivate.filter(segment => fetchDataByRoute[segment])
-      const toUpdate = toActivate
-        .filter(segment => fetchDataByRoute[segment])
-        .map(segment => {
-          const fetchData = fetchDataByRoute[segment]
-
-          return [segment, () => fetchData(dependencies, toState.params)]
-        })
-
-      const needsHandling = toUpdate.length > 0 || toRemove.length > 0
-      if (needsHandling) handleRoute({toRemove, toState, toUpdate})
-
-      return true
-    }
-  }
 }
 
 export function startRouter (router, state) {

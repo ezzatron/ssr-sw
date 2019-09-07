@@ -1,53 +1,55 @@
-import {collapseSegmentedData} from '../routing.js'
+import {collapseData, createDataPlugin} from './common.js'
 
-export function createRouteDataFetcher () {
-  const fetches = []
-  let collapsedData, data, toStateName
+export default function createClientDataPlugin (routes) {
+  return createDataPlugin(routes, createFetcher)
+}
+
+function createFetcher (router) {
+  const callbacks = []
+  let collapsedData, data
 
   return {
     getData () {
-      if (!collapsedData) throw new Error('Cannot get route data until waitUntilFetched() has been called')
+      if (!collapsedData) throw new Error('Cannot get route data until waitForData() has been called')
 
       return collapsedData
     },
 
-    getSegmentedData () {
-      if (!data) throw new Error('Cannot get route data until waitUntilFetched() has been called')
+    getDataState () {
+      if (!data) throw new Error('Cannot get route data until waitForData() has been called')
 
       return data
     },
 
-    handleRoute (context) {
-      const {toState, toUpdate} = context
-
-      toStateName = toState.name
-
+    handleRoute (toUpdate) {
       for (const [segment, fetchData] of toUpdate) {
         const toFetch = fetchData()
 
         for (const key in toFetch) {
-          fetches.push(
-            Promise.resolve(toFetch[key]).then(
+          callbacks.push(() => {
+            return Promise.resolve(toFetch[key]).then(
               result => [null, result, segment, key],
               error => [error, null, segment, key],
-            ),
-          )
+            )
+          })
         }
       }
     },
 
     subscribeToData () {
-      return noop
+      return {
+        unsubscribe: noop,
+      }
     },
 
-    async waitUntilFetched () {
-      const results = await Promise.all(fetches)
+    async waitForData () {
+      const results = await Promise.all(callbacks.map(callback => callback()))
 
       const error = buildError(results)
       if (error) throw error
 
       data = buildData(results)
-      collapsedData = collapseSegmentedData(data)
+      collapsedData = collapseData(data)
     },
   }
 
@@ -63,7 +65,9 @@ export function createRouteDataFetcher () {
       return `- Fetching "${key}" for route segment "${segment}" failed:\n\n${lines}`
     })
 
-    const error = new Error(`Unable to fetch data for ${toStateName}:\n\n${errorList.join('\n\n')}`)
+    const {name} = router.getState()
+
+    const error = new Error(`Unable to fetch data for ${name}:\n\n${errorList.join('\n\n')}`)
     error.isDataError = true
     error.errors = errors
     error.stack = ''
