@@ -1,6 +1,6 @@
 import {useMemo} from 'react'
 
-import {useData} from './data.js'
+import {useRouteData} from './route-data.js'
 
 export const FETCHING = ''
 export const ERROR = 'error'
@@ -8,7 +8,7 @@ export const AUTHENTICATED = 'authenticated'
 export const ANONYMOUS = 'anonymous'
 
 export function useStatus () {
-  const data = useData(({user}) => user)
+  const data = useRouteData(({user}) => user)
 
   return useMemo(() => {
     if (!data) return FETCHING
@@ -23,7 +23,7 @@ export function useStatus () {
 }
 
 export function useUser () {
-  const data = useData(({user}) => user)
+  const data = useRouteData(({user}) => user)
 
   return useMemo(() => {
     if (!data) return undefined

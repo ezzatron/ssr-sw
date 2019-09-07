@@ -8,8 +8,8 @@ import appTemplateContent from './main.ejs.html'
 import routes from '../routes.js'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'
-import {createDataFetcher} from './data.js'
 import {createDataMiddleware, startRouter} from '../routing.js'
+import {createRouteDataFetcher} from './route-data.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
@@ -51,9 +51,9 @@ export function createRenderMiddleware (clientStats) {
       const {router, routeData} = request
 
       const props = {
-        data: routeData,
+        routeData,
         router,
-        subscribeToData: () => [noop, routeData],
+        subscribeToRouteData: () => [noop, routeData],
       }
 
       const webExtractor = new ChunkExtractor({stats: clientStats})
@@ -64,7 +64,7 @@ export function createRenderMiddleware (clientStats) {
       const styleTags = webExtractor.getStyleTags()
 
       const appData = {
-        data: routeData,
+        routeData,
         routerState: routerState,
         shouldHydrate: true,
       }
@@ -108,7 +108,7 @@ export function createRouterMiddleware (baseRouter) {
       authClient: createAuthClient({request}),
     })
 
-    const {routeDataHandler, resolveData} = createDataFetcher()
+    const {routeDataHandler, resolveData} = createRouteDataFetcher()
     router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
 
     const routerState = request.routerState = await startRouter(router, request.originalUrl)

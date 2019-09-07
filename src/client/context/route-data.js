@@ -1,24 +1,24 @@
 import {createContext, useContext, useEffect, useState} from 'react'
 
-const DataContext = createContext()
+const RouteDataContext = createContext()
 
-export function DataProvider (props) {
-  const {children, data: initialData, subscribeToData} = props
+export function RouteDataProvider (props) {
+  const {children, routeData: initialData, subscribeToRouteData} = props
   const [data, setData] = useState(collapseSegments(initialData))
 
   useEffect(() => {
-    const [unsubscribe, currentData] = subscribeToData(data => setData(collapseSegments(data)))
+    const [unsubscribe, currentData] = subscribeToRouteData(data => setData(collapseSegments(data)))
     if (currentData !== initialData) setData(collapseSegments(currentData))
 
     return unsubscribe
   }, [])
 
-  return <DataContext.Provider value={data}>
+  return <RouteDataContext.Provider value={data}>
     {children}
-  </DataContext.Provider>
+  </RouteDataContext.Provider>
 }
 
-export const useData = selector => selector(useContext(DataContext))
+export const useRouteData = selector => selector(useContext(RouteDataContext))
 
 function collapseSegments (dataBySegment) {
   const data = {}

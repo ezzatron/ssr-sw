@@ -1,4 +1,4 @@
-export function createDataFetcher (data) {
+export function createRouteDataFetcher (data) {
   const subscribers = new Set()
   const counters = {}
 
@@ -10,7 +10,7 @@ export function createDataFetcher (data) {
       updateSegments(toUpdate)
     },
 
-    subscribeToData (subscriber) {
+    subscribeToRouteData (subscriber) {
       subscribers.add(subscriber)
 
       function unsubscribe () {

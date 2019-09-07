@@ -4,25 +4,25 @@ import {loadableReady} from '@loadable/component'
 import App from './component/App.js'
 import routes from '../routes.js'
 import {createAuthClient} from './auth-client.js'
-import {createDataFetcher} from './data.js'
 import {createDataMiddleware, createRouter, startRouter} from '../routing.js'
+import {createRouteDataFetcher} from './route-data.js'
 
 const appDataElement = document.getElementById('__APP_DATA__')
 const appData = appDataElement ? JSON.parse(appDataElement.innerText) : {}
-const {data = {}, routerState, shouldHydrate} = appData
+const {routeData = {}, routerState, shouldHydrate} = appData
 
 const router = createRouter(routes)
 router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const {routeDataHandler, subscribeToData} = createDataFetcher(data)
+const {routeDataHandler, subscribeToRouteData} = createRouteDataFetcher(routeData)
 router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
 
 const props = {
-  data,
+  routeData,
   router,
-  subscribeToData,
+  subscribeToRouteData,
 }
 
 if (shouldHydrate) {

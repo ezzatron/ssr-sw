@@ -1,4 +1,4 @@
-export function createDataFetcher () {
+export function createRouteDataFetcher () {
   const fetches = []
   let toStateName
 
