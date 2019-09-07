@@ -1,33 +1,26 @@
-import {createContext, useContext, useMemo, useState} from 'react'
-import {useRouter} from 'react-router5'
+import {createContext, useContext, useMemo} from 'react'
 
-const init = {
-  status: '',
-  user: null,
-}
+import {useData} from './data.js'
 
-export const AuthContext = createContext()
+const AuthContext = createContext()
 
 export function AuthProvider (props) {
-  const {children, state = init} = props
+  const {children} = props
 
-  const [auth, setAuth] = useState(state)
-  const value = useMemo(() => [auth, setAuth], [auth, setAuth])
+  const userData = useData(({user}) => user)
 
-  if (!auth.status) {
-    const router = useRouter()
-    const userUrl = router.buildPath('api-user')
+  const auth = useMemo(() => {
+    if (!userData) return {status: ''}
 
-    fetch(userUrl)
-      .then(response => response.json())
-      .then(user => {
-        if (!user) return setAuth({status: 'anonymous', user: null})
+    const [error, user] = userData
 
-        setAuth({status: 'authenticated', user})
-      })
-  }
+    if (error) return {status: 'error'}
+    if (user) return {status: 'authenticated', user}
 
-  return <AuthContext.Provider value={value}>
+    return {status: 'anonymous'}
+  }, [userData])
+
+  return <AuthContext.Provider value={auth}>
     {children}
   </AuthContext.Provider>
 }
