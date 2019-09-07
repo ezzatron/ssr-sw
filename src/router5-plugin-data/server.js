@@ -58,7 +58,7 @@ function createFetcher (router) {
 
     if (errors.length < 1) return null
 
-    const errorList = errors.map(([segment, key, error]) => {
+    const errorList = errors.map(([error,, segment, key]) => {
       const message = error.stack || '' + error
       const lines = message.split('\n').map(line => `  ${line}`).join('\n')
 
