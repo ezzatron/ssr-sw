@@ -1,7 +1,17 @@
-import {useAuth} from '../context/auth.js'
+import {
+  useStatus,
+  useUser,
+
+  ERROR,
+  FETCHING,
+} from '../context/auth.js'
 
 export default function UserGreeting () {
-  const {user} = useAuth()
+  const status = useStatus()
+  const user = useUser()
+
+  if (status === FETCHING) return <p>Signing in...</p>
+  if (status === ERROR) return <p>There was a problem signing in</p>
 
   if (user) return <p>Hi {user.name}!</p>
 

@@ -1,28 +1,37 @@
-import {createContext, useContext, useMemo} from 'react'
+import {useMemo} from 'react'
 
 import {useData} from './data.js'
 
-const AuthContext = createContext()
+export const FETCHING = ''
+export const ERROR = 'error'
+export const AUTHENTICATED = 'authenticated'
+export const ANONYMOUS = 'anonymous'
 
-export function AuthProvider (props) {
-  const {children} = props
+export function useStatus () {
+  const data = useData(({user}) => user)
 
-  const userData = useData(({user}) => user)
+  return useMemo(() => {
+    if (!data) return FETCHING
 
-  const auth = useMemo(() => {
-    if (!userData) return {status: ''}
+    const [error, user] = data
 
-    const [error, user] = userData
+    if (error) return ERROR
+    if (user) return AUTHENTICATED
 
-    if (error) return {status: 'error'}
-    if (user) return {status: 'authenticated', user}
-
-    return {status: 'anonymous'}
-  }, [userData])
-
-  return <AuthContext.Provider value={auth}>
-    {children}
-  </AuthContext.Provider>
+    return ANONYMOUS
+  }, [data])
 }
 
-export const useAuth = () => useContext(AuthContext)
+export function useUser () {
+  const data = useData(({user}) => user)
+
+  return useMemo(() => {
+    if (!data) return undefined
+
+    const [error, user] = data
+
+    if (!error && user) return user
+
+    return undefined
+  }, [data])
+}
