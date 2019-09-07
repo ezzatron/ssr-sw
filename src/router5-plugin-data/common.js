@@ -10,35 +10,47 @@ export function collapseData (dataByRoute) {
 export function createDataPlugin (routes, createFetcher, data) {
   return function dataPlugin (router) {
     const {getData, getDataState, handleRoute, subscribeToData, waitForData} = createFetcher(router, data)
+    const context = {}
 
     Object.assign(router, {getData, getDataState, subscribeToData})
     if (waitForData) router.waitForData = waitForData
 
-    router.useMiddleware(createDataMiddleware(routes, handleRoute))
+    router.setRootFetchData = rootFetchData => {
+      context.rootFetchData = rootFetchData
+    }
+
+    router.useMiddleware(createDataMiddleware(routes, handleRoute, context))
 
     return {}
   }
 }
 
-function createDataMiddleware (routes, handleRoute) {
-  const fetchDataByRoute = routes.reduce((byRoute, route) => {
+function createDataMiddleware (routes, handleRoute, context) {
+  const {rootFetchData} = context
+
+  const fetchDataBySegment = routes.reduce((byRoute, route) => {
     const {fetchData, name} = route
     if (fetchData) byRoute[name] = fetchData
 
     return byRoute
   }, {})
 
+  function findFetchData (segment) {
+    if (segment === '' && rootFetchData) return rootFetchData
+
+    return fetchDataBySegment[segment]
+  }
+
   return function dataMiddleware (router, dependencies) {
     return (toState, fromState) => {
       const {toActivate, toDeactivate} = transitionPath(toState, fromState)
       if (!fromState) toActivate.unshift('')
 
-      const toRemove = toDeactivate.filter(segment => fetchDataByRoute[segment])
+      const toRemove = toDeactivate.filter(findFetchData)
       const toUpdate = toActivate
-        .filter(segment => fetchDataByRoute[segment])
-        .map(segment => {
-          const fetchData = fetchDataByRoute[segment]
-
+        .map(segment => [segment, findFetchData(segment)])
+        .filter(([, fetchData]) => fetchData)
+        .map(([segment, fetchData]) => {
           return [segment, () => fetchData(dependencies, toState.params)]
         })
 
