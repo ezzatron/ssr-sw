@@ -40,6 +40,10 @@ export default function createApp (options) {
     response.end('This is server-only.')
   })
 
+  app.get('/server-error', (request, response) => {
+    throw new Error('This is a server error.')
+  })
+
   app.use('/api/v1', createApiV1())
   app.use(asyncMiddleware(createRouterMiddleware(baseRouter)))
   app.use(asyncMiddleware(createRenderMiddleware(clientStats)))

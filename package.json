@@ -55,13 +55,13 @@
     "router5-helpers": "^7.0.1",
     "router5-plugin-browser": "^7.0.2",
     "router5-transition-path": "^7.0.1",
-    "safe-require": "^1.0.3",
     "stats-webpack-plugin": "^0.7.0",
     "webpack": "^4.39.2",
     "webpack-node-externals": "^1.7.2",
     "webpackbar": "^4.0.0"
   },
   "devDependencies": {
+    "@nuxtjs/youch": "^4.2.3",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.9.0",
     "eslint": "^6.2.2",
@@ -76,6 +76,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
+    "pretty-error": "^2.1.1",
     "react-test-renderer": "^16.9.0",
     "webpack-bundle-analyzer": "^3.4.1",
     "webpack-cli": "^3.3.7",

@@ -12,7 +12,8 @@ export default function Nav () {
       <li><SignOutLink /></li>
       <li><Link routeName='universal'>Universal</Link></li>
       <li><Link routeName='client-only'>Client-only</Link></li>
-      <li><Link routeName='server-only' routeOptions={{reload: true}}>Server-only</Link></li>
+      <li><Link routeName='server-only'>Server-only</Link></li>
+      <li><Link routeName='server-error'>Server error</Link></li>
       <li><Link routeName='no-component'>No component</Link></li>
       <li><a href='/non-existent'>Non-existent</a></li>
       <li><Link routeName='a'>A</Link></li>

@@ -44,6 +44,7 @@ export default [
   {name: 'universal', path: '/universal'},
   {name: 'client-only', path: '/client-only', isServer: false},
   {name: 'server-only', path: '/server-only', isClient: false},
+  {name: 'server-error', path: '/server-error', isClient: false},
   {name: 'no-component', path: '/no-component'},
 
   {name: 'api', path: '/api', isClient: false},

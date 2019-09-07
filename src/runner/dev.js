@@ -8,11 +8,13 @@ const webpackHotMiddleware = require('webpack-hot-middleware')
 const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
 
 const createConfig = require('../../webpack.config.js')
+const devErrorMiddleware = require('./dev-error-middleware.js')
 
 const config = createConfig(null, {mode: 'development'})
 const clientConfig = config.find(({name}) => name === 'client')
 const compiler = webpack(config)
-const clientComiler = compiler.compilers.find(({name}) => name === 'client')
+const clientCompiler = compiler.compilers.find(({name}) => name === 'client')
+const serverCompiler = compiler.compilers.find(({name}) => name === 'server')
 
 const {output: {publicPath}} = clientConfig
 
@@ -36,12 +38,13 @@ app.use(webpackDevMiddleware(compiler, {
     modules: false,
   },
 }))
-app.use(webpackHotMiddleware(clientComiler))
+app.use(webpackHotMiddleware(clientCompiler))
 app.use(webpackHotServerMiddleware(compiler, {
   serverRendererOptions: {
     secret: 'dev-secret',
   },
 }))
+app.use(devErrorMiddleware(serverCompiler))
 
 app.listen(8080, '0.0.0.0', () => {
   console.log('Listening at http://127.0.0.1:8080/')

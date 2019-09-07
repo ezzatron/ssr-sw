@@ -54,23 +54,12 @@ function createFetcher (router) {
   }
 
   function buildError (results) {
-    const errors = results.filter(([error]) => error)
+    const [error] = results.find(([error]) => error) || []
 
-    if (errors.length < 1) return null
-
-    const errorList = errors.map(([error,, segment, key]) => {
-      const message = error.stack || '' + error
-      const lines = message.split('\n').map(line => `  ${line}`).join('\n')
-
-      return `- Fetching "${key}" for route segment "${segment}" failed:\n\n${lines}`
-    })
+    if (!error) return null
 
     const {name} = router.getState()
-
-    const error = new Error(`Unable to fetch data for ${name}:\n\n${errorList.join('\n\n')}`)
-    error.isDataError = true
-    error.errors = errors
-    error.stack = ''
+    error.message = `Unable to fetch route data for ${name}: ${error.message}`
 
     return error
   }
