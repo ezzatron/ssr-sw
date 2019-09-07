@@ -1,23 +1,33 @@
-export function createRouteDataFetcher (data) {
+import {collapseSegmentedData} from '../routing.js'
+
+export function createRouteDataFetcher (data = {}) {
   const subscribers = new Set()
   const counters = {}
+  let collapsedData = collapseSegmentedData(data)
 
   return {
-    routeDataHandler (context) {
+    getData () {
+      return collapsedData
+    },
+
+    getSegmentedData () {
+      return data
+    },
+
+    handleRoute (context) {
       const {toRemove, toUpdate} = context
 
       deleteSegments(toUpdate, toRemove)
       updateSegments(toUpdate)
     },
 
-    subscribeToRouteData (subscriber) {
+    subscribeToData (subscriber, currentData) {
       subscribers.add(subscriber)
+      if (currentData !== collapsedData) subscriber(collapsedData)
 
-      function unsubscribe () {
+      return function unsubscribeFromData () {
         subscribers.delete(subscriber)
       }
-
-      return [unsubscribe, data]
     },
   }
 
@@ -63,7 +73,8 @@ export function createRouteDataFetcher (data) {
 
   function publish (nextData) {
     data = nextData
-    subscribers.forEach(subscriber => subscriber(nextData))
+    collapsedData = collapseSegmentedData(data)
+    subscribers.forEach(subscriber => subscriber(collapsedData))
   }
 
   function publishResult (segment, key, result) {

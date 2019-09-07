@@ -2,6 +2,13 @@ import browserPlugin from 'router5-plugin-browser'
 import transitionPath from 'router5-transition-path'
 import {createRouter as createRouter5} from 'router5'
 
+export function collapseSegmentedData (segmented) {
+  const data = {}
+  for (const segment in segmented) Object.assign(data, segmented[segment])
+
+  return data
+}
+
 export function createRouter (routes) {
   const router = createRouter5(
     routes.filter(({name}) => name !== ''),
@@ -27,7 +34,10 @@ export function createRouter (routes) {
 }
 
 export function createDataMiddleware (options) {
-  const {handler, routes} = options
+  const {
+    routeDataFetcher: {handleRoute},
+    routes,
+  } = options
 
   const fetchDataByRoute = routes.reduce((byRoute, route) => {
     const {fetchData, name} = route
@@ -51,7 +61,7 @@ export function createDataMiddleware (options) {
         })
 
       const needsHandling = toUpdate.length > 0 || toRemove.length > 0
-      if (needsHandling) handler({toRemove, toState, toUpdate})
+      if (needsHandling) handleRoute({toRemove, toState, toUpdate})
 
       return true
     }

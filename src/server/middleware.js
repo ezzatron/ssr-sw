@@ -48,12 +48,11 @@ export function createRenderMiddleware (clientStats) {
     let html
 
     if (isServer) {
-      const {router, routeData} = request
+      const {routeDataFetcher, router} = request
 
       const props = {
-        routeData,
+        routeDataFetcher,
         router,
-        subscribeToRouteData: () => [noop, routeData],
       }
 
       const webExtractor = new ChunkExtractor({stats: clientStats})
@@ -64,7 +63,7 @@ export function createRenderMiddleware (clientStats) {
       const styleTags = webExtractor.getStyleTags()
 
       const appData = {
-        routeData,
+        routeData: routeDataFetcher.getSegmentedData(),
         routerState: routerState,
         shouldHydrate: true,
       }
@@ -104,19 +103,20 @@ export function createRenderMiddleware (clientStats) {
 
 export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
-    const router = request.router = cloneRouter(baseRouter, {
+    const router = cloneRouter(baseRouter, {
       authClient: createAuthClient({request}),
     })
 
-    const {routeDataHandler, resolveData} = createRouteDataFetcher()
-    router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
+    const routeDataFetcher = createRouteDataFetcher()
+    router.useMiddleware(createDataMiddleware({routeDataFetcher, routes}))
 
-    const routerState = request.routerState = await startRouter(router, request.originalUrl)
-    request.routeData = await resolveData()
+    const routerState = await startRouter(router, request.originalUrl)
+
+    request.router = router
+    request.routeDataFetcher = routeDataFetcher
+    request.routerState = routerState
 
     const {
-      name: routeName,
-      params: routerParams,
       meta: {
         options: {
           redirected: isRedirect,
@@ -124,13 +124,16 @@ export function createRouterMiddleware (baseRouter) {
       } = {},
     } = routerState
 
-    if (!isRedirect) return next()
+    if (isRedirect) {
+      const {name, params} = routerState
 
-    response.writeHead(302, {
-      location: router.buildPath(routeName, routerParams),
-    })
-    response.end()
+      response.writeHead(302, {
+        location: router.buildPath(name, params),
+      })
+      response.end()
+    }
+
+    await routeDataFetcher.waitUntilFetched()
+    next()
   }
 }
-
-function noop () {}

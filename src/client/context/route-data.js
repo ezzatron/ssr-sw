@@ -3,15 +3,13 @@ import {createContext, useContext, useEffect, useState} from 'react'
 const RouteDataContext = createContext()
 
 export function RouteDataProvider (props) {
-  const {children, routeData: initialData, subscribeToRouteData} = props
-  const [data, setData] = useState(collapseSegments(initialData))
+  const {
+    children,
+    routeDataFetcher: {getData, subscribeToData},
+  } = props
 
-  useEffect(() => {
-    const [unsubscribe, currentData] = subscribeToRouteData(data => setData(collapseSegments(data)))
-    if (currentData !== initialData) setData(collapseSegments(currentData))
-
-    return unsubscribe
-  }, [])
+  const [data, setData] = useState(getData())
+  useEffect(() => subscribeToData(data => setData(data), data), [])
 
   return <RouteDataContext.Provider value={data}>
     {children}
@@ -19,10 +17,3 @@ export function RouteDataProvider (props) {
 }
 
 export const useRouteData = selector => selector(useContext(RouteDataContext))
-
-function collapseSegments (dataBySegment) {
-  const data = {}
-  for (const segment in dataBySegment) Object.assign(data, dataBySegment[segment])
-
-  return data
-}

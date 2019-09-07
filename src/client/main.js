@@ -9,20 +9,19 @@ import {createRouteDataFetcher} from './route-data.js'
 
 const appDataElement = document.getElementById('__APP_DATA__')
 const appData = appDataElement ? JSON.parse(appDataElement.innerText) : {}
-const {routeData = {}, routerState, shouldHydrate} = appData
+const {routeData, routerState, shouldHydrate} = appData
 
 const router = createRouter(routes)
 router.setDependencies({
   authClient: createAuthClient({router}),
 })
 
-const {routeDataHandler, subscribeToRouteData} = createRouteDataFetcher(routeData)
-router.useMiddleware(createDataMiddleware({handler: routeDataHandler, routes}))
+const routeDataFetcher = createRouteDataFetcher(routeData)
+router.useMiddleware(createDataMiddleware({routeDataFetcher, routes}))
 
 const props = {
-  routeData,
+  routeDataFetcher,
   router,
-  subscribeToRouteData,
 }
 
 if (shouldHydrate) {

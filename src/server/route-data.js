@@ -1,18 +1,23 @@
+import {collapseSegmentedData} from '../routing.js'
+
 export function createRouteDataFetcher () {
   const fetches = []
-  let toStateName
+  let collapsedData, data, toStateName
 
   return {
-    async resolveData () {
-      const results = await Promise.all(fetches)
+    getData () {
+      if (!collapsedData) throw new Error('Cannot get route data until waitUntilFetched() has been called')
 
-      const error = buildError(results)
-      if (error) throw error
-
-      return buildData(results)
+      return collapsedData
     },
 
-    routeDataHandler (context) {
+    getSegmentedData () {
+      if (!data) throw new Error('Cannot get route data until waitUntilFetched() has been called')
+
+      return data
+    },
+
+    handleRoute (context) {
       const {toState, toUpdate} = context
 
       toStateName = toState.name
@@ -29,6 +34,20 @@ export function createRouteDataFetcher () {
           )
         }
       }
+    },
+
+    subscribeToData () {
+      return noop
+    },
+
+    async waitUntilFetched () {
+      const results = await Promise.all(fetches)
+
+      const error = buildError(results)
+      if (error) throw error
+
+      data = buildData(results)
+      collapsedData = collapseSegmentedData(data)
     },
   }
 
@@ -65,3 +84,5 @@ export function createRouteDataFetcher () {
     return data
   }
 }
+
+function noop () {}
