@@ -49,13 +49,10 @@ export function createRenderMiddleware (clientStats) {
 
     if (isServer) {
       const {router} = request
-
-      const props = {
-        router,
-      }
+      await router.waitForData()
 
       const webExtractor = new ChunkExtractor({stats: clientStats})
-      const jsx = webExtractor.collectChunks(<App {...props} />)
+      const jsx = webExtractor.collectChunks(<App router={router} />)
       const appHtml = renderToString(jsx)
       const linkElements = webExtractor.getLinkElements()
       const scriptTags = webExtractor.getScriptTags()
@@ -119,16 +116,13 @@ export function createRouterMiddleware (baseRouter) {
       } = {},
     } = routerState
 
-    if (isRedirect) {
-      const {name, params} = routerState
+    if (!isRedirect) return next()
 
-      response.writeHead(302, {
-        location: router.buildPath(name, params),
-      })
-      response.end()
-    }
+    const {name, params} = routerState
 
-    await router.waitForData()
-    next()
+    response.writeHead(302, {
+      location: router.buildPath(name, params),
+    })
+    response.end()
   }
 }

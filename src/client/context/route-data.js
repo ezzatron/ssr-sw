@@ -7,10 +7,10 @@ export function RouteDataProvider (props) {
   const {children} = props
 
   const {getData, subscribeToData} = useRouter()
-  const [data, setData] = useState(getData())
+  const [data, setData] = useState(() => getData())
 
   useEffect(() => {
-    const {unsubscribe} = subscribeToData(data => setData(data), data)
+    const {unsubscribe} = subscribeToData(nextData => setData(nextData), data)
 
     return unsubscribe
   }, [])

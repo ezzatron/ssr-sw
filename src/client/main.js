@@ -16,10 +16,6 @@ const router = createRouter(routes, [
 ])
 router.setDependency('authClient', createAuthClient({router}))
 
-const props = {
-  router,
-}
-
 if (shouldHydrate) {
   Promise.all([
     startRouter(router, routerState),
@@ -29,7 +25,7 @@ if (shouldHydrate) {
   ])
     .then(() => {
       hydrate(
-        <App {...props} />,
+        <App router={router} />,
         document.getElementById('root'),
       )
     })
@@ -47,7 +43,7 @@ if (shouldHydrate) {
   ])
     .then(() => {
       render(
-        <App {...props} />,
+        <App router={router} />,
         document.getElementById('root'),
       )
     })
