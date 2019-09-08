@@ -40,6 +40,8 @@ function createFetcher (router, data) {
     let needsUpdate = false
 
     for (const segment of toClean) {
+      if (!nextData[segment]) continue
+
       delete nextData[segment]
       needsUpdate = true
     }
