@@ -18,9 +18,9 @@ function createFetcher (router, data) {
       return data
     },
 
-    handleRoute (toUpdate, toClean) {
-      cleanSegments(toUpdate, toClean)
-      updateSegments(toUpdate)
+    handleRoute (toFetch, toClean) {
+      cleanSegments(toFetch, toClean)
+      updateSegments(toFetch)
     },
 
     subscribeToData (subscriber, currentData) {
@@ -35,42 +35,37 @@ function createFetcher (router, data) {
     },
   }
 
-  function cleanSegments (toUpdate, toClean) {
+  function cleanSegments (toFetch, toClean) {
     const nextData = {...data}
     let needsUpdate = false
 
-    function cleanSegment (segment, cleanData) {
-      const currentSegment = data[segment]
-
-      if (!currentSegment) return
-
-      const nextSegment = cleanData(currentSegment)
-
-      if (!nextSegment) {
-        delete nextData[segment]
-        needsUpdate = true
-      } else if (nextSegment !== currentSegment) {
-        nextData[segment] = nextSegment
-        needsUpdate = true
-      }
+    for (const segment of toClean) {
+      delete nextData[segment]
+      needsUpdate = true
     }
 
-    for (const [segment, cleanData] of toClean) cleanSegment(segment, cleanData)
-    for (const [segment,, cleanData] of toUpdate) cleanSegment(segment, cleanData)
+    for (const {segment, shouldClean} of toFetch) {
+      if (!shouldClean) continue
+
+      delete nextData[segment]
+      needsUpdate = true
+    }
 
     if (needsUpdate) publish(nextData)
   }
 
-  function updateSegments (toUpdate) {
-    for (const [segment, fetchData] of toUpdate) {
+  function updateSegments (toFetch) {
+    for (const {segment, startFetch} of toFetch) {
       const previousCount = counters[segment]
       const expectedCount = previousCount ? previousCount + 1 : 0
       counters[segment] = expectedCount
 
-      const toFetch = fetchData()
+      const fetches = startFetch(key => {
+        publishClean(segment, key)
+      })
 
-      for (const key in toFetch) {
-        Promise.resolve(toFetch[key])
+      for (const key in fetches) {
+        Promise.resolve(fetches[key])
           .then(
             value => [null, value],
             error => [error, null],
@@ -86,6 +81,17 @@ function createFetcher (router, data) {
     data = nextData
     collapsedData = collapseData(data)
     subscribers.forEach(subscriber => subscriber(collapsedData))
+  }
+
+  function publishClean (segment, key) {
+    const segmentData = data[segment]
+
+    if (!segmentData || !segmentData[key]) return
+
+    const nextSegment = {...segmentData}
+    delete nextSegment[key]
+
+    publish({...data, [segment]: nextSegment})
   }
 
   function publishResult (segment, key, result) {

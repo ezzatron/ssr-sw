@@ -21,13 +21,13 @@ function createFetcher (router) {
       return data
     },
 
-    handleRoute (toUpdate) {
-      for (const [segment, fetchData] of toUpdate) {
-        const toFetch = fetchData()
+    handleRoute (toFetch) {
+      for (const {segment, startFetch} of toFetch) {
+        const fetches = startFetch(noop)
 
-        for (const key in toFetch) {
+        for (const key in fetches) {
           callbacks.push(() => {
-            return Promise.resolve(toFetch[key]).then(
+            return Promise.resolve(fetches[key]).then(
               result => [null, result, segment, key],
               error => [error, null, segment, key],
             )

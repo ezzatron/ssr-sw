@@ -42,9 +42,10 @@ export default [
   {
     name: 'a.d',
     path: '/d',
+    cleanData: false,
     fetchData: (d, {data}) => ({
-      d: previous => previous
-        .catch(() => {})
+      d: (clean, previous) => previous
+        .catch(clean)
         .then(previous => {
           return previous || data.a
             .then(a => {
@@ -57,7 +58,6 @@ export default [
             .then(a => `${a}, d`)
         }),
     }),
-    cleanData: false,
   },
 
   {name: 'client-only', path: '/client-only', isServer: false},

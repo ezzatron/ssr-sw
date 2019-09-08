@@ -37,13 +37,10 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
   const cleanDataBySegment = {}
   const fetchDataBySegment = {}
 
-  const deleteData = noop
-  const keepData = data => data
-
   for (const route of routes) {
     const {cleanData, fetchData, name} = route
 
-    cleanDataBySegment[name] = cleanData === false ? keepData : cleanData
+    cleanDataBySegment[name] = cleanData
     fetchDataBySegment[name] = fetchData
   }
 
@@ -53,41 +50,100 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
     return fetchDataBySegment[segment]
   }
 
-  function findCleanData (segment) {
-    return cleanDataBySegment[segment] || deleteData
+  function shouldCleanSegment (segment) {
+    return cleanDataBySegment[segment] !== false
   }
 
   return function dataMiddleware (router, dependencies) {
     const dataContexts = {}
+    const previousFetches = {}
 
-    function prepareDataContexts (toActivate, toDeactivate) {
-      function cleanSegment (segment) {
-        const currentSegment = dataContexts[segment]
+    if (initialData) prepareInitialData(initialData)
 
-        if (!currentSegment) return
+    return (toState, fromState) => {
+      const {toActivate, toDeactivate} = transitionPath(toState, fromState)
+      if (!fromState) toActivate.unshift('')
 
-        const ownKeys = Object.getOwnPropertyNames(currentSegment)
-        const currentSegmentIsolated = {}
-        for (const key of ownKeys) currentSegmentIsolated[key] = currentSegment[key]
+      const toFetchHooks = toActivate
+        .map(segment => ({
+          segment,
+          fetchData: findFetchData(segment),
+          shouldClean: shouldCleanSegment(segment),
+        }))
+        .filter(({fetchData}) => fetchData)
 
-        const cleanData = findCleanData(segment)
-        const nextSegment = cleanData(currentSegmentIsolated)
+      const toClean = toDeactivate.filter(shouldCleanSegment)
+      const needsHandling = toFetchHooks.length > 0 || toClean.length > 0
 
-        if (!nextSegment) {
-          delete dataContexts[segment]
-        } else if (nextSegment !== currentSegment) {
-          for (const key of ownKeys) delete currentSegment[key]
-          for (const key in nextSegment) currentSegment[key] = nextSegment[key]
+      if (!needsHandling) return true
+
+      prepareDataContexts(toActivate, toDeactivate)
+
+      const toFetch = toFetchHooks.map(hook => {
+        const {segment, fetchData, shouldClean} = hook
+        const data = dataContexts[segment]
+        const segmentPreviousFetches = previousFetches[segment] || {}
+
+        return {
+          segment,
+          shouldClean,
+
+          startFetch (onClean) {
+            const context = {toState, fromState, data}
+            const keyFetchers = fetchData(dependencies, context)
+
+            const fetches = {}
+            const promisedFetches = {}
+
+            for (const key in keyFetchers) {
+              const clean = () => {
+                delete data[key]
+                onClean(key)
+              }
+
+              const previous = segmentPreviousFetches[key] || Promise.resolve()
+
+              const keyFetcher = keyFetchers[key]
+              const fetch = keyFetcher(clean, previous)
+              const promisedFetch = Promise.resolve(fetch)
+
+              fetches[key] = fetch
+              promisedFetches[key] = promisedFetch
+              data[key] = promisedFetch
+            }
+
+            previousFetches[segment] = shouldClean ? {} : promisedFetches
+
+            return fetches
+          },
+        }
+      })
+
+      handleRoute(toFetch, toClean)
+
+      return true
+    }
+
+    function prepareInitialData (initialData) {
+      prepareDataContexts(Object.keys(initialData), [])
+
+      for (const segment in initialData) {
+        const segmentData = initialData[segment]
+
+        for (const key in segmentData) {
+          dataContexts[segment][key] = Promise.resolve(segmentData[key][1])
         }
       }
+    }
 
-      for (const segment of toDeactivate) cleanSegment(segment)
+    function prepareDataContexts (toActivate, toDeactivate) {
+      for (const segment of toDeactivate) delete dataContexts[segment]
 
       for (const segment of toActivate) {
         if (!dataContexts['']) dataContexts[''] = {}
         if (!segment) continue
 
-        cleanSegment(segment)
+        if (shouldCleanSegment(segment)) delete dataContexts[segment]
 
         let parent = ''
         let parentContext = dataContexts[parent]
@@ -104,62 +160,5 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
         }
       }
     }
-
-    if (initialData) {
-      prepareDataContexts(Object.keys(initialData), [])
-
-      for (const segment in initialData) {
-        const segmentData = initialData[segment]
-
-        for (const key in segmentData) {
-          dataContexts[segment][key] = Promise.resolve(segmentData[key][1])
-        }
-      }
-    }
-
-    return (toState, fromState) => {
-      const {toActivate, toDeactivate} = transitionPath(toState, fromState)
-      if (!fromState) toActivate.unshift('')
-
-      const toUpdateHooks = toActivate
-        .map(segment => [segment, findFetchData(segment), findCleanData(segment)])
-        .filter(([, fetchData]) => fetchData)
-      const toCleanHooks = toDeactivate
-        .map(segment => [segment, findCleanData(segment)])
-        .filter(([, cleanData]) => cleanData)
-      const needsHandling = toUpdateHooks.length > 0 || toCleanHooks.length > 0
-
-      if (!needsHandling) return true
-
-      prepareDataContexts(toActivate, toDeactivate)
-
-      const toUpdate = toUpdateHooks.map(([segment, fetchData, cleanData]) => {
-        const dataContext = dataContexts[segment]
-
-        function fetchSegmentData () {
-          const context = {toState, fromState, data: dataContext}
-          const segmentFetchers = fetchData(dependencies, context)
-          const segmentData = {}
-
-          for (const key in segmentFetchers) {
-            const keyFetcher = segmentFetchers[key]
-            const keyData = keyFetcher(dataContext[key] || Promise.resolve())
-
-            segmentData[key] = keyData
-            dataContext[key] = Promise.resolve(keyData)
-          }
-
-          return segmentData
-        }
-
-        return [segment, fetchSegmentData, cleanData]
-      })
-
-      handleRoute(toUpdate, toCleanHooks)
-
-      return true
-    }
   }
 }
-
-function noop () {}
