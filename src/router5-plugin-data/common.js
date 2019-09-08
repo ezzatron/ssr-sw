@@ -34,13 +34,18 @@ export function createDataPlugin (routes, createFetcher, data) {
 
 function createDataMiddleware (routes, initialData, handleRoute, options) {
   const {rootFetchData} = options
+  const cleanDataBySegment = {}
+  const fetchDataBySegment = {}
 
-  const fetchDataBySegment = routes.reduce((byRoute, route) => {
-    const {fetchData, name} = route
-    if (fetchData) byRoute[name] = fetchData
+  const deleteData = () => {}
+  const keepData = data => data
 
-    return byRoute
-  }, {})
+  for (const route of routes) {
+    const {cleanData, fetchData, name} = route
+
+    cleanDataBySegment[name] = cleanData === false ? keepData : cleanData
+    fetchDataBySegment[name] = fetchData
+  }
 
   function findFetchData (segment) {
     if (segment === '' && rootFetchData) return rootFetchData
@@ -48,14 +53,41 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
     return fetchDataBySegment[segment]
   }
 
+  function findCleanData (segment) {
+    return cleanDataBySegment[segment] || deleteData
+  }
+
   return function dataMiddleware (router, dependencies) {
     const dataContexts = {}
 
     function prepareDataContexts (toActivate, toDeactivate) {
-      for (const segment of toDeactivate) delete dataContexts[segment]
+      function cleanSegment (segment) {
+        const currentSegment = dataContexts[segment]
+
+        if (!currentSegment) return
+
+        const ownKeys = Object.getOwnPropertyNames(currentSegment)
+        const currentSegmentIsolated = {}
+        for (const key of ownKeys) currentSegmentIsolated[key] = currentSegment[key]
+
+        const cleanData = findCleanData(segment)
+        const nextSegment = cleanData(currentSegmentIsolated)
+
+        if (!nextSegment) {
+          delete dataContexts[segment]
+        } else if (nextSegment !== currentSegment) {
+          for (const key of ownKeys) delete currentSegment[key]
+          for (const key in nextSegment) currentSegment[key] = nextSegment[key]
+        }
+      }
+
+      for (const segment of toDeactivate) cleanSegment(segment)
+
       for (const segment of toActivate) {
         if (!dataContexts['']) dataContexts[''] = {}
         if (!segment) continue
+
+        cleanSegment(segment)
 
         let parent = ''
         let parentContext = dataContexts[parent]
@@ -89,17 +121,19 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
       const {toActivate, toDeactivate} = transitionPath(toState, fromState)
       if (!fromState) toActivate.unshift('')
 
-      const toUpdateFetchData = toActivate
-        .map(segment => [segment, findFetchData(segment)])
+      const toUpdateHooks = toActivate
+        .map(segment => [segment, findFetchData(segment), findCleanData(segment)])
         .filter(([, fetchData]) => fetchData)
-      const toRemove = toDeactivate.filter(findFetchData)
-      const needsHandling = toUpdateFetchData.length > 0 || toRemove.length > 0
+      const toCleanHooks = toDeactivate
+        .map(segment => [segment, findCleanData(segment)])
+        .filter(([, cleanData]) => cleanData)
+      const needsHandling = toUpdateHooks.length > 0 || toCleanHooks.length > 0
 
       if (!needsHandling) return true
 
       prepareDataContexts(toActivate, toDeactivate)
 
-      const toUpdate = toUpdateFetchData.map(([segment, fetchData]) => {
+      const toUpdate = toUpdateHooks.map(([segment, fetchData, cleanData]) => {
         const dataContext = dataContexts[segment]
 
         function fetchSegmentData () {
@@ -118,10 +152,10 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
           return segmentData
         }
 
-        return [segment, fetchSegmentData]
+        return [segment, fetchSegmentData, cleanData]
       })
 
-      handleRoute(toUpdate, toRemove)
+      handleRoute(toUpdate, toCleanHooks)
 
       return true
     }

@@ -18,8 +18,8 @@ function createFetcher (router, data) {
       return data
     },
 
-    handleRoute (toUpdate, toRemove) {
-      deleteSegments(toUpdate, toRemove)
+    handleRoute (toUpdate, toClean) {
+      cleanSegments(toUpdate, toClean)
       updateSegments(toUpdate)
     },
 
@@ -35,21 +35,28 @@ function createFetcher (router, data) {
     },
   }
 
-  function deleteSegments (toUpdate, toRemove) {
+  function cleanSegments (toUpdate, toClean) {
     const nextData = {...data}
     let needsUpdate = false
 
-    for (const segment of toRemove) {
-      delete nextData[segment]
-      needsUpdate = true
+    function cleanSegment (segment, cleanData) {
+      const currentSegment = data[segment]
+
+      if (!currentSegment) return
+
+      const nextSegment = cleanData(currentSegment)
+
+      if (!nextSegment) {
+        delete nextData[segment]
+        needsUpdate = true
+      } else if (nextSegment !== currentSegment) {
+        nextData[segment] = nextSegment
+        needsUpdate = true
+      }
     }
 
-    for (const [segment] of toUpdate) {
-      if (!nextData[segment]) continue
-
-      delete nextData[segment]
-      needsUpdate = true
-    }
+    for (const [segment, cleanData] of toClean) cleanSegment(segment, cleanData)
+    for (const [segment,, cleanData] of toUpdate) cleanSegment(segment, cleanData)
 
     if (needsUpdate) publish(nextData)
   }

@@ -45,6 +45,7 @@ export default [
         .then(a => sleep(1000).then(() => a))
         .then(a => `${a}, d`),
     }),
+    cleanData: data => data,
   },
 
   {name: 'client-only', path: '/client-only', isServer: false},
