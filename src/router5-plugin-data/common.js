@@ -128,10 +128,14 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
       prepareDataContexts(Object.keys(initialData), [])
 
       for (const segment in initialData) {
+        previousFetches[segment] = {}
         const segmentData = initialData[segment]
 
         for (const key in segmentData) {
-          dataContexts[segment][key] = Promise.resolve(segmentData[key][1])
+          const fetch = Promise.resolve(segmentData[key][1])
+
+          previousFetches[segment][key] = fetch
+          dataContexts[segment][key] = fetch
         }
       }
     }
