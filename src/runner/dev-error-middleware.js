@@ -44,6 +44,7 @@ module.exports = function devErrorMiddleware (compiler) {
 
     youch.toHTML().then(html => {
       response.writeHead(500, {
+        'Cache-Control': 'no-store',
         'Content-Length': html.length,
         'Content-Type': 'text/html',
       })

@@ -1,3 +1,5 @@
+import etag from 'etag'
+import fresh from 'fresh'
 import {ChunkExtractor} from '@loadable/server'
 import {cloneRouter, constants as routerConstants} from 'router5'
 import {compile} from 'ejs'
@@ -88,12 +90,17 @@ export function createRenderMiddleware (clientStats) {
       response.setHeader('Link', clientOnlyLinkHeaderValue)
     }
 
-    response.setHeader('Content-Type', 'text/html')
+    const htmlEtag = etag(html)
+
+    response.setHeader('Cache-Control', 'no-cache')
     response.setHeader('Content-Length', html.length)
+    response.setHeader('Content-Type', 'text/html')
+    response.setHeader('ETag', htmlEtag)
 
-    if (isHead) response.end()
+    const isFresh = fresh(request.headers, {etag: htmlEtag})
 
-    response.end(html)
+    response.statusCode = isFresh ? 304 : 200
+    response.end(isFresh || isHead ? '' : html)
   }
 }
 
