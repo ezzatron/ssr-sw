@@ -32,6 +32,28 @@ export function createDataPlugin (routes, createFetcher, data) {
   }
 }
 
+export const ON_ERROR_CLEAN = 'clean'
+export const ON_ERROR_KEEP = 'keep'
+export const ON_ERROR_REPLACE = 'replace'
+
+export function persistent (...args) {
+  const fetcher = args.length > 1 ? args[1] : args[0]
+  const options = args.length > 1 ? args[0] : {}
+
+  const {
+    onError = 'clean',
+  } = options
+
+  return (previous, clean) => {
+    return previous
+      .catch(error => {
+        if (onError === ON_ERROR_KEEP) throw error
+        if (onError === ON_ERROR_CLEAN) clean()
+      })
+      .then(previous => previous || fetcher())
+  }
+}
+
 function createDataMiddleware (routes, initialData, handleRoute, options) {
   const {rootFetchData} = options
   const cleanDataBySegment = {}

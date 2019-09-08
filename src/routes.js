@@ -1,3 +1,5 @@
+import {persistent} from './router5-plugin-data/common.js'
+
 let fetchDCount = 0
 
 export default [
@@ -44,19 +46,16 @@ export default [
     path: '/d',
     cleanData: false,
     fetchData: (d, {data}) => ({
-      d: (previous, clean) => previous
-        .catch(clean)
-        .then(previous => {
-          return previous || data.a
-            .then(a => {
-              if (typeof window === 'object' && window.history && ++fetchDCount % 2) {
-                return sleep(300).then(() => { throw new Error('Unable to get the D') })
-              }
+      d: persistent({onError: 'clean'}, () => data.a
+        .then(a => {
+          if (typeof window === 'object' && window.history && ++fetchDCount % 2) {
+            return sleep(300).then(() => { throw new Error('Unable to get the D') })
+          }
 
-              return sleep(1000).then(() => a)
-            })
-            .then(a => `${a}, d`)
-        }),
+          return sleep(1000).then(() => a)
+        })
+        .then(a => `${a}, d`),
+      ),
     }),
   },
 
