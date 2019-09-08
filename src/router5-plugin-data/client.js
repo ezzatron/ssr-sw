@@ -96,10 +96,26 @@ function createFetcher (router, data) {
 
   function publishResult (segment, key, result) {
     const segmentData = data[segment]
+    const currentResult = segmentData && segmentData[key]
+
+    if (isSameResult(result, currentResult)) return
+
     const nextSegment = segmentData
       ? {...segmentData, [key]: result}
       : {[key]: result}
 
     publish({...data, [segment]: nextSegment})
   }
+}
+
+function isSameResult (resultA, resultB) {
+  if (!resultA || !resultB) return false
+
+  const [errorA, valueA] = resultA
+  const [errorB, valueB] = resultB
+
+  if (errorA) return errorA === errorB
+  if (errorB) return false
+
+  return valueA === valueB
 }
