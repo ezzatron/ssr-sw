@@ -1,5 +1,6 @@
 import {persistent} from '~/src/router5-plugin-data/common.js'
 
+let fetchCCount = 0
 let fetchDCount = 0
 
 export default [
@@ -37,8 +38,9 @@ export default [
     path: '/c',
     fetchData: (d, {data}) => ({
       c: () => data.b
-        .then(b => sleep(100).then(() => b))
-        .then(b => `${b}, c`),
+        .then(b => [b, ++fetchCCount])
+        .then(r => sleep(1000).then(() => r))
+        .then(([b, count]) => `${b}, c(${count})`),
     }),
   },
   {
