@@ -41,11 +41,11 @@ export default [
     name: 'a.d',
     path: '/d',
     fetchData: (d, {data}) => ({
-      d: () => data.a
+      d: previous => previous || data.a
         .then(a => sleep(1000).then(() => a))
         .then(a => `${a}, d`),
     }),
-    cleanData: data => data,
+    cleanData: false,
   },
 
   {name: 'client-only', path: '/client-only', isServer: false},

@@ -143,7 +143,7 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
 
           for (const key in segmentFetchers) {
             const keyFetcher = segmentFetchers[key]
-            const keyData = keyFetcher()
+            const keyData = keyFetcher(dataContext[key])
 
             segmentData[key] = keyData
             dataContext[key] = Promise.resolve(keyData)
