@@ -16,28 +16,34 @@ export default [
     name: 'a',
     path: '/a',
     fetchData: () => ({
-      a: Promise.resolve('a'),
+      a: 'a',
     }),
   },
   {
     name: 'a.b',
     path: '/b',
-    fetchData: () => ({
-      b: Promise.resolve('b'),
+    fetchData: (d, {data}) => ({
+      b: data.a
+        .then(a => sleep(100).then(() => a))
+        .then(a => `${a}, b`),
     }),
   },
   {
     name: 'a.b.c',
     path: '/c',
-    fetchData: () => ({
-      c: Promise.resolve('c'),
+    fetchData: (d, {data}) => ({
+      c: data.b
+        .then(b => sleep(100).then(() => b))
+        .then(b => `${b}, c`),
     }),
   },
   {
     name: 'a.d',
     path: '/d',
-    fetchData: () => ({
-      d: Promise.resolve('d'),
+    fetchData: (d, {data}) => ({
+      d: data.a
+        .then(a => sleep(1000).then(() => a))
+        .then(a => `${a}, d`),
     }),
   },
 
@@ -51,3 +57,7 @@ export default [
   {name: 'api.v1', path: '/v1', isClient: false},
   {name: 'api.v1.user', path: '/user', isClient: false},
 ]
+
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}

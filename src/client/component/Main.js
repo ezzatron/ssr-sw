@@ -9,11 +9,12 @@ const loadableOptions = {
   fallback: <Loading />,
 }
 
-const Universal = loadable(() => import('./Universal.js'), loadableOptions)
+const A = loadable(() => import('./A.js'), loadableOptions)
 const ClientOnly = loadable(() => import('./ClientOnly.js'), loadableOptions)
 const Dashboard = loadable(() => import(/* webpackPrefetch: true */ './Dashboard.js'), loadableOptions)
 const SignIn = loadable(() => import('./SignIn.js'), loadableOptions)
 const SignOut = loadable(() => import('./SignOut.js'), loadableOptions)
+const Universal = loadable(() => import('./Universal.js'), loadableOptions)
 
 export default function Main () {
   const {route} = useRouteNode('')
@@ -23,8 +24,9 @@ export default function Main () {
   if (testRoute('sign-in')) return <SignIn />
   if (testRoute('sign-out')) return <SignOut />
 
-  if (testRoute('universal')) return <Universal />
+  if (testRoute('a')) return <A />
   if (testRoute('client-only')) return <ClientOnly />
+  if (testRoute('universal')) return <Universal />
 
   return <NotFound />
 }

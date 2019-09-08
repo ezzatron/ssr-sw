@@ -1,0 +1,15 @@
+.routeData {
+  padding: .5em 1em;
+}
+
+.loading {
+  background-color: lightgrey;
+}
+
+.error {
+  background-color: red;
+}
+
+.success {
+  background-color: limegreen;
+}
