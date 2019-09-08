@@ -58,8 +58,7 @@ function createFetcher (router, data) {
 
   function updateSegments (toFetch) {
     for (const {segment, startFetch} of toFetch) {
-      const previousCount = counters[segment]
-      const expectedCount = previousCount ? previousCount + 1 : 0
+      const expectedCount = (counters[segment] || 0) + 1
       counters[segment] = expectedCount
 
       const fetches = startFetch(key => {
