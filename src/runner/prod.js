@@ -5,7 +5,7 @@ const express = require('express')
 const morgan = require('morgan')
 const {basename, join} = require('path')
 
-const createConfig = require('../../webpack.config.js')
+const createConfig = require('~/webpack.config.js')
 const {cacheControlByBasename} = require('./caching.js')
 const {readFile} = require('./fs.js')
 

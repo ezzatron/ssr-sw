@@ -2,11 +2,11 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 
-import routes from '../routes.js'
+import routes from '~/src/routes.js'
 import {asyncMiddleware} from './express.js'
 import {createApiV1} from './api.js'
 import {createRenderMiddleware, createRouterMiddleware} from './middleware.js'
-import {createRouter} from '../routing.js'
+import {createRouter} from '~/src/routing.js'
 
 export default function createApp (options) {
   const {clientStats, secret} = options

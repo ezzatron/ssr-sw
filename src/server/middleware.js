@@ -5,13 +5,13 @@ import {cloneRouter, constants as routerConstants} from 'router5'
 import {compile} from 'ejs'
 import {renderToString} from 'react-dom/server'
 
-import App from '../client/component/App.js'
+import App from '~/src/client/component/App.js'
 import appTemplateContent from './main.ejs.html'
 import dataPlugin from '~/src/router5-plugin-data/server.js'
-import routes from '../routes.js'
+import routes from '~/src/routes.js'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'
-import {startRouter} from '../routing.js'
+import {startRouter} from '~/src/routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 

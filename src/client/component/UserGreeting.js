@@ -4,7 +4,7 @@ import {
 
   ERROR,
   FETCHING,
-} from '../context/auth.js'
+} from '~/src/client/context/auth.js'
 
 export default function UserGreeting () {
   const status = useStatus()
