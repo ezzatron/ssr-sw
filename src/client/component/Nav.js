@@ -10,7 +10,6 @@ export default function Nav () {
       <li><Link routeName='dashboard'>Dashboard</Link></li>
       <li><Link routeName='sign-in'>Sign in</Link></li>
       <li><SignOutLink /></li>
-      <li><Link routeName='universal'>Universal</Link></li>
       <li><Link routeName='client-only'>Client-only</Link></li>
       <li><Link routeName='server-only'>Server-only</Link></li>
       <li><Link routeName='server-error'>Server error</Link></li>
