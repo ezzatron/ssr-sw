@@ -45,7 +45,7 @@ function createFetcher (router, data) {
     }
 
     for (const {segment, shouldClean} of toFetch) {
-      if (!shouldClean) continue
+      if (!shouldClean || !nextData[segment]) continue
 
       delete nextData[segment]
       needsUpdate = true
