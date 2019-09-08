@@ -1,3 +1,5 @@
+let fetchDCount = 0
+
 export default [
   {
     name: '',
@@ -41,9 +43,19 @@ export default [
     name: 'a.d',
     path: '/d',
     fetchData: (d, {data}) => ({
-      d: previous => previous || data.a
-        .then(a => sleep(1000).then(() => a))
-        .then(a => `${a}, d`),
+      d: previous => previous
+        .catch(() => {})
+        .then(previous => {
+          return previous || data.a
+            .then(a => {
+              if (typeof window === 'object' && window.history && ++fetchDCount % 2) {
+                return sleep(300).then(() => { throw new Error('Unable to get the D') })
+              }
+
+              return sleep(1000).then(() => a)
+            })
+            .then(a => `${a}, d`)
+        }),
     }),
     cleanData: false,
   },

@@ -37,7 +37,7 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
   const cleanDataBySegment = {}
   const fetchDataBySegment = {}
 
-  const deleteData = () => {}
+  const deleteData = noop
   const keepData = data => data
 
   for (const route of routes) {
@@ -143,7 +143,7 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
 
           for (const key in segmentFetchers) {
             const keyFetcher = segmentFetchers[key]
-            const keyData = keyFetcher(dataContext[key])
+            const keyData = keyFetcher(dataContext[key] || Promise.resolve())
 
             segmentData[key] = keyData
             dataContext[key] = Promise.resolve(keyData)
@@ -161,3 +161,5 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
     }
   }
 }
+
+function noop () {}
