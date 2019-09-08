@@ -99,23 +99,27 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
 
       prepareDataContexts(toActivate, toDeactivate)
 
-      const toUpdate = toUpdateFetchData
-        .map(([segment, fetchData]) => {
-          const dataContext = dataContexts[segment]
+      const toUpdate = toUpdateFetchData.map(([segment, fetchData]) => {
+        const dataContext = dataContexts[segment]
 
-          function fetchSegmentData () {
-            const context = {toState, fromState, data: dataContext}
-            const segmentData = fetchData(dependencies, context)
+        function fetchSegmentData () {
+          const context = {toState, fromState, data: dataContext}
+          const segmentFetchers = fetchData(dependencies, context)
+          const segmentData = {}
 
-            for (const key in segmentData) {
-              dataContext[key] = Promise.resolve(segmentData[key])
-            }
+          for (const key in segmentFetchers) {
+            const keyFetcher = segmentFetchers[key]
+            const keyData = keyFetcher()
 
-            return segmentData
+            segmentData[key] = keyData
+            dataContext[key] = Promise.resolve(keyData)
           }
 
-          return [segment, fetchSegmentData]
-        })
+          return segmentData
+        }
+
+        return [segment, fetchSegmentData]
+      })
 
       handleRoute(toUpdate, toRemove)
 

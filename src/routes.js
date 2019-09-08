@@ -2,7 +2,7 @@ export default [
   {
     name: '',
     fetchData: ({authClient}) => ({
-      user: authClient.fetchUser(),
+      user: authClient.fetchUser,
     }),
   },
 
@@ -16,14 +16,14 @@ export default [
     name: 'a',
     path: '/a',
     fetchData: () => ({
-      a: 'a',
+      a: () => 'a',
     }),
   },
   {
     name: 'a.b',
     path: '/b',
     fetchData: (d, {data}) => ({
-      b: data.a
+      b: () => data.a
         .then(a => sleep(100).then(() => a))
         .then(a => `${a}, b`),
     }),
@@ -32,7 +32,7 @@ export default [
     name: 'a.b.c',
     path: '/c',
     fetchData: (d, {data}) => ({
-      c: data.b
+      c: () => data.b
         .then(b => sleep(100).then(() => b))
         .then(b => `${b}, c`),
     }),
@@ -41,7 +41,7 @@ export default [
     name: 'a.d',
     path: '/d',
     fetchData: (d, {data}) => ({
-      d: data.a
+      d: () => data.a
         .then(a => sleep(1000).then(() => a))
         .then(a => `${a}, d`),
     }),
