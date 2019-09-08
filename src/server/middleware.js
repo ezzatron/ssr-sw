@@ -7,7 +7,7 @@ import {renderToString} from 'react-dom/server'
 
 import App from '../client/component/App.js'
 import appTemplateContent from './main.ejs.html'
-import dataPlugin from '../router5-plugin-data/server.js'
+import dataPlugin from '~/src/router5-plugin-data/server.js'
 import routes from '../routes.js'
 import {buildEntryTags} from './webpack.js'
 import {createAuthClient} from './auth-client.js'

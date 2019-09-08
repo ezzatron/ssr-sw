@@ -2,7 +2,7 @@ import {hydrate, render} from 'react-dom'
 import {loadableReady} from '@loadable/component'
 
 import App from './component/App.js'
-import dataPlugin from '../router5-plugin-data/client.js'
+import dataPlugin from '~/src/router5-plugin-data/client.js'
 import routes from '../routes.js'
 import {createAuthClient} from './auth-client.js'
 import {createRouter, startRouter} from '../routing.js'

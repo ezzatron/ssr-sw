@@ -1,4 +1,4 @@
-import {persistent} from './router5-plugin-data/common.js'
+import {persistent} from '~/src/router5-plugin-data/common.js'
 
 let fetchDCount = 0
 

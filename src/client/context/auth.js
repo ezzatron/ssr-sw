@@ -1,6 +1,6 @@
 import {useMemo} from 'react'
 
-import {useRouteData} from './route-data.js'
+import {useRouteData} from '~/src/router5-plugin-data/react.js'
 
 export const FETCHING = ''
 export const ERROR = 'error'
