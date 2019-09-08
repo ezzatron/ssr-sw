@@ -1,7 +1,7 @@
 import {createContext, useContext, useEffect, useState} from 'react'
 import {useRouter} from 'react-router5'
 
-const RouteDataContext = createContext()
+const RouteDataContext = createContext({})
 
 export function RouteDataProvider (props) {
   const {children} = props
