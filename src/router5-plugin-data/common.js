@@ -96,15 +96,14 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
             const promisedFetches = {}
 
             for (const key in keyFetchers) {
+              const previous = segmentPreviousFetches[key] || Promise.resolve()
               const clean = () => {
                 delete data[key]
                 onClean(key)
               }
 
-              const previous = segmentPreviousFetches[key] || Promise.resolve()
-
               const keyFetcher = keyFetchers[key]
-              const fetch = keyFetcher(clean, previous)
+              const fetch = keyFetcher(previous, clean)
               const promisedFetch = Promise.resolve(fetch)
 
               fetches[key] = fetch

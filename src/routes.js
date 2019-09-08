@@ -44,7 +44,7 @@ export default [
     path: '/d',
     cleanData: false,
     fetchData: (d, {data}) => ({
-      d: (clean, previous) => previous
+      d: (previous, clean) => previous
         .catch(clean)
         .then(previous => {
           return previous || data.a
