@@ -9,11 +9,7 @@ export function RouteDataProvider (props) {
   const {getData, subscribeToData} = useRouter()
   const [data, setData] = useState(() => getData())
 
-  useEffect(() => {
-    const {unsubscribe} = subscribeToData(nextData => setData(nextData), data)
-
-    return unsubscribe
-  }, [])
+  useEffect(() => subscribeToData(setData, data).unsubscribe, [])
 
   return <RouteDataContext.Provider value={data}>
     {children}
