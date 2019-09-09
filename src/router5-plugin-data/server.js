@@ -23,16 +23,21 @@ function createFetcher (router) {
 
     handleRoute (toFetch) {
       for (const {segment, startFetch} of toFetch) {
-        const fetches = startFetch(noop)
+        callbacks.push(() => {
+          const fetches = startFetch(noop)
+          const fetchResolvers = []
 
-        for (const key in fetches) {
-          callbacks.push(() => {
-            return Promise.resolve(fetches[key]).then(
-              result => [null, result, segment, key],
-              error => [error, null, segment, key],
+          for (const key in fetches) {
+            fetchResolvers.push(
+              Promise.resolve(fetches[key]).then(
+                result => [null, result, segment, key],
+                error => [error, null, segment, key],
+              ),
             )
-          })
-        }
+          }
+
+          return Promise.all(fetchResolvers)
+        })
       }
     },
 
@@ -44,11 +49,12 @@ function createFetcher (router) {
 
     async waitForData () {
       const results = await Promise.all(callbacks.map(callback => callback()))
+      const flatResults = results.flat()
 
-      const error = buildError(results)
+      const error = buildError(flatResults)
       if (error) throw error
 
-      data = buildData(results)
+      data = buildData(flatResults)
       collapsedData = collapseData(data)
     },
   }
