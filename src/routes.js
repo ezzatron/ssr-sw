@@ -16,6 +16,9 @@ export default [
     fetchData: () => ({
       a: () => 'a',
     }),
+    serverHeaders: {
+      'X-Powered-By': 'Backula',
+    },
   },
   {
     name: 'a.b',
@@ -25,6 +28,9 @@ export default [
         .then(a => sleep(100).then(() => a))
         .then(a => `${a}, b`),
     }),
+    serverHeaders: {
+      'X-Powered-By': 'Crackula',
+    },
   },
   {
     name: 'a.b.c',
@@ -35,6 +41,9 @@ export default [
         .then(r => sleep(1000).then(() => r))
         .then(([b, count]) => `${b}, c(${count})`),
     }),
+    serverHeaders: {
+      'X-Powered-By': 'Sackula',
+    },
   },
   {
     name: 'a.d',

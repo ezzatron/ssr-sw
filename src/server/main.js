@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser'
 import express from 'express'
 
 import routes from '~/src/routes.js'
+import serverPlugin from '~/src/router5-plugin-server.js'
 import {asyncMiddleware} from './express.js'
 import {createApiV1} from './api.js'
 import {createRenderMiddleware, createRouterMiddleware} from './middleware.js'
@@ -11,6 +12,8 @@ export default function createApp (options) {
   const {clientStats, secret} = options
 
   const baseRouter = createRouter(routes)
+  baseRouter.usePlugin(serverPlugin(routes))
+
   const app = express()
 
   app.set('env', process.env.NODE_ENV)

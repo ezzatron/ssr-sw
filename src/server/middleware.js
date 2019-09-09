@@ -47,10 +47,10 @@ export function createRenderMiddleware (clientStats) {
 
     if (routeName === UNKNOWN_ROUTE) return next()
 
+    const {router} = request
     let html
 
     if (isServer) {
-      const {router} = request
       await router.waitForData()
 
       const webExtractor = new ChunkExtractor({stats: clientStats})
@@ -96,6 +96,8 @@ export function createRenderMiddleware (clientStats) {
     response.setHeader('Content-Length', html.length)
     response.setHeader('Content-Type', 'text/html')
     response.setHeader('ETag', htmlEtag)
+
+    await router.handleServerRequest(request, response)
 
     const isFresh = fresh(request.headers, {etag: htmlEtag})
 
