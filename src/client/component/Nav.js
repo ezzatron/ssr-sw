@@ -1,6 +1,6 @@
 import {Link} from 'react-router5'
 
-import SignOutLink from './SignOutLink.js'
+import AuthLink from './AuthLink.js'
 import styles from './Nav.css'
 
 export default function Nav () {
@@ -8,8 +8,7 @@ export default function Nav () {
     <ul>
       <li><Link routeName='home'>Home</Link></li>
       <li><Link routeName='dashboard'>Dashboard</Link></li>
-      <li><Link routeName='sign-in'>Sign in</Link></li>
-      <li><SignOutLink /></li>
+      <li><AuthLink /></li>
       <li><Link routeName='client-only'>Client-only</Link></li>
       <li><Link routeName='server-only'>Server-only</Link></li>
       <li><Link routeName='server-error'>Server error</Link></li>

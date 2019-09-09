@@ -4,13 +4,6 @@ let fetchCCount = 0
 let fetchDCount = 0
 
 export default [
-  {
-    name: '',
-    fetchData: ({authClient}) => ({
-      user: authClient.fetchUser,
-    }),
-  },
-
   {name: 'home', path: '/', redirectTo: 'dashboard'},
 
   {name: 'dashboard', path: '/dashboard'},
@@ -68,6 +61,8 @@ export default [
 
   {name: 'api', path: '/api', isClient: false},
   {name: 'api.v1', path: '/v1', isClient: false},
+  {name: 'api.v1.sign-in', path: '/sign-in', isClient: false},
+  {name: 'api.v1.sign-out', path: '/sign-out', isClient: false},
   {name: 'api.v1.user', path: '/user', isClient: false},
 ]
 
