@@ -1,4 +1,4 @@
-import transitionPath from 'router5-transition-path'
+import transitionPath, {nameToIDs} from 'router5-transition-path'
 
 export function collapseData (dataByRoute) {
   const data = {}
@@ -170,18 +170,14 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
 
         if (shouldCleanSegment(segment)) delete dataContexts[segment]
 
-        let parent = ''
-        let parentContext = dataContexts[parent]
+        let parentContext = dataContexts['']
 
-        for (const atom of segment.split('.')) {
-          const current = parent ? `${parent}.${atom}` : atom
-
+        for (const current of nameToIDs(segment)) {
           if (!dataContexts[current]) {
             dataContexts[current] = Object.create(parentContext)
           }
 
-          parent = current
-          parentContext = dataContexts[parent]
+          parentContext = dataContexts[current]
         }
       }
     }
