@@ -63,7 +63,7 @@ export default [
       d: persistent({onError: 'clean'}, async () => {
         const a = await data.a
 
-        if (typeof window === 'object' && window.history && ++fetchDCount % 2) {
+        if (typeof window === 'object' && ++fetchDCount % 2) {
           await sleep(300)
 
           throw new Error('Unable to get the D')
