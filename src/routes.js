@@ -1,8 +1,3 @@
-import {persistent} from '~/src/router5-plugin-data/common.js'
-
-let fetchCCount = 0
-let fetchDCount = 0
-
 export default [
   {name: 'home', path: '/', redirectTo: 'dashboard'},
 
@@ -13,8 +8,8 @@ export default [
   {
     name: 'a',
     path: '/a',
-    fetchData: () => ({
-      a: () => 'a',
+    fetchData: ({fetch}) => ({
+      a: () => randomPokemon(fetch),
     }),
     serverHeaders: {
       'X-Powered-By': 'Backula',
@@ -23,13 +18,8 @@ export default [
   {
     name: 'a.b',
     path: '/b',
-    fetchData: (d, {data}) => ({
-      b: async () => {
-        const a = await data.a
-        await sleep(100)
-
-        return `${a}, b`
-      },
+    fetchData: ({fetch}) => ({
+      b: () => randomPokemon(fetch),
     }),
     serverHeaders: {
       'X-Powered-By': 'Crackula',
@@ -38,17 +28,17 @@ export default [
   {
     name: 'a.b.c',
     path: '/c',
-    fetchData: ({fetch}, {data}) => ({
-      c: async ({signal}) => {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${++fetchCCount}`, {signal})
-        const {name} = await response.json()
+    fetchData: ({fetch}) => ({
+      c: {
+        async handle () {
+          await sleep(1000)
 
-        return name
-      },
-      slow: async ({signal}) => {
-        if (typeof window !== 'object') return
+          return randomPokemon(fetch)
+        },
 
-        return fetch('/api/v1/slow', {signal})
+        cleanup ({clean, state}) {
+          (state && !state[0]) || clean()
+        },
       },
     }),
     serverHeaders: {
@@ -58,21 +48,22 @@ export default [
   {
     name: 'a.d',
     path: '/d',
-    cleanData: false,
-    fetchData: (d, {data}) => ({
-      d: persistent({onError: 'clean'}, async () => {
-        const a = await data.a
+    fetchData: ({fetch}) => ({
+      d: {
+        async handle () {
+          await sleep(1000)
 
-        if (typeof window === 'object' && ++fetchDCount % 2) {
-          await sleep(300)
+          return randomPokemon(fetch)
+        },
 
-          throw new Error('Unable to get the D')
-        }
-
-        await sleep(1000)
-
-        return `${a}, d`
-      }),
+        async cleanup ({clean, result}) {
+          try {
+            await result
+          } catch (error) {
+            clean()
+          }
+        },
+      },
     }),
   },
 
@@ -87,6 +78,12 @@ export default [
   {name: 'api.v1.sign-out', path: '/sign-out', isClient: false},
   {name: 'api.v1.user', path: '/user', isClient: false},
 ]
+
+function randomPokemon (fetch) {
+  const number = Math.floor(Math.random() * 807) + 1
+
+  return fetch(`https://pokeapi.co/api/v2/pokemon/${number}`)
+}
 
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
