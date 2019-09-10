@@ -4,7 +4,6 @@ import {loadableReady} from '@loadable/component'
 import App from './component/App.js'
 import dataPlugin from '~/src/router5-plugin-data/client.js'
 import routes from '~/src/routes.js'
-import {createAuthClient} from './auth-client.js'
 import {createRouter, startRouter} from '~/src/routing.js'
 
 const appDataElement = document.getElementById('__APP_DATA__')
@@ -14,7 +13,6 @@ const {routeData, routerState, shouldHydrate} = appData
 const router = createRouter(routes, [
   dataPlugin(routes, routeData),
 ])
-router.setDependency('authClient', createAuthClient({router}))
 
 if (shouldHydrate) {
   Promise.all([

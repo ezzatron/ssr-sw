@@ -10,7 +10,6 @@ import appTemplateContent from './main.ejs.html'
 import dataPlugin from '~/src/router5-plugin-data/server.js'
 import routes from '~/src/routes.js'
 import {buildEntryTags} from './webpack.js'
-import {createAuthClient} from './auth-client.js'
 import {startRouter} from '~/src/routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
@@ -108,9 +107,7 @@ export function createRenderMiddleware (clientStats) {
 
 export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
-    const router = cloneRouter(baseRouter, {
-      authClient: createAuthClient({request}),
-    })
+    const router = cloneRouter(baseRouter)
     router.usePlugin(dataPlugin(routes))
     const routerState = await startRouter(router, request.originalUrl)
 
