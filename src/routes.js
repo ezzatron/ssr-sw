@@ -35,11 +35,11 @@ export default [
   {
     name: 'a.b.c',
     path: '/c',
-    fetchData: (d, {data}) => ({
-      c: () => data.b
-        .then(b => [b, ++fetchCCount])
-        .then(r => sleep(1000).then(() => r))
-        .then(([b, count]) => `${b}, c(${count})`),
+    fetchData: ({fetch}, {data}) => ({
+      c: ({signal}) => sleep(1000)
+        .then(() => fetch(`https://pokeapi.co/api/v2/pokemon/${++fetchCCount}`, {signal}))
+        .then(response => response.json())
+        .then(({name}) => name),
     }),
     serverHeaders: {
       'X-Powered-By': 'Sackula',

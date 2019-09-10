@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 import {collapseData, createDataPlugin} from './common.js'
 
 export default function createClientDataPlugin (routes, data = {}) {
@@ -7,6 +9,7 @@ export default function createClientDataPlugin (routes, data = {}) {
 function createFetcher (router, data) {
   const subscribers = new Set()
   const counters = {}
+  const abortManagers = {}
   let collapsedData = collapseData(data)
 
   return {
@@ -40,6 +43,9 @@ function createFetcher (router, data) {
     let needsUpdate = false
 
     for (const segment of toClean) {
+      const abortController = abortManagers[segment]
+      abortController && abortController.abort()
+
       if (!nextData[segment]) continue
 
       delete nextData[segment]
@@ -47,7 +53,12 @@ function createFetcher (router, data) {
     }
 
     for (const {segment, shouldClean} of toFetch) {
-      if (!shouldClean || !nextData[segment]) continue
+      if (!shouldClean) continue
+
+      const abortController = abortManagers[segment]
+      abortController && abortController.abort()
+
+      if (!nextData[segment]) continue
 
       delete nextData[segment]
       needsUpdate = true
@@ -61,9 +72,13 @@ function createFetcher (router, data) {
       const expectedCount = (counters[segment] || 0) + 1
       counters[segment] = expectedCount
 
-      const fetches = startFetch(key => {
-        publishClean(segment, key)
-      })
+      const abortManager = createAbortManager()
+      abortManagers[segment] = abortManager
+
+      const fetches = startFetch(
+        abortManager,
+        key => { publishClean(segment, key) },
+      )
 
       for (const key in fetches) {
         Promise.resolve(fetches[key])
@@ -106,6 +121,43 @@ function createFetcher (router, data) {
       : {[key]: result}
 
     publish({...data, [segment]: nextSegment})
+  }
+}
+
+function createAbortManager () {
+  if (!('AbortController' in window)) return null
+
+  const controller = new AbortController()
+  const {signal} = controller
+  const subControllers = {}
+
+  return {
+    abort () {
+      controller.abort()
+    },
+
+    subController (key) {
+      subControllers[key] = subControllers[key] || createSubController(key)
+
+      return subControllers[key]
+    },
+  }
+
+  function createSubController (key) {
+    const subController = new AbortController()
+
+    if (signal.aborted) {
+      subController.abort()
+    } else {
+      const onAbort = () => {
+        subController.abort()
+        signal.removeEventListener('abort', onAbort)
+      }
+
+      signal.addEventListener('abort', onAbort)
+    }
+
+    return subController
   }
 }
 

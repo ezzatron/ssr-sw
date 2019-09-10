@@ -44,13 +44,15 @@ export function persistent (...args) {
     onError = 'clean',
   } = options
 
-  return (previous, clean) => {
+  return context => {
+    const {clean, previous} = context
+
     return previous
       .catch(error => {
         if (onError === ON_ERROR_KEEP) throw error
         if (onError === ON_ERROR_CLEAN) clean()
       })
-      .then(previous => previous || fetcher())
+      .then(previous => previous || fetcher(context))
   }
 }
 
@@ -110,7 +112,7 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
           segment,
           shouldClean,
 
-          startFetch (onClean) {
+          startFetch (abortManager, onClean) {
             const context = {toState, fromState, data}
             const keyFetchers = fetchData(dependencies, context)
 
@@ -118,14 +120,18 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
             const promisedFetches = {}
 
             for (const key in keyFetchers) {
+              const abortController = abortManager && abortManager.subController(key)
+              const signal = abortController && abortController.signal
+
               const previous = segmentPreviousFetches[key] || Promise.resolve()
               const clean = () => {
+                abortController && abortController.abort()
                 delete data[key]
-                onClean(key)
+                onClean && onClean(key)
               }
 
               const keyFetcher = keyFetchers[key]
-              const fetch = keyFetcher(previous, clean)
+              const fetch = keyFetcher({clean, previous, signal})
               const promisedFetch = Promise.resolve(fetch)
 
               fetches[key] = fetch

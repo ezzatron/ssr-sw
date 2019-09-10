@@ -1,3 +1,5 @@
+import 'unfetch/polyfill'
+
 import {hydrate, render} from 'react-dom'
 import {loadableReady} from '@loadable/component'
 
@@ -13,6 +15,7 @@ const {routeData, routerState, shouldHydrate} = appData
 const router = createRouter(routes, [
   dataPlugin(routes, routeData),
 ])
+router.setDependency('fetch', fetch)
 
 if (shouldHydrate) {
   Promise.all([

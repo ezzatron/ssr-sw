@@ -1,4 +1,5 @@
 import etag from 'etag'
+import fetch from 'node-fetch'
 import fresh from 'fresh'
 import {ChunkExtractor} from '@loadable/server'
 import {cloneRouter, constants as routerConstants} from 'router5'
@@ -109,6 +110,7 @@ export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
     const router = cloneRouter(baseRouter)
     router.usePlugin(dataPlugin(routes))
+    router.setDependency('fetch', fetch)
     const routerState = await startRouter(router, request.originalUrl)
 
     request.router = router

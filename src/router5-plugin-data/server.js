@@ -24,7 +24,7 @@ function createFetcher (router) {
     handleRoute (toFetch) {
       for (const {segment, startFetch} of toFetch) {
         callbacks.push(() => {
-          const fetches = startFetch(noop)
+          const fetches = startFetch()
           const fetchResolvers = []
 
           for (const key in fetches) {
