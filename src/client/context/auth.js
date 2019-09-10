@@ -1,5 +1,7 @@
-import {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react'
+import {createContext, useCallback, useContext, useMemo, useState} from 'react'
 import {useRouter} from 'react-router5'
+
+import {useAsyncEffect} from './async.js'
 
 export const ANONYMOUS = 'anonymous'
 export const AUTHENTICATED = 'authenticated'
@@ -20,37 +22,46 @@ export function AuthProvider (props) {
 
   const [state, setState] = useState({status: INIT})
 
-  useEffect(() => {
-    fetch(userEndpoint)
-      .then(response => response.json())
-      .then(user => {
-        const status = user ? AUTHENTICATED : ANONYMOUS
-        setState({status, user})
-      })
-      .catch(() => {})
+  useAsyncEffect(async () => {
+    let user
+
+    try {
+      const response = await fetch(userEndpoint)
+      user = await response.json()
+    } catch (error) {}
+
+    setState({
+      status: user ? AUTHENTICATED : ANONYMOUS,
+      user,
+    })
   }, [])
 
-  const signIn = useCallback(data => {
+  const signIn = useCallback(async data => {
     setState({status: SIGNING_IN})
 
-    fetch(signInEndpoint, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: data,
-    })
-      .then(response => response.json())
-      .then(user => {
-        const status = user ? AUTHENTICATED : FAILED
-        setState({status, user})
+    try {
+      const response = await fetch(signInEndpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: data,
       })
-      .catch(error => {
-        setState({status: ERROR, error})
+      const user = await response.json()
+
+      setState({
+        status: user ? AUTHENTICATED : FAILED,
+        user,
       })
+    } catch (error) {
+      setState({status: ERROR, error})
+    }
   }, [setState, signInEndpoint])
 
-  const signOut = useCallback(() => {
+  const signOut = useCallback(async () => {
     setState({status: ANONYMOUS})
-    fetch(signOutEndpoint, {method: 'POST'}).catch(() => {})
+
+    try {
+      await fetch(signOutEndpoint, {method: 'POST'})
+    } catch (error) {}
   }, [setState, signOutEndpoint])
 
   const context = useMemo(

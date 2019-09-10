@@ -4,6 +4,10 @@ module.exports = api => {
   const isServer = api.caller(({target} = {}) => target === 'server')
   const isWebpack = api.caller(({name} = {}) => name === 'babel-loader')
 
+  const targetPlugins = isServer ? [] : [
+    'transform-async-to-promises',
+  ]
+
   return {
     plugins: [
       '@loadable/babel-plugin',
@@ -17,6 +21,8 @@ module.exports = api => {
         },
       ],
       'react-require',
+
+      ...targetPlugins,
     ],
     presets: [
       '@babel/preset-react',
@@ -24,6 +30,7 @@ module.exports = api => {
         '@babel/preset-env',
         {
           corejs: isServer ? false : 3,
+          exclude: ['@babel/plugin-transform-regenerator'],
           ignoreBrowserslistConfig: isServer,
           modules: isWebpack ? false : 'commonjs',
           targets: isServer ? {node: 'current'} : undefined,

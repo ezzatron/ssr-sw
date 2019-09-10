@@ -36,10 +36,13 @@ export default [
     name: 'a.b.c',
     path: '/c',
     fetchData: ({fetch}, {data}) => ({
-      c: ({signal}) => sleep(1000)
-        .then(() => fetch(`https://pokeapi.co/api/v2/pokemon/${++fetchCCount}`, {signal}))
-        .then(response => response.json())
-        .then(({name}) => name),
+      c: async ({signal}) => {
+        await sleep(1000)
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${++fetchCCount}`, {signal})
+        const {name} = await response.json()
+
+        return name
+      },
     }),
     serverHeaders: {
       'X-Powered-By': 'Sackula',
