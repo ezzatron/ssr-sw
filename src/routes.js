@@ -24,9 +24,12 @@ export default [
     name: 'a.b',
     path: '/b',
     fetchData: (d, {data}) => ({
-      b: () => data.a
-        .then(a => sleep(100).then(() => a))
-        .then(a => `${a}, b`),
+      b: async () => {
+        const a = await data.a
+        await sleep(100)
+
+        return `${a}, b`
+      },
     }),
     serverHeaders: {
       'X-Powered-By': 'Crackula',
@@ -37,11 +40,15 @@ export default [
     path: '/c',
     fetchData: ({fetch}, {data}) => ({
       c: async ({signal}) => {
-        await sleep(1000)
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${++fetchCCount}`, {signal})
         const {name} = await response.json()
 
         return name
+      },
+      slow: async ({signal}) => {
+        if (typeof window !== 'object') return
+
+        return fetch('/api/v1/slow', {signal})
       },
     }),
     serverHeaders: {
@@ -53,16 +60,19 @@ export default [
     path: '/d',
     cleanData: false,
     fetchData: (d, {data}) => ({
-      d: persistent({onError: 'clean'}, () => data.a
-        .then(a => {
-          if (typeof window === 'object' && window.history && ++fetchDCount % 2) {
-            return sleep(300).then(() => { throw new Error('Unable to get the D') })
-          }
+      d: persistent({onError: 'clean'}, async () => {
+        const a = await data.a
 
-          return sleep(1000).then(() => a)
-        })
-        .then(a => `${a}, d`),
-      ),
+        if (typeof window === 'object' && window.history && ++fetchDCount % 2) {
+          await sleep(300)
+
+          throw new Error('Unable to get the D')
+        }
+
+        await sleep(1000)
+
+        return `${a}, d`
+      }),
     }),
   },
 

@@ -80,6 +80,7 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
 
   return function dataMiddleware (router, dependencies) {
     const dataContexts = {}
+    const previousAborts = {}
     const previousFetches = {}
 
     if (initialData) prepareInitialData(initialData)
@@ -107,6 +108,8 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
         const {segment, fetchData, shouldClean} = hook
         const data = dataContexts[segment]
         const segmentPreviousFetches = previousFetches[segment] || {}
+        const segmentPreviousAborts = previousAborts[segment] || {}
+        const segmentAborts = {}
 
         return {
           segment,
@@ -122,16 +125,17 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
             for (const key in keyFetchers) {
               const abortController = abortManager && abortManager.subController(key)
               const signal = abortController && abortController.signal
+              segmentAborts[key] = abortController && abortController.abort.bind(abortController)
 
+              const abort = segmentPreviousAborts[key] || noop
               const previous = segmentPreviousFetches[key] || Promise.resolve()
               const clean = () => {
-                abortController && abortController.abort()
                 delete data[key]
                 onClean && onClean(key)
               }
 
               const keyFetcher = keyFetchers[key]
-              const fetch = keyFetcher({clean, previous, signal})
+              const fetch = keyFetcher({abort, clean, previous, signal})
               const promisedFetch = Promise.resolve(fetch)
 
               fetches[key] = fetch
@@ -139,6 +143,7 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
               data[key] = promisedFetch
             }
 
+            previousAborts[segment] = segmentAborts
             previousFetches[segment] = shouldClean ? {} : promisedFetches
 
             return fetches
@@ -189,3 +194,5 @@ function createDataMiddleware (routes, initialData, handleRoute, options) {
     }
   }
 }
+
+function noop () {}

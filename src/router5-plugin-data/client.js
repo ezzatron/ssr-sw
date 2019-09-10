@@ -149,12 +149,13 @@ function createAbortManager () {
     if (signal.aborted) {
       subController.abort()
     } else {
-      const onAbort = () => {
-        subController.abort()
-        signal.removeEventListener('abort', onAbort)
-      }
-
-      signal.addEventListener('abort', onAbort)
+      signal.addEventListener(
+        'abort',
+        () => {
+          subController.abort()
+        },
+        {once: true},
+      )
     }
 
     return subController
