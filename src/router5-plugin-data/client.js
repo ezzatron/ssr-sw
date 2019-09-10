@@ -2,11 +2,11 @@
 
 import {createDataPlugin} from './common.js'
 
-export default function createClientDataPlugin (routes, data = {}) {
-  return createDataPlugin(routes, createDriver, data)
+export default function createClientDataPlugin (routes, initialData = {}) {
+  return createDataPlugin(routes, createDriver, initialData)
 }
 
-function createDriver (router, data) {
+function createDriver (router, initialData) {
   return {
     getData () {
     },
