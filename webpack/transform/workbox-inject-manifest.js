@@ -42,6 +42,7 @@ module.exports = function workboxInjectManifest (options = {}) {
             ...manifestTransforms,
 
             filterManifest,
+            preventHashedAssetCacheBusting,
           ],
         }),
       )
@@ -62,6 +63,22 @@ function filterManifest (originalManifest) {
     if (VERSION.test(url)) return false
 
     return true
+  })
+
+  return {manifest, warnings: []}
+}
+
+const HASHED = /\.hash~[^.]+\./
+
+function preventHashedAssetCacheBusting (originalManifest) {
+  const manifest = originalManifest.map(entry => {
+    const {url, revision} = entry
+
+    return {
+      ...entry,
+
+      revision: HASHED.test(url) ? null : revision,
+    }
   })
 
   return {manifest, warnings: []}
