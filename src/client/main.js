@@ -9,6 +9,17 @@ import routes from '~/src/routes.js'
 import {createRouter, startRouter} from '~/src/routing.js'
 
 async function main () {
+  await renderApp()
+
+  if ('serviceWorker' in navigator) {
+    const {Workbox} = await import('workbox-window')
+
+    const wb = new Workbox('/sw.js')
+    wb.register()
+  }
+}
+
+async function renderApp () {
   const appDataElement = document.getElementById('__APP_DATA__')
   const appData = appDataElement ? JSON.parse(appDataElement.innerText) : {}
   const {routeData, routerState, shouldHydrate} = appData

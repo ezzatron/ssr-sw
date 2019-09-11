@@ -5,6 +5,7 @@ const {InjectManifest: InjectManifestPlugin} = require('workbox-webpack-plugin')
 module.exports = function workboxInjectManifest (options = {}) {
   const {
     createPlugins,
+    swDest = 'sw.js',
     swSrc = './service-worker.js',
     webpackCompilationPlugins = [],
   } = options
@@ -32,6 +33,7 @@ module.exports = function workboxInjectManifest (options = {}) {
         new InjectManifestPlugin({
           ...options,
 
+          swDest,
           swSrc,
           webpackCompilationPlugins: serviceWorkerPlugins,
         }),

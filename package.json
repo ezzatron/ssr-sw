@@ -65,7 +65,8 @@
     "webpack": "^4.39.2",
     "webpack-node-externals": "^1.7.2",
     "webpackbar": "^4.0.0",
-    "workbox-webpack-plugin": "^5.0.0-beta"
+    "workbox-webpack-plugin": "^5.0.0-beta",
+    "workbox-window": "^4.3.1"
   },
   "devDependencies": {
     "@nuxtjs/youch": "^4.2.3",
