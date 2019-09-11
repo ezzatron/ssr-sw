@@ -51,12 +51,14 @@ module.exports = function workboxInjectManifest (options = {}) {
 
 const DOTFILE = /^\/?\./
 const HOT_MODULE_UPDATE = /\.hot-update\./
+const PRE_COMPRESSED = /\.(br|gz)$/
 const VERSION = /\bVERSION$/
 
 function filterManifest (originalManifest) {
   const manifest = originalManifest.filter(({url}) => {
     if (DOTFILE.test(url)) return false
     if (HOT_MODULE_UPDATE.test(url)) return false
+    if (PRE_COMPRESSED.test(url)) return false
     if (VERSION.test(url)) return false
 
     return true
