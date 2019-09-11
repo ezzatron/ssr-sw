@@ -16,6 +16,7 @@ const reactHotLoader = require('./webpack/transform/react-hot-loader.js')
 const saneDefaults = require('./webpack/transform/sane-defaults.js')
 const sharedPlugins = require('./webpack/transform/shared-plugins.js')
 const targetNode = require('./webpack/transform/target-node.js')
+const workboxInjectManifest = require('./webpack/transform/workbox-inject-manifest.js')
 const writeStats = require('./webpack/transform/write-stats.js')
 const {processConfig} = require('./webpack/process.js')
 
@@ -40,6 +41,7 @@ module.exports = processConfig(
     reactHotLoader(),
     saneDefaults(),
     targetNode(),
+    workboxInjectManifest(),
     writeStats(),
 
     loadBabel(),
