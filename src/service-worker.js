@@ -1,1 +1,3 @@
-console.log('Log from service-worker')
+/* eslint-env worker */
+
+console.log(self.__WB_MANIFEST)

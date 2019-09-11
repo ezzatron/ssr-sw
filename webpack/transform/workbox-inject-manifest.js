@@ -5,6 +5,7 @@ const {InjectManifest: InjectManifestPlugin} = require('workbox-webpack-plugin')
 module.exports = function workboxInjectManifest (options = {}) {
   const {
     createPlugins,
+    manifestTransforms = [],
     swDest = 'sw.js',
     swSrc = './service-worker.js',
     webpackCompilationPlugins = [],
@@ -36,8 +37,30 @@ module.exports = function workboxInjectManifest (options = {}) {
           swDest,
           swSrc,
           webpackCompilationPlugins: serviceWorkerPlugins,
+
+          manifestTransforms: [
+            ...manifestTransforms,
+
+            filterManifest,
+          ],
         }),
       )
     },
   }
+}
+
+const DOTFILE = /^\/?\./
+const HOT_MODULE_UPDATE = /\.hot-update\./
+const VERSION = /\bVERSION$/
+
+function filterManifest (originalManifest) {
+  const manifest = originalManifest.filter(({url}) => {
+    if (DOTFILE.test(url)) return false
+    if (HOT_MODULE_UPDATE.test(url)) return false
+    if (VERSION.test(url)) return false
+
+    return true
+  })
+
+  return {manifest, warnings: []}
 }
