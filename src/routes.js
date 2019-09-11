@@ -30,13 +30,15 @@ export default [
     path: '/c',
     fetchData: ({fetch}) => ({
       c: {
-        async handle () {
-          await sleep(1000)
+        onActivate () {
+          return async () => {
+            await sleep(1000)
 
-          return randomPokemon(fetch)
+            return randomPokemon(fetch)
+          }
         },
 
-        cleanup ({clean, state}) {
+        onDeactivate (clean, state) {
           (state && !state[0]) || clean()
         },
       },
@@ -50,17 +52,13 @@ export default [
     path: '/d',
     fetchData: ({fetch}) => ({
       d: {
-        async handle () {
-          await sleep(1000)
+        onActivate (clean, state) {
+          (state && !state[0]) || clean()
 
-          return randomPokemon(fetch)
-        },
+          return async () => {
+            await sleep(1000)
 
-        async cleanup ({clean, result}) {
-          try {
-            await result
-          } catch (error) {
-            clean()
+            return randomPokemon(fetch)
           }
         },
       },
