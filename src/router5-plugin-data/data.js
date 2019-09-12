@@ -135,10 +135,10 @@ function buildContexts (routes, initialData) {
 
     if (routeData) {
       for (const key in routeData) {
-        const outcome = routeData[key]
+        const value = routeData[key]
 
-        routeOutcomes[key] = outcome
-        routePromises[key] = outcomeToPromise(outcome)
+        routeOutcomes[key] = {status: 'fulfilled', value}
+        routePromises[key] = Promise.resolve(value)
       }
     }
 
@@ -174,18 +174,4 @@ function parentRoute (name) {
   const dotIndex = name.indexOf('.')
 
   return dotIndex < 0 ? '' : name.substring(0, dotIndex)
-}
-
-/**
- * Converts an outcome back to a promise
- */
-function outcomeToPromise (outcome) {
-  const {reason, status, value} = outcome
-
-  switch (status) {
-    case 'fulfilled': return Promise.resolve(value)
-    case 'rejected': return Promise.reject(reason instanceof Error ? reason : new Error(reason + ''))
-  }
-
-  throw new Error('Cannot convert an incomplete outcome to a promise')
 }

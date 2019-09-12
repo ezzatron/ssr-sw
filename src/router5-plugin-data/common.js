@@ -27,7 +27,7 @@ export function createDataPlugin (options) {
       subscribeToData,
     })
 
-    augmentRouter && augmentRouter(router)
+    augmentRouter && augmentRouter(router, dataManager)
 
     router.setRootFetchData = rootFetchData => {
       fetchDataMap[''] = rootFetchData

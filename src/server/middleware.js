@@ -53,18 +53,18 @@ export function createRenderMiddleware (clientStats) {
     if (isServer) {
       await router.waitForData()
 
+      const appData = {
+        routeData: router.fulfillAllData(),
+        routerState: routerState,
+        shouldHydrate: true,
+      }
+
       const webExtractor = new ChunkExtractor({stats: clientStats})
       const jsx = webExtractor.collectChunks(<App router={router} />)
       const appHtml = renderToString(jsx)
       const linkElements = webExtractor.getLinkElements()
       const scriptTags = webExtractor.getScriptTags()
       const styleTags = webExtractor.getStyleTags()
-
-      const appData = {
-        routeData: router.getDataState(),
-        routerState: routerState,
-        shouldHydrate: true,
-      }
 
       html = appTemplate({
         appData,

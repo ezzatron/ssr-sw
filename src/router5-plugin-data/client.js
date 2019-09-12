@@ -2,7 +2,7 @@
 
 import {createDataPlugin} from './common.js'
 
-export default function createClientDataPlugin (routes, initialData = {}) {
+export default function createClientDataPlugin (routes, initialData) {
   const createAbortController = 'AbortController' in window
     ? () => new AbortController()
     : () => {}
