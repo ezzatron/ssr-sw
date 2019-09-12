@@ -8,7 +8,7 @@ export default function createServerDataPlugin (routes) {
 
     augmentRouter (router, dataManager) {
       router.waitForData = () => {
-        return Promise.all(fetchers.map(fetcher => fetcher()))
+        return Promise.all(fetchers.map(fetcher => fetcher())).then(() => {})
       }
 
       router.fulfillAllData = () => {
