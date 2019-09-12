@@ -45,11 +45,11 @@ export function createApiV1 () {
     response.end()
   }))
 
-  app.get('/slow', asyncMiddleware(async (request, response) => {
+  app.post('/slow', asyncMiddleware(async (request, response) => {
     await new Promise(resolve => setTimeout(resolve, 3000))
 
     response.setHeader('Cache-Control', 'no-cache')
-    response.end()
+    response.json({echo: request.body.echo})
   }))
 
   return app

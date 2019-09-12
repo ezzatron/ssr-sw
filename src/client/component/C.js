@@ -5,5 +5,6 @@ export default function C () {
     <h3>C</h3>
 
     <RouteData name='c' />
+    <RouteData name='slowC' />
   </>
 }

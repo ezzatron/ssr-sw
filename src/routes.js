@@ -47,6 +47,31 @@ export default [
           status !== 'fulfilled' && clean()
         },
       },
+
+      slowC: {
+        // clean on deactivate unless fulfilled
+
+        onActivate (clean, outcome) {
+          if (typeof window !== 'object') return () => ({})
+          if (outcome) return
+
+          return ({signal}) => fetch(
+            '/api/v1/slow',
+            {
+              signal,
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({echo: Date.now()}),
+            },
+          )
+            .then(response => response.json())
+            .then(({echo}) => echo)
+        },
+
+        onDeactivate (clean, {status}) {
+          status !== 'fulfilled' && clean()
+        },
+      },
     }),
     serverHeaders: {
       'X-Powered-By': 'Sackula',
@@ -60,9 +85,45 @@ export default [
         // clean on reactivate if rejected
 
         onActivate (clean, outcome) {
-          if (outcome && outcome.status !== 'rejected') return
+          if (outcome) {
+            if (outcome.status === 'rejected') {
+              clean()
+            } else {
+              return
+            }
+          }
 
           return randomPokemon(fetch)
+        },
+
+        onDeactivate () {},
+      },
+
+      slowD: {
+        // clean on reactivate if rejected
+
+        onActivate (clean, outcome) {
+          if (typeof window !== 'object') return () => ({})
+
+          if (outcome) {
+            if (outcome.status === 'rejected') {
+              clean()
+            } else {
+              return
+            }
+          }
+
+          return ({signal}) => fetch(
+            '/api/v1/slow',
+            {
+              signal,
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({echo: Date.now()}),
+            },
+          )
+            .then(response => response.json())
+            .then(({echo}) => echo)
         },
 
         onDeactivate () {},
