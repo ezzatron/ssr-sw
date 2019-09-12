@@ -44,23 +44,23 @@ export default [
       c: {
         // clean on deactivate unless fulfilled
 
-        onActivate (clean, outcome) {
-          if (outcome) return
+        onActivate (clean, {status}) {
+          if (status) return
 
           return randomPokemon(fetch)
         },
 
         onDeactivate (clean, {status}) {
-          status !== 'fulfilled' && clean()
+          if (status && status !== 'fulfilled') clean()
         },
       },
 
       slowC: {
         // clean on deactivate unless fulfilled
 
-        onActivate (clean, outcome) {
+        onActivate (clean, {status}) {
           if (typeof window !== 'object') return () => ({})
-          if (outcome) return
+          if (status) return
 
           return async ({signal}) => {
             if (typeof window !== 'object') return ++fetchCounts.c
@@ -83,7 +83,7 @@ export default [
         },
 
         onDeactivate (clean, {status}) {
-          status !== 'fulfilled' && clean()
+          if (status && status !== 'fulfilled') clean()
         },
       },
     }),

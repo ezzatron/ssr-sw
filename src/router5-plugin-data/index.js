@@ -29,13 +29,10 @@ export function persistentRoute (fetchData) {
 
 function createPersistentOnActivate (onActivate) {
   return function persistentOnActivate (clean, outcome) {
-    if (outcome) {
-      if (outcome.status === 'rejected') {
-        clean()
-      } else {
-        return
-      }
-    }
+    const {status} = outcome
+
+    if (status === 'fulfilled' || status === 'pending') return
+    if (status === 'rejected') clean()
 
     return onActivate(clean, outcome)
   }

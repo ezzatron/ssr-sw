@@ -1,3 +1,5 @@
+const emptyOutcome = {status: ''}
+
 export function createDataManager (handleFetcher, routes, initialData = {}) {
   const {outcomes, promises} = buildContexts(routes, initialData)
   const cleanHandlers = new Map()
@@ -30,7 +32,7 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
         }
 
         const outcome = outcomes[name][key]
-        const fetcher = workFn(clean, outcome)
+        const fetcher = workFn(clean, outcome || emptyOutcome)
 
         if (!fetcher) continue
 
