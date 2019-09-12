@@ -37,7 +37,7 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
         handleFetcher(abortController => {
           const signal = abortController && abortController.signal
           const status = {isCleaned: false}
-          const promise = fetcher({signal, status})
+          const promise = Promise.resolve(fetcher({signal, status}))
 
           cleanHandlers.set(promise, () => {
             cleanHandlers.delete(promise)
