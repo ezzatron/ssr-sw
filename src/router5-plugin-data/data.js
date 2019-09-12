@@ -64,7 +64,8 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
       const state = {}
 
       for (const name in outcomes) {
-        state[name] = {...outcomes[name]}
+        const routeOutcomes = outcomes[name]
+        if (Object.keys(routeOutcomes).length > 0) state[name] = {...routeOutcomes}
       }
 
       return state
