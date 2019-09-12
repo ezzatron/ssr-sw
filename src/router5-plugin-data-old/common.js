@@ -19,8 +19,14 @@ export function createDataPlugin (routes, createFetcher, data) {
 
     const options = {}
 
-    Object.assign(router, {getData, getDataState, subscribeToData})
+    Object.assign(router, {getDataState, subscribeToData})
     if (waitForData) router.waitForData = waitForData
+
+    router.getData = () => {
+      const {name} = router.getState()
+
+      return getData(name)
+    }
 
     router.setRootFetchData = rootFetchData => {
       options.rootFetchData = rootFetchData

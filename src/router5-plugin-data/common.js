@@ -2,27 +2,44 @@ import transitionPath from 'router5-transition-path'
 
 import {createDataManager} from './data.js'
 
-export function createDataPlugin (routes, initialData = {}) {
-  return function dataPlugin (router) {
-    const fetchDataMap = buildFetchDataMap(routes)
+export function cleanKey (clean) {
+  clean()
+}
 
-    const dataManager = createDataManager(routes, initialData)
-    const {getData, getDataState, subscribeToData, waitForData} = dataManager
-    Object.assign(router, {getData, getDataState, subscribeToData, waitForData})
+export function createDataPlugin (options) {
+  const {
+    augmentRouter,
+    handleFetcher,
+    initialData,
+    routes,
+  } = options
+
+  return function dataPlugin (router) {
+    const fetchDataMap = buildFetchDataRouteMap(routes, ({fetchData}) => fetchData)
+    const deactivatorMap = buildFetchDataRouteMap(routes, () => {})
+
+    const dataManager = createDataManager(handleFetcher, routes, initialData)
+    const {getData, getState, subscribeToData} = dataManager
+
+    Object.assign(router, {
+      getData,
+      getDataState: getState,
+      subscribeToData,
+    })
+
+    augmentRouter && augmentRouter(router)
 
     router.setRootFetchData = rootFetchData => {
       fetchDataMap[''] = rootFetchData
     }
 
-    router.useMiddleware(createDataMiddleware(dataManager, fetchDataMap))
+    router.useMiddleware(createDataMiddleware(dataManager, deactivatorMap, fetchDataMap))
 
     return {}
   }
 }
 
-function createDataMiddleware (dataManager, fetchDataMap) {
-  const deactivatorMap = buildDeactivatorMap(fetchDataMap)
-
+function createDataMiddleware (dataManager, deactivatorMap, fetchDataMap) {
   return function dataMiddleware (router, dependencies) {
     return function handleTransition (toState, fromState) {
       const {toActivate, toDeactivate} = transitionPath(toState, fromState)
@@ -51,7 +68,7 @@ function createDataMiddleware (dataManager, fetchDataMap) {
     }
 
     function handleActivateRoute (toState, fromState, name, fetchData) {
-      const data = dataManager.getDataContext(name)
+      const data = dataManager.getContext(name)
       const context = {data, fromState, toState}
       const fetchSpec = normalizeFetchSpec(name, fetchData(dependencies, context))
 
@@ -68,30 +85,21 @@ function createDataMiddleware (dataManager, fetchDataMap) {
   }
 }
 
-/**
- * Builds a map of route name to fetchData function
- */
-function buildFetchDataMap (routes) {
-  const fetchDataMap = {}
-
-  for (const {fetchData, name} of routes) {
-    if (fetchData) fetchDataMap[name] = fetchData
-  }
-
-  return fetchDataMap
-}
+export function noop () {}
 
 /**
- * Builds a structure for storing deactivators by route name and data key
+ * Builds a map of routes with fetchData to the result of a callback
  */
-function buildDeactivatorMap (fetchDataMap) {
-  const deactivatorMap = {}
+export function buildFetchDataRouteMap (routes, fn) {
+  const map = {}
 
-  for (const name in fetchDataMap) {
-    deactivatorMap[name] = {}
+  for (const route of routes) {
+    const {fetchData, name} = route
+
+    if (fetchData) map[name] = fn(route)
   }
 
-  return deactivatorMap
+  return map
 }
 
 /**
@@ -141,9 +149,3 @@ function normalizeKeySpec (name, key, keySpec) {
     `The ${name} route's ${key} fetchData handler should be a function or an object, but found ${keySpecType}`,
   )
 }
-
-function cleanKey (clean) {
-  clean()
-}
-
-function noop () {}
