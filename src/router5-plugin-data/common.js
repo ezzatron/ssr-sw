@@ -75,7 +75,7 @@ function createDataMiddleware (dataManager, deactivatorMap, fetchDataMap) {
         if (fetchData) {
           registerDeactivators(
             name,
-            normalizeFetchSpec(name, fetchData(dependencies, context)),
+            normalizeFetchSpecForRoute(name, fetchData(dependencies, context)),
           )
         }
       }
@@ -93,7 +93,7 @@ function createDataMiddleware (dataManager, deactivatorMap, fetchDataMap) {
     function handleActivateRoute (toState, fromState, name, fetchData) {
       const data = dataManager.getContext(name)
       const context = {data, fromState, toState}
-      const fetchSpec = normalizeFetchSpec(name, fetchData(dependencies, context))
+      const fetchSpec = normalizeFetchSpecForRoute(name, fetchData(dependencies, context))
 
       registerDeactivators(name, fetchSpec)
 
@@ -120,45 +120,9 @@ function createDataMiddleware (dataManager, deactivatorMap, fetchDataMap) {
 export function noop () {}
 
 /**
- * Builds a map of routes with fetchData to the result of a callback
- */
-function buildFetchDataRouteMap (routes, fn) {
-  const map = {}
-
-  for (const route of routes) {
-    const {fetchData, name} = route
-
-    if (fetchData) map[name] = fn(route)
-  }
-
-  return map
-}
-
-/**
- * Fills in each key of a fetchData function result with default behaviours
- */
-function normalizeFetchSpec (name, fetchSpec) {
-  const normalized = {}
-
-  if (!fetchSpec) return normalized
-
-  const fetchSpecType = typeof fetchSpec
-
-  if (fetchSpecType !== 'object') {
-    throw new Error(`The ${name} route's fetchData function should return an object, but returned ${fetchSpecType}`)
-  }
-
-  for (const key in fetchSpec) {
-    normalized[key] = normalizeKeySpec(name, key, fetchSpec[key])
-  }
-
-  return normalized
-}
-
-/**
  * Ensures each key has an onActivate and onDeactivate function
  */
-function normalizeKeySpec (name, key, keySpec) {
+export function normalizeKeySpec (keySpec) {
   const keySpecType = keySpec === null ? 'null' : typeof keySpec
 
   if (keySpecType === 'function') {
@@ -177,7 +141,53 @@ function normalizeKeySpec (name, key, keySpec) {
     }
   }
 
-  throw new Error(
-    `The ${name} route's ${key} fetchData handler should be a function or an object, but found ${keySpecType}`,
-  )
+  throw new Error(`Each key should contain a function or object, but found ${keySpecType}`)
+}
+
+/**
+ * Fills in each key of a fetchData function result with default behaviours
+ */
+export function normalizeFetchSpec (fetchSpec) {
+  const normalized = {}
+
+  if (!fetchSpec) return normalized
+
+  const fetchSpecType = typeof fetchSpec
+
+  if (fetchSpecType !== 'object') {
+    throw new Error(`The fetchData function should return an object, but returned ${fetchSpecType}`)
+  }
+
+  for (const key in fetchSpec) {
+    try {
+      normalized[key] = normalizeKeySpec(fetchSpec[key])
+    } catch (error) {
+      throw new Error(`The fetchData function returned an invalid value: ${error.message}`)
+    }
+  }
+
+  return normalized
+}
+
+function normalizeFetchSpecForRoute (route, fetchSpec) {
+  try {
+    return normalizeFetchSpec(fetchSpec)
+  } catch (error) {
+    throw new Error(`Unable to handle route data for route ${route}: ${error.message}`)
+  }
+}
+
+/**
+ * Builds a map of routes with fetchData to the result of a callback
+ */
+function buildFetchDataRouteMap (routes, fn) {
+  const map = {}
+
+  for (const route of routes) {
+    const {fetchData, name} = route
+
+    if (fetchData) map[name] = fn(route)
+  }
+
+  return map
 }

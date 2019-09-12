@@ -1,3 +1,5 @@
+import {persistentRoute} from '~/src/router5-plugin-data/index.js'
+
 export default [
   {name: 'home', path: '/', redirectTo: 'dashboard'},
 
@@ -55,17 +57,20 @@ export default [
           if (typeof window !== 'object') return () => ({})
           if (outcome) return
 
-          return ({signal}) => fetch(
-            '/api/v1/slow',
-            {
-              signal,
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({echo: Date.now()}),
-            },
-          )
-            .then(response => response.json())
-            .then(({echo}) => echo)
+          return async ({signal}) => {
+            const response = await fetch(
+              '/api/v1/slow',
+              {
+                signal,
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({echo: Date.now()}),
+              },
+            )
+            const {echo} = await response.json()
+
+            return echo
+          }
         },
 
         onDeactivate (clean, {status}) {
@@ -80,55 +85,24 @@ export default [
   {
     name: 'a.d',
     path: '/d',
-    fetchData: ({fetch}) => ({
-      d: {
-        // clean on reactivate if rejected
+    fetchData: persistentRoute(({fetch}) => ({
+      d: randomPokemon(fetch),
 
-        onActivate (clean, outcome) {
-          if (outcome) {
-            if (outcome.status === 'rejected') {
-              clean()
-            } else {
-              return
-            }
-          }
+      slowD: async ({signal}) => {
+        const response = await fetch(
+          '/api/v1/slow',
+          {
+            signal,
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({echo: Date.now()}),
+          },
+        )
+        const {echo} = await response.json()
 
-          return randomPokemon(fetch)
-        },
-
-        onDeactivate () {},
+        return echo
       },
-
-      slowD: {
-        // clean on reactivate if rejected
-
-        onActivate (clean, outcome) {
-          if (typeof window !== 'object') return () => ({})
-
-          if (outcome) {
-            if (outcome.status === 'rejected') {
-              clean()
-            } else {
-              return
-            }
-          }
-
-          return ({signal}) => fetch(
-            '/api/v1/slow',
-            {
-              signal,
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({echo: Date.now()}),
-            },
-          )
-            .then(response => response.json())
-            .then(({echo}) => echo)
-        },
-
-        onDeactivate () {},
-      },
-    }),
+    })),
   },
 
   {name: 'client-only', path: '/client-only', isServer: false},
