@@ -1,4 +1,4 @@
-import transitionPath from 'router5-transition-path'
+import transitionPath, {nameToIDs} from 'router5-transition-path'
 
 import {createDataManager} from './data.js'
 
@@ -41,7 +41,14 @@ export function createDataPlugin (options) {
 
 function createDataMiddleware (dataManager, deactivatorMap, fetchDataMap) {
   return function dataMiddleware (router, dependencies) {
+    let isInitialized = false
+
     return function handleTransition (toState, fromState) {
+      if (fromState && !isInitialized) {
+        isInitialized = true
+        handleInitialize(fromState)
+      }
+
       const {toActivate, toDeactivate} = transitionPath(toState, fromState)
       if (!fromState) toActivate.unshift('')
 
@@ -58,6 +65,22 @@ function createDataMiddleware (dataManager, deactivatorMap, fetchDataMap) {
       return true
     }
 
+    function handleInitialize (toState) {
+      const toActivate = ['', ...nameToIDs(toState.name)]
+      const context = {data: {}, toState}
+
+      for (const name of toActivate) {
+        const fetchData = fetchDataMap[name]
+
+        if (fetchData) {
+          registerDeactivators(
+            name,
+            normalizeFetchSpec(name, fetchData(dependencies, context)),
+          )
+        }
+      }
+    }
+
     function handleDeactivateRoute (name) {
       const deactivators = deactivatorMap[name]
 
@@ -72,10 +95,19 @@ function createDataMiddleware (dataManager, deactivatorMap, fetchDataMap) {
       const context = {data, fromState, toState}
       const fetchSpec = normalizeFetchSpec(name, fetchData(dependencies, context))
 
+      registerDeactivators(name, fetchSpec)
+
       for (const key in fetchSpec) {
-        const {onActivate, onDeactivate} = fetchSpec[key]
+        const {onActivate} = fetchSpec[key]
 
         dataManager.addWork(name, key, onActivate)
+      }
+    }
+
+    function registerDeactivators (name, fetchSpec) {
+      for (const key in fetchSpec) {
+        const {onDeactivate} = fetchSpec[key]
+
         deactivatorMap[name][key] = (clean, outcome) => {
           delete deactivatorMap[name][key]
           onDeactivate(clean, outcome)
