@@ -90,7 +90,7 @@ export function noop () {}
 /**
  * Builds a map of routes with fetchData to the result of a callback
  */
-export function buildFetchDataRouteMap (routes, fn) {
+function buildFetchDataRouteMap (routes, fn) {
   const map = {}
 
   for (const route of routes) {
