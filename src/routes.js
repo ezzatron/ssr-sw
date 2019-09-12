@@ -18,8 +18,13 @@ export default [
   {
     name: 'a.b',
     path: '/b',
-    fetchData: ({fetch}) => ({
-      b: randomPokemon(fetch),
+    fetchData: ({fetch}, {data}) => ({
+      b: async (...args) => {
+        const a = await data.a
+        const b = await randomPokemon(fetch)(...args)
+
+        return `${a}, ${b}`
+      },
     }),
     serverHeaders: {
       'X-Powered-By': 'Crackula',
@@ -78,12 +83,13 @@ export default [
 ]
 
 function randomPokemon (fetch) {
-  return ({signal}) => {
+  return async ({signal}) => {
     const number = Math.floor(Math.random() * 807) + 1
 
-    return fetch(`https://pokeapi.co/api/v2/pokemon/${number}`, {signal})
-      .then(response => response.json())
-      .then(({name}) => name)
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${number}`, {signal})
+    const {name} = await response.json()
+
+    return name
   }
 }
 
