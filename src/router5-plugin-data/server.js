@@ -8,7 +8,11 @@ export default function createServerDataPlugin (routes) {
 
     augmentRouter (router) {
       router.waitForData = async () => {
-        await Promise.all(fetchers.map(fetcher => fetcher()))
+        await Promise.all(fetchers.map(async fetcher => {
+          const {reason, status} = await fetcher()
+
+          if (status === 'rejected') throw reason
+        }))
       }
     },
 

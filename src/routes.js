@@ -81,6 +81,8 @@ function randomPokemon (fetch) {
   const number = Math.floor(Math.random() * 807) + 1
 
   return fetch(`https://pokeapi.co/api/v2/pokemon/${number}`)
+    .then(response => response.json())
+    .then(({name}) => name)
 }
 
 function sleep (ms) {

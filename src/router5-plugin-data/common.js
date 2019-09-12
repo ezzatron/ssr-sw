@@ -16,7 +16,7 @@ export function createDataPlugin (options) {
 
   return function dataPlugin (router) {
     const fetchDataMap = buildFetchDataRouteMap(routes, ({fetchData}) => fetchData)
-    const deactivatorMap = buildFetchDataRouteMap(routes, () => {})
+    const deactivatorMap = buildFetchDataRouteMap(routes, () => ({}))
 
     const dataManager = createDataManager(handleFetcher, routes, initialData)
     const {getData, getState, subscribeToData} = dataManager

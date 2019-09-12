@@ -34,7 +34,7 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
           outcomes[name][key] = {status: 'pending'}
           promises[name][key] = promise
 
-          promise
+          return promise
             .then(
               value => ({status: 'fulfilled', value}),
               reason => ({status: 'rejected', reason}),
@@ -42,9 +42,9 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
             .then(outcome => {
               outcomes[name][key] = outcome
               publish()
-            })
 
-          return promise
+              return outcome
+            })
         })
       }
 

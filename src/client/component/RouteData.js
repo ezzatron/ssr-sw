@@ -7,13 +7,10 @@ const successClassName = `${styles.routeData} ${styles.success}`
 
 export default function RouteData (props) {
   const {name} = props
-  const data = useRouteData(data => data[name])
+  const {reason, status, value} = useRouteData(data => data[name])
 
-  if (!data) return <code className={loadingClassName}>Loading...</code>
+  if (status === 'fulfilled') return <code className={successClassName}>{JSON.stringify(value, null, 2)}</code>
+  if (status === 'rejected') return <code className={errorClassName}>ERROR: {reason.message}</code>
 
-  const [error, value] = data
-
-  if (error) return <code className={errorClassName}>ERROR: {error.message}</code>
-
-  return <code className={successClassName}>{value}</code>
+  return <code className={loadingClassName}>Loading...</code>
 }
