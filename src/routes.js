@@ -30,7 +30,11 @@ export default [
     path: '/c',
     fetchData: ({fetch}) => ({
       c: {
-        onActivate () {
+        // clean on deactivate unless fulfilled
+
+        onActivate (clean, outcome) {
+          if (outcome) return
+
           return async () => {
             await sleep(1000)
 
@@ -38,8 +42,8 @@ export default [
           }
         },
 
-        onDeactivate (clean, state) {
-          (state && !state[0]) || clean()
+        onDeactivate (clean, {status}) {
+          status !== 'fulfilled' && clean()
         },
       },
     }),
@@ -52,8 +56,10 @@ export default [
     path: '/d',
     fetchData: ({fetch}) => ({
       d: {
-        onActivate (clean, state) {
-          (state && !state[0]) || clean()
+        // clean on reactivate if rejected
+
+        onActivate (clean, outcome) {
+          if (outcome && outcome.status !== 'rejected') return
 
           return async () => {
             await sleep(1000)
@@ -61,6 +67,8 @@ export default [
             return randomPokemon(fetch)
           }
         },
+
+        onDeactivate () {},
       },
     }),
   },

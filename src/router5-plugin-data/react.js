@@ -1,8 +1,6 @@
 import {createContext, useContext, useEffect, useState} from 'react'
 import {useRouter} from 'react-router5'
 
-export {pending} from './util.js'
-
 const RouteDataContext = createContext({})
 
 export function RouteDataProvider (props) {

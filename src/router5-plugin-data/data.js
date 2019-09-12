@@ -1,8 +1,7 @@
-import {pending} from './util.js'
-
 export function createDataManager (handleFetcher, routes, initialData = {}) {
   const {outcomes, promises} = buildContexts(routes, initialData)
   const subscribers = new Set()
+  const pending = {status: 'pending'}
   let data = buildData()
   let work
 
