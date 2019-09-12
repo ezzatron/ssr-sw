@@ -9,7 +9,7 @@ export default [
     name: 'a',
     path: '/a',
     fetchData: ({fetch}) => ({
-      a: () => randomPokemon(fetch),
+      a: randomPokemon(fetch),
     }),
     serverHeaders: {
       'X-Powered-By': 'Backula',
@@ -19,7 +19,7 @@ export default [
     name: 'a.b',
     path: '/b',
     fetchData: ({fetch}) => ({
-      b: () => randomPokemon(fetch),
+      b: randomPokemon(fetch),
     }),
     serverHeaders: {
       'X-Powered-By': 'Crackula',
@@ -35,11 +35,7 @@ export default [
         onActivate (clean, outcome) {
           if (outcome) return
 
-          return async () => {
-            await sleep(1000)
-
-            return randomPokemon(fetch)
-          }
+          return randomPokemon(fetch)
         },
 
         onDeactivate (clean, {status}) {
@@ -61,11 +57,7 @@ export default [
         onActivate (clean, outcome) {
           if (outcome && outcome.status !== 'rejected') return
 
-          return async () => {
-            await sleep(1000)
-
-            return randomPokemon(fetch)
-          }
+          return randomPokemon(fetch)
         },
 
         onDeactivate () {},
@@ -86,13 +78,15 @@ export default [
 ]
 
 function randomPokemon (fetch) {
-  const number = Math.floor(Math.random() * 807) + 1
+  return ({signal}) => {
+    const number = Math.floor(Math.random() * 807) + 1
 
-  return fetch(`https://pokeapi.co/api/v2/pokemon/${number}`)
-    .then(response => response.json())
-    .then(({name}) => name)
+    return fetch(`https://pokeapi.co/api/v2/pokemon/${number}`, {signal})
+      .then(response => response.json())
+      .then(({name}) => name)
+  }
 }
 
-function sleep (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
+// function sleep (ms) {
+//   return new Promise(resolve => setTimeout(resolve, ms))
+// }

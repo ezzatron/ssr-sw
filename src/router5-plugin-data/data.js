@@ -1,5 +1,6 @@
 export function createDataManager (handleFetcher, routes, initialData = {}) {
   const {outcomes, promises} = buildContexts(routes, initialData)
+  const cleanHandlers = new Map()
   const subscribers = new Set()
   const pending = {status: 'pending'}
   let data = buildData()
@@ -19,8 +20,11 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
 
       for (const [name, key, workFn] of work) {
         const clean = () => {
+          cleanHandlers.get(promises[name][key])()
+
           delete outcomes[name][key]
           delete promises[name][key]
+
           needsPublish = true
         }
 
@@ -29,8 +33,17 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
 
         if (!fetcher) continue
 
-        handleFetcher(() => {
-          const promise = fetcher()
+        handleFetcher(abortController => {
+          const signal = abortController && abortController.signal
+          const status = {isCleaned: false}
+          const promise = fetcher({signal, status})
+
+          cleanHandlers.set(promise, () => {
+            cleanHandlers.delete(promise)
+
+            status.isCleaned = true
+            abortController.abort()
+          })
 
           outcomes[name][key] = pending
           promises[name][key] = promise
@@ -41,6 +54,13 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
               reason => ({status: 'rejected', reason}),
             )
             .then(outcome => {
+              if (status.isCleaned) {
+                return {
+                  status: 'rejected',
+                  reason: new Error('Route data cleaned'),
+                }
+              }
+
               outcomes[name][key] = outcome
               publish()
 
