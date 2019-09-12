@@ -1,3 +1,5 @@
+import {pending} from './util.js'
+
 export function createDataManager (handleFetcher, routes, initialData = {}) {
   const {outcomes, promises} = buildContexts(routes, initialData)
   const subscribers = new Set()
@@ -31,7 +33,7 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
         handleFetcher(() => {
           const promise = fetcher()
 
-          outcomes[name][key] = {status: 'pending'}
+          outcomes[name][key] = pending
           promises[name][key] = promise
 
           return promise
