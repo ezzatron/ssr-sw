@@ -1,5 +1,10 @@
 import {persistentRoute} from '~/src/router5-plugin-data/index.js'
 
+const fetchCounts = {
+  c: 0,
+  d: 0,
+}
+
 export default [
   {name: 'home', path: '/', redirectTo: 'dashboard'},
 
@@ -58,16 +63,20 @@ export default [
           if (outcome) return
 
           return async ({signal}) => {
+            if (typeof window !== 'object') return ++fetchCounts.c
+
             const response = await fetch(
               '/api/v1/slow',
               {
                 signal,
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({echo: Date.now()}),
+                body: JSON.stringify({echo: ++fetchCounts.c}),
               },
             )
             const {echo} = await response.json()
+
+            if (echo % 2 !== 0) throw new Error('You done goofed.')
 
             return echo
           }
@@ -89,16 +98,20 @@ export default [
       d: randomPokemon(fetch),
 
       slowD: async ({signal}) => {
+        if (typeof window !== 'object') return ++fetchCounts.d
+
         const response = await fetch(
           '/api/v1/slow',
           {
             signal,
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({echo: Date.now()}),
+            body: JSON.stringify({echo: ++fetchCounts.d}),
           },
         )
         const {echo} = await response.json()
+
+        if (echo % 2 !== 0) throw new Error('You done goofed.')
 
         return echo
       },
