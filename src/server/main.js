@@ -1,5 +1,4 @@
 import cookieParser from 'cookie-parser'
-import express from 'express'
 
 import routes from '~/src/routes.js'
 import serverPlugin from '~/src/router5-plugin-server.js'
@@ -9,16 +8,12 @@ import {createRenderMiddleware, createRouterMiddleware} from './middleware.js'
 import {createRouter} from '~/src/routing.js'
 
 export default function createApp (options) {
-  const {clientStats, secret} = options
+  const {clientStats, createAppRouter, secret} = options
 
   const baseRouter = createRouter(routes)
   baseRouter.usePlugin(serverPlugin(routes))
 
-  const app = express()
-
-  app.set('env', process.env.NODE_ENV)
-  app.set('trust proxy', true)
-  app.set('x-powered-by', false)
+  const app = createAppRouter()
 
   app.use(cookieParser(secret))
 
@@ -30,7 +25,7 @@ export default function createApp (options) {
     throw new Error('This is a server error.')
   })
 
-  app.use('/api/v1', createApiV1())
+  app.use('/api/v1', createApiV1(createAppRouter))
   app.use(asyncMiddleware(createRouterMiddleware(baseRouter)))
   app.use(asyncMiddleware(createRenderMiddleware(clientStats)))
 

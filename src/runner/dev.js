@@ -41,6 +41,7 @@ app.use(webpackDevMiddleware(compiler, {
 app.use(webpackHotMiddleware(clientCompiler))
 app.use(webpackHotServerMiddleware(compiler, {
   serverRendererOptions: {
+    createAppRouter: options => express.Router(options),
     secret: 'dev-secret',
   },
 }))

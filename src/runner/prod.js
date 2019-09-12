@@ -40,6 +40,7 @@ async function main () {
   }))
   app.use(createMainMiddleware({
     clientStats,
+    createAppRouter: options => express.Router(options),
     secret: 'prod-secret',
   }))
 

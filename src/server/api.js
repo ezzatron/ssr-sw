@@ -1,14 +1,9 @@
 import bodyParser from 'body-parser'
-import express from 'express'
 
 import {asyncMiddleware} from './express.js'
 
-export function createApiV1 () {
-  const app = express()
-
-  app.set('env', process.env.NODE_ENV)
-  app.set('trust proxy', true)
-  app.set('x-powered-by', false)
+export function createApiV1 (createAppRouter) {
+  const app = createAppRouter()
 
   app.use(bodyParser.json())
 
