@@ -20,7 +20,8 @@ export function createDataManager (handleFetcher, routes, initialData = {}) {
 
       for (const [name, key, workFn] of work) {
         const clean = () => {
-          cleanHandlers.get(promises[name][key])()
+          const cleanHandler = cleanHandlers.get(promises[name][key])
+          cleanHandler && cleanHandler()
 
           delete outcomes[name][key]
           delete promises[name][key]
