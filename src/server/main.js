@@ -4,7 +4,8 @@ import routes from '~/src/routes.js'
 import serverPlugin from '~/src/router5-plugin-server.js'
 import {asyncMiddleware} from './express.js'
 import {createApiV1} from './api.js'
-import {createRenderMiddleware, createRouterMiddleware} from './middleware.js'
+import {createRenderMiddleware} from './rendering.js'
+import {createRouterMiddleware} from './routing.js'
 import {createRouter} from '~/src/routing.js'
 
 export default function createApp (options) {

@@ -1,17 +1,13 @@
 import etag from 'etag'
-import fetch from 'node-fetch'
 import fresh from 'fresh'
 import {ChunkExtractor} from '@loadable/server'
-import {cloneRouter, constants as routerConstants} from 'router5'
+import {constants as routerConstants} from 'router5'
 import {compile} from 'ejs'
 import {renderToString} from 'react-dom/server'
 
 import App from '~/src/client/component/App.js'
 import appTemplateContent from './main.ejs.html'
-import dataPlugin from '~/src/router5-plugin-data/server.js'
-import routes from '~/src/routes.js'
 import {buildEntryTags} from './webpack.js'
-import {startRouter} from '~/src/routing.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
@@ -103,34 +99,5 @@ export function createRenderMiddleware (clientStats) {
 
     response.statusCode = isFresh ? 304 : 200
     response.end(isFresh || isHead ? '' : html)
-  }
-}
-
-export function createRouterMiddleware (baseRouter) {
-  return async function routerMiddleware (request, response, next) {
-    const router = cloneRouter(baseRouter)
-    router.usePlugin(dataPlugin(routes))
-    router.setDependency('fetch', fetch)
-    const routerState = await startRouter(router, request.originalUrl)
-
-    request.router = router
-    request.routerState = routerState
-
-    const {
-      meta: {
-        options: {
-          redirected: isRedirect,
-        } = {},
-      } = {},
-    } = routerState
-
-    if (!isRedirect) return next()
-
-    const {name, params} = routerState
-
-    response.writeHead(302, {
-      location: router.buildPath(name, params),
-    })
-    response.end()
   }
 }
