@@ -1,6 +1,7 @@
 /* eslint-disable import/no-commonjs */
 
 const GitVersionPlugin = require('@eloquent/git-version-webpack-plugin')
+const HtmlPlugin = require('html-webpack-plugin')
 const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
@@ -55,6 +56,11 @@ module.exports = processConfig(
     {
       mode,
       name: 'client',
+      plugins: [
+        new HtmlPlugin({
+          filename: mode === 'production' ? 'app-shell.hash~[contenthash].html' : 'app-shell.html',
+        }),
+      ],
     },
     {
       mode,

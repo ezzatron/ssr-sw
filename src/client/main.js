@@ -52,9 +52,13 @@ async function renderApp () {
     }),
   ])
 
+  const root = document.createElement('div')
+  root.setAttribute('id', 'root')
+  document.body.appendChild(root)
+
   render(
     <App router={router} />,
-    document.getElementById('root'),
+    root,
   )
 }
 

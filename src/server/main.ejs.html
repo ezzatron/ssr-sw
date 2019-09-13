@@ -2,8 +2,8 @@
 <html>
 <head>
 <%- styleTags %></head>
-<body>
-<div id="root"><%- appHtml %></div>
+<body><% if (appHtml) { %>
+<div id="root"><%- appHtml %></div><% } %>
 <% if (typeof appData !== 'undefined') { %><script id="__APP_DATA__" type="application/json"><%- JSON.stringify(appData) %></script>
 <% } %><%- scriptTags %>
 </body>
