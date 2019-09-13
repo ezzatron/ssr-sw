@@ -2,6 +2,8 @@
 
 const {InjectManifest: InjectManifestPlugin} = require('workbox-webpack-plugin')
 
+const {standardManifestTransforms} = require('../util/workbox.js')
+
 module.exports = function workboxInjectManifest (options = {}) {
   const {
     createPlugins,
@@ -34,52 +36,12 @@ module.exports = function workboxInjectManifest (options = {}) {
         new InjectManifestPlugin({
           ...options,
 
+          manifestTransforms: [...manifestTransforms, ...standardManifestTransforms],
           swDest,
           swSrc,
           webpackCompilationPlugins: serviceWorkerPlugins,
-
-          manifestTransforms: [
-            ...manifestTransforms,
-
-            filterManifest,
-            preventHashedAssetCacheBusting,
-          ],
         }),
       )
     },
   }
-}
-
-const DOTFILE = /^\/?\./
-const HOT_MODULE_UPDATE = /\.hot-update\./
-const PRE_COMPRESSED = /\.(br|gz)$/
-const VERSION = /\bVERSION$/
-
-function filterManifest (originalManifest) {
-  const manifest = originalManifest.filter(({url}) => {
-    if (DOTFILE.test(url)) return false
-    if (HOT_MODULE_UPDATE.test(url)) return false
-    if (PRE_COMPRESSED.test(url)) return false
-    if (VERSION.test(url)) return false
-
-    return true
-  })
-
-  return {manifest, warnings: []}
-}
-
-const HASHED = /\.hash~[^.]+\./
-
-function preventHashedAssetCacheBusting (originalManifest) {
-  const manifest = originalManifest.map(entry => {
-    const {url, revision} = entry
-
-    return {
-      ...entry,
-
-      revision: HASHED.test(url) ? null : revision,
-    }
-  })
-
-  return {manifest, warnings: []}
 }
