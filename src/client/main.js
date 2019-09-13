@@ -12,7 +12,7 @@ async function main () {
   await renderApp()
 
   if ('serviceWorker' in navigator) {
-    const {Workbox} = await import(/* webpackChunkName: 'workbox' */ 'workbox-window')
+    const {Workbox} = await import(/* webpackChunkName: 'workbox-window' */ 'workbox-window')
 
     const wb = new Workbox('/sw.js')
     wb.register()
