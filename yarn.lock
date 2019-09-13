@@ -9163,11 +9163,6 @@ workbox-cacheable-response@^5.0.0-beta.0:
   dependencies:
     workbox-core "^5.0.0-beta.0"
 
-workbox-core@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/workbox-core/-/workbox-core-4.3.1.tgz#005d2c6a06a171437afd6ca2904a5727ecd73be6"
-  integrity sha512-I3C9jlLmMKPxAC1t0ExCq+QoAMd0vAAHULEgRZ7kieCdUd919n53WC0AfvokHNwqRhGn+tIIj7vcb5duCjs2Kg==
-
 workbox-core@^5.0.0-beta.0:
   version "5.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/workbox-core/-/workbox-core-5.0.0-beta.0.tgz#869714211d09cf68ab8ae9cbabd9f82ab325f73f"
@@ -9197,14 +9192,7 @@ workbox-navigation-preload@^5.0.0-beta.0:
   dependencies:
     workbox-core "^5.0.0-beta.0"
 
-workbox-precaching@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/workbox-precaching/-/workbox-precaching-4.3.1.tgz#9fc45ed122d94bbe1f0ea9584ff5940960771cba"
-  integrity sha512-piSg/2csPoIi/vPpp48t1q5JLYjMkmg5gsXBQkh/QYapCdVwwmKlU9mHdmy52KsDGIjVaqEUMFvEzn2LRaigqQ==
-  dependencies:
-    workbox-core "^4.3.1"
-
-workbox-precaching@^5.0.0-beta.0:
+workbox-precaching@^5.0.0-beta, workbox-precaching@^5.0.0-beta.0:
   version "5.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/workbox-precaching/-/workbox-precaching-5.0.0-beta.0.tgz#48fc6635cf05db0e4280ba15e6c3028c5aeb11ca"
   integrity sha512-7Hu1K66KrbN4Y3YosAF+pDmb1xV/LgD7VPGQ1+hkMzNFP138Mso3HvVb3M6U4aLG3lJT/sJR3h/EeqpGPVFGPw==
@@ -9218,7 +9206,7 @@ workbox-range-requests@^5.0.0-beta.0:
   dependencies:
     workbox-core "^5.0.0-beta.0"
 
-workbox-routing@^5.0.0-beta.0:
+workbox-routing@^5.0.0-beta, workbox-routing@^5.0.0-beta.0:
   version "5.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/workbox-routing/-/workbox-routing-5.0.0-beta.0.tgz#4a57544ba0478027553b0380ed8fab1023e6e342"
   integrity sha512-TlTWD6Aa+1Z/Nt5lR55j5Ctk4IYN7nCzT6BpFLanVkFnLc3RcASkuxH0WhLyAywwY+m6wYTxvwvfGFy3npivew==
@@ -9257,14 +9245,7 @@ workbox-webpack-plugin@^5.0.0-beta:
     webpack-sources "^1.3.0"
     workbox-build "^5.0.0-beta.0"
 
-workbox-window@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/workbox-window/-/workbox-window-4.3.1.tgz#ee6051bf10f06afa5483c9b8dfa0531994ede0f3"
-  integrity sha512-C5gWKh6I58w3GeSc0wp2Ne+rqVw8qwcmZnQGpjiek8A2wpbxSJb1FdCoQVO+jDJs35bFgo/WETgl1fqgsxN0Hg==
-  dependencies:
-    workbox-core "^4.3.1"
-
-workbox-window@^5.0.0-beta.0:
+workbox-window@^5.0.0-beta, workbox-window@^5.0.0-beta.0:
   version "5.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/workbox-window/-/workbox-window-5.0.0-beta.0.tgz#de8a64bc8b63d3d2291295d972a6658bf5322842"
   integrity sha512-ozuvyr+6bhfkxuFpE6EdoqNTg9ygt0Dk4KRcHCaWUJiRbxNXA6HaFWIMeL8AFMdtdkRB3SZ+/TJeEu7JepHFrg==
