@@ -51,7 +51,6 @@
     "mini-css-extract-plugin": "^0.8.0",
     "morgan": "^1.9.1",
     "node-fetch": "^2.6.0",
-    "path-to-regexp": "^3.1.0",
     "postcss-loader": "^3.0.0",
     "postcss-preset-env": "^6.7.0",
     "react": "^16.9.0",
