@@ -58,7 +58,7 @@ module.exports = processConfig(
       name: 'client',
       plugins: [
         new HtmlPlugin({
-          filename: mode === 'production' ? 'app-shell.hash~[templatehash].html' : 'app-shell.html',
+          filename: mode === 'production' ? 'app-shell.hash~[hash].html' : 'app-shell.html',
         }),
       ],
     },
