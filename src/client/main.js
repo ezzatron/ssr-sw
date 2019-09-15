@@ -53,7 +53,7 @@ async function renderApp () {
     }),
   ])
 
-  const root = document.createElement('div')
+  const root = document.createElement('span')
   root.setAttribute('id', 'root')
   document.body.appendChild(root)
 

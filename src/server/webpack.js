@@ -3,7 +3,7 @@ import {extname, join} from 'path'
 export function buildEntryTags (clientStats) {
   const {entrypoints, publicPath} = clientStats
 
-  const linkHeaderParts = []
+  const linkHeader = []
   const scriptTags = []
   const styleTags = []
 
@@ -15,7 +15,7 @@ export function buildEntryTags (clientStats) {
         case '.css': {
           const href = encodeUriPath(join(publicPath, asset))
 
-          linkHeaderParts.push(`<${href}>; rel=preload; as=style`)
+          linkHeader.push(`<${href}>; rel=preload; as=style`)
           styleTags.push(`<link data-chunk="${name}" rel="stylesheet" href="${href}">`)
 
           break
@@ -26,7 +26,7 @@ export function buildEntryTags (clientStats) {
 
           const href = encodeUriPath(join(publicPath, asset))
 
-          linkHeaderParts.push(`<${href}>; rel=preload; as=script`)
+          linkHeader.push(`<${href}>; rel=preload; as=script`)
           scriptTags.push(`<script async data-chunk="${name}" src="${href}"></script>`)
 
           break
@@ -36,10 +36,42 @@ export function buildEntryTags (clientStats) {
   }
 
   return {
-    linkHeader: linkHeaderParts.join(', '),
-    scriptTags,
-    styleTags,
+    linkHeader: linkHeader.join(', '),
+    scriptTags: scriptTags.join('\n'),
+    styleTags: styleTags.join('\n'),
   }
+}
+
+export function buildHtml (templateHtml, options = {}) {
+  const {
+    styleTags = '',
+  } = options
+
+  return injectHtml(
+    templateHtml,
+    styleTags,
+    buildHtmlBody(options),
+  )
+}
+
+function buildHtmlBody (options) {
+  const {
+    appData,
+    appHtml = '',
+    scriptTags = '',
+  } = options
+
+  let body = ''
+
+  if (appHtml) body += `<span id="root">${appHtml}</span>`
+
+  if (typeof appData !== 'undefined') {
+    body += `<script id="__APP_DATA__" type="application/json">${JSON.stringify(appData)}</script>`
+  }
+
+  body += scriptTags
+
+  return body
 }
 
 function encodeUriPath (path) {
@@ -49,4 +81,10 @@ function encodeUriPath (path) {
       .map(atom => encodeURIComponent(atom))
       .join('/')
   )
+}
+
+function injectHtml (templateHtml, head, body) {
+  return templateHtml
+    .replace(/<\/head>/i, `${head}</head>`)
+    .replace(/<\/body>/i, `${body}</body>`)
 }

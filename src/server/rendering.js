@@ -2,29 +2,24 @@ import etag from 'etag'
 import fresh from 'fresh'
 import {ChunkExtractor} from '@loadable/server'
 import {constants as routerConstants} from 'router5'
-import {compile} from 'ejs'
 import {renderToString} from 'react-dom/server'
 
 import App from '~/src/client/component/App.js'
-import appTemplateContent from './main.ejs.html'
-import {buildEntryTags} from './webpack.js'
+import templateHtml from '../app.html'
+import {buildEntryTags, buildHtml} from './webpack.js'
 
 const {UNKNOWN_ROUTE} = routerConstants
 
 export function createRenderMiddleware (clientStats) {
-  const appTemplate = compile(appTemplateContent)
-
   const {
     linkHeader: clientOnlyLinkHeaderValue,
     scriptTags,
     styleTags,
   } = buildEntryTags(clientStats)
 
-  const clientOnlyHtml = appTemplate({
-    appData: undefined,
-    appHtml: '',
-    scriptTags: scriptTags.join('\n'),
-    styleTags: styleTags.join('\n'),
+  const clientHtml = buildHtml(templateHtml, {
+    scriptTags,
+    styleTags,
   })
 
   return async function renderMiddleware (request, response, next) {
@@ -62,7 +57,7 @@ export function createRenderMiddleware (clientStats) {
       const scriptTags = webExtractor.getScriptTags()
       const styleTags = webExtractor.getStyleTags()
 
-      html = appTemplate({
+      html = buildHtml(templateHtml, {
         appData,
         appHtml,
         scriptTags,
@@ -81,7 +76,7 @@ export function createRenderMiddleware (clientStats) {
         response.setHeader('Link', linkHeaderValue)
       }
     } else {
-      html = clientOnlyHtml
+      html = clientHtml
 
       response.setHeader('Link', clientOnlyLinkHeaderValue)
     }
