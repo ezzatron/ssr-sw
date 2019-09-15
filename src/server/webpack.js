@@ -37,8 +37,8 @@ export function buildEntryTags (clientStats) {
 
   return {
     linkHeader: linkHeader.join(', '),
-    scriptTags: scriptTags.join('\n'),
-    styleTags: styleTags.join('\n'),
+    scriptTags: scriptTags.join(''),
+    styleTags: styleTags.join(''),
   }
 }
 
@@ -59,11 +59,16 @@ function buildHtmlBody (options) {
     appData,
     appHtml = '',
     scriptTags = '',
+    version,
   } = options
 
   let body = ''
 
   if (appHtml) body += `<span id="root">${appHtml}</span>`
+
+  if (version) {
+    body += `<script type="text/javascript">window.VERSION = ${JSON.stringify(version)}</script>`
+  }
 
   if (typeof appData !== 'undefined') {
     body += `<script id="__APP_DATA__" type="application/json">${JSON.stringify(appData)}</script>`

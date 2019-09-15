@@ -1,7 +1,9 @@
 import etag from 'etag'
 import fresh from 'fresh'
+import memoizeOne from 'memoize-one'
 import {ChunkExtractor} from '@loadable/server'
 import {constants as routerConstants} from 'router5'
+import {join} from 'path'
 import {renderToString} from 'react-dom/server'
 
 import App from '~/src/client/component/App.js'
@@ -11,19 +13,12 @@ import {buildEntryTags, buildHtml} from './webpack.js'
 const {UNKNOWN_ROUTE} = routerConstants
 
 export function createRenderMiddleware (clientStats) {
-  const {
-    linkHeader: clientOnlyLinkHeaderValue,
-    scriptTags,
-    styleTags,
-  } = buildEntryTags(clientStats)
-
-  const clientHtml = buildHtml(templateHtml, {
-    scriptTags,
-    styleTags,
-  })
+  const readVersionMemoized = memoizeOne(readVersion).bind(null, clientStats)
+  const entryTags = buildEntryTags(clientStats)
 
   return async function renderMiddleware (request, response, next) {
     const {method, routerState} = request
+    const {locals: {fs}} = response
     const isGet = method === 'GET'
     const isHead = method === 'HEAD'
 
@@ -62,6 +57,7 @@ export function createRenderMiddleware (clientStats) {
         appHtml,
         scriptTags,
         styleTags,
+        version: await readVersionMemoized(fs),
       })
 
       if (linkElements.length > 0) {
@@ -76,9 +72,15 @@ export function createRenderMiddleware (clientStats) {
         response.setHeader('Link', linkHeaderValue)
       }
     } else {
-      html = clientHtml
+      const {linkHeader, scriptTags, styleTags} = entryTags
 
-      response.setHeader('Link', clientOnlyLinkHeaderValue)
+      html = buildHtml(templateHtml, {
+        scriptTags,
+        styleTags,
+        version: await readVersionMemoized(fs),
+      })
+
+      response.setHeader('Link', linkHeader)
     }
 
     const htmlEtag = etag(html)
@@ -95,4 +97,18 @@ export function createRenderMiddleware (clientStats) {
     response.statusCode = isFresh ? 304 : 200
     response.end(isFresh || isHead ? '' : html)
   }
+}
+
+async function readVersion (clientStats, fs) {
+  const versionAsset = clientStats.assets.find(({name}) => name === 'VERSION')
+
+  if (!versionAsset) return null
+
+  return new Promise((resolve, reject) => {
+    fs.readFile(join(clientStats.outputPath, 'VERSION'), (error, content) => {
+      if (error) return reject(error)
+
+      resolve(content.toString().trimEnd())
+    })
+  })
 }

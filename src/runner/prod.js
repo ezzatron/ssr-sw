@@ -2,6 +2,7 @@
 
 const createStaticMiddleware = require('express-static-gzip')
 const express = require('express')
+const fs = require('fs')
 const morgan = require('morgan')
 const {basename, join} = require('path')
 
@@ -38,6 +39,12 @@ async function main () {
       response.setHeader('Cache-Control', cacheControlByBasename(basename(urlPath)))
     },
   }))
+
+  app.use((request, response, next) => {
+    response.locals.fs = fs
+    next()
+  })
+
   app.use(createMainMiddleware({
     clientStats,
     createAppRouter: options => express.Router(options),
