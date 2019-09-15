@@ -38,7 +38,6 @@ module.exports = processConfig(
 
     hotModuleReplacement(),
     loadableComponents(),
-    preCompression(),
     qualityOfLife(),
     reactHotLoader(),
     saneDefaults(),
@@ -46,6 +45,8 @@ module.exports = processConfig(
     // workboxGenerateSw(),
     workboxInjectManifest(),
     writeStats(),
+
+    preCompression(),
 
     loadBabel(),
     loadCssModules(),
