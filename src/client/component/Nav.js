@@ -1,7 +1,7 @@
 import {Link} from 'react-router5'
 
 import AuthLink from './AuthLink.js'
-import styles from './Nav.css'
+import styles from './Nav.module.css'
 
 export default function Nav () {
   return <nav className={styles.nav}>

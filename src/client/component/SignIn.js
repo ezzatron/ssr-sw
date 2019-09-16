@@ -1,5 +1,5 @@
 import SignInForm from './SignInForm.js'
-import styles from './SignIn.css'
+import styles from './SignIn.module.css'
 
 export default function SignIn () {
   return <div className={styles.signIn}>

@@ -1,4 +1,4 @@
-import styles from './RouteData.css'
+import styles from './RouteData.module.css'
 import {useRouteData} from '~/src/router5-plugin-data/react.js'
 
 const errorClassName = `${styles.routeData} ${styles.error}`

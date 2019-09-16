@@ -1,7 +1,7 @@
 import {useCallback, useRef} from 'react'
 import {useRouter} from 'react-router5'
 
-import styles from './SignOutLink.css'
+import styles from './SignOutLink.module.css'
 
 export default function SignOutLink () {
   const router = useRouter()

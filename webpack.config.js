@@ -7,7 +7,7 @@ const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin')
 const hotModuleReplacement = require('./webpack/transform/hot-module-replacement.js')
 const loadableComponents = require('./webpack/transform/loadable-components.js')
 const loadBabel = require('./webpack/transform/load-babel.js')
-const loadCssModules = require('./webpack/transform/load-css-modules.js')
+const loadCss = require('./webpack/transform/load-css.js')
 const loadHtml = require('./webpack/transform/load-html.js')
 const loadImages = require('./webpack/transform/load-images.js')
 const pathConventions = require('./webpack/transform/path-conventions.js')
@@ -49,7 +49,7 @@ module.exports = processConfig(
     preCompression(),
 
     loadBabel(),
-    loadCssModules(),
+    loadCss(),
     loadHtml(),
     loadImages(),
   ],
