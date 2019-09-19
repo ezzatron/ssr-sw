@@ -1,7 +1,7 @@
-import {nestedRoutes} from '~/src/packula/router/config'
+import {flattenRoutes} from '~/src/packula/router/config'
 
 describe('Packula router config', () => {
-  describe('nestedRoutes()', () => {
+  describe('flattenRoutes()', () => {
     test('flattens nested routes', () => {
       const nested = {
         nodeA: {
@@ -27,7 +27,7 @@ describe('Packula router config', () => {
           },
         },
       }
-      const flat = nestedRoutes(nested)
+      const flat = flattenRoutes(nested)
 
       expect(flat.nodeA).toEqual({path: 'node-a'})
       expect(flat.nodeAA).toEqual({path: 'node-a/node-a-a'})
