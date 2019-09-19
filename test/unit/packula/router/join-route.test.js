@@ -5,57 +5,45 @@ describe('Packula router config', () => {
     test('joins relative route paths with parent paths', () => {
       const joined = joinRoute(
         [
-          {name: 'grandparent', path: '/grandparent'},
-          {name: 'parent', path: '/parent'},
+          {path: 'grandparent'},
+          {path: 'parent'},
         ],
-        {name: 'child', path: 'child'},
+        {path: 'child'},
       )
 
-      expect(joined.path).toBe('/parent/child')
+      expect(joined.path).toBe('parent/child')
     })
 
     test('joins relative route paths with ancestor paths if intervening ancestors do not define paths', () => {
       const joined = joinRoute(
         [
-          {name: 'grandparent', path: '/grandparent'},
-          {name: 'parent'},
+          {path: 'grandparent'},
+          {},
         ],
-        {name: 'child', path: 'child'},
+        {path: 'child'},
       )
 
-      expect(joined.path).toBe('/grandparent/child')
-    })
-
-    test('does not join route names', () => {
-      const joined = joinRoute(
-        [
-          {name: 'grandparent', path: '/grandparent'},
-          {name: 'parent', path: '/parent'},
-        ],
-        {name: 'child', path: '/child'},
-      )
-
-      expect(joined.name).toBe('child')
+      expect(joined.path).toBe('grandparent/child')
     })
 
     test('retains additional route properties', () => {
       const joined = joinRoute(
         [
-          {name: 'grandparent', path: '/grandparent'},
-          {name: 'parent', path: '/parent'},
+          {path: 'grandparent'},
+          {path: 'parent'},
         ],
-        {name: 'child', path: '/child', additional: 'additional'},
+        {path: '/child', additional: 'additional'},
       )
 
       expect(joined.additional).toBe('additional')
     })
 
     test('returns the route if it has an absolute path', () => {
-      const route = {name: 'child', path: '/child'}
+      const route = {path: '/child'}
       const joined = joinRoute(
         [
-          {name: 'grandparent', path: '/grandparent'},
-          {name: 'parent', path: '/parent'},
+          {path: 'grandparent'},
+          {path: 'parent'},
         ],
         route,
       )
@@ -65,11 +53,11 @@ describe('Packula router config', () => {
     })
 
     test('returns the route if it has an undefined path', () => {
-      const route = {name: 'child'}
+      const route = {}
       const joined = joinRoute(
         [
-          {name: 'grandparent', path: '/grandparent'},
-          {name: 'parent', path: '/parent'},
+          {path: 'grandparent'},
+          {path: 'parent'},
         ],
         route,
       )
@@ -79,11 +67,11 @@ describe('Packula router config', () => {
     })
 
     test('returns the route if no ancestors with defined paths are supplied', () => {
-      const route = {name: 'child', path: 'child'}
+      const route = {path: 'child'}
       const joined = joinRoute(
         [
-          {name: 'grandparent'},
-          {name: 'parent'},
+          {},
+          {},
         ],
         route,
       )

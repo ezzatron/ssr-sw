@@ -16,8 +16,34 @@ export function joinRoute (ancestors, route) {
   return route
 }
 
-export function nestedRoutes (config, joinFn = joinRoute) {
-  const flat = {}
+export function joinRouteName (parentName, name) {
+  return name
+}
+
+export function nestedRoutes (nested, options = {}) {
+  const {
+    joinRoute: joinRouteFn = joinRoute,
+    joinRouteName: joinRouteNameFn = joinRouteName,
+  } = options
+
+  const root = nested[ROOT] || {}
+  const toAdd = [['', [root], nested]]
+  const flat = {[ROOT]: root}
+
+  for (let i = 0; i < toAdd.length; ++i) {
+    const [parentName, ancestors, routes] = toAdd[i]
+
+    for (const name in routes) {
+      if (name === ROOT) continue
+
+      const {children, ...flatRoute} = routes[name]
+      const joinedName = joinRouteNameFn(parentName, name)
+      const joinedRoute = joinRouteFn(ancestors, flatRoute)
+
+      flat[joinedName] = joinedRoute
+      if (children) toAdd.push([joinedName, [...ancestors, joinedRoute], children])
+    }
+  }
 
   return flat
 }
