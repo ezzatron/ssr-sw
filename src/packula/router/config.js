@@ -1,13 +1,19 @@
 export const ROOT = Symbol('root')
 
-export function joinRoute (parentRoute, route) {
-  const {path = ''} = route
+export function joinRoute (ancestors, route) {
+  const {path} = route
 
-  if (path.startsWith('/')) return route
+  if (typeof path !== 'string' || path.startsWith('/')) return route
 
-  const {path: parentPath} = parentRoute
+  for (let i = ancestors.length - 1; i >= 0; --i) {
+    const {path: ancestorPath} = ancestors[i]
 
-  return {...route, path: `${parentPath}/${path}`}
+    if (typeof ancestorPath === 'string') {
+      return {...route, path: `${ancestorPath}/${path}`}
+    }
+  }
+
+  return route
 }
 
 export function nestedRoutes (config, joinFn = joinRoute) {
