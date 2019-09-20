@@ -5,7 +5,7 @@ export function flattenRoutes (nested, options = {}) {
     joinRoute: joinRouteFn = joinRoute,
   } = options
 
-  const root = nested[ROOT]
+  const root = nested[ROOT] || {}
   const rootAncestors = [[ROOT, {...root, path: ''}]]
   const toAdd = [[rootAncestors, nested]]
   const flat = {[ROOT]: root}

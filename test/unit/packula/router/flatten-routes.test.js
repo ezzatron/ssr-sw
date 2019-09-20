@@ -67,6 +67,12 @@ describe('Packula router config', () => {
       expect(flat.nodeBAA).toEqual({parent: 'nodeBA', path: '/node-b-a-a'})
     })
 
+    test('creates a default root route', () => {
+      const flat = flattenRoutes({})
+
+      expect(flat[ROOT]).toEqual({})
+    })
+
     test('supports configuring the root route', () => {
       const root = {path: 'ignored', a: 'b'}
       const nested = {
