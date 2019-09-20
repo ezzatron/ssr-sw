@@ -84,5 +84,29 @@ describe('Packula router config', () => {
       expect(flat[ROOT]).toBe(root)
       expect(flat.nodeA).toEqual({parent: ROOT, path: '/node-a'})
     })
+
+    test('supports custom joinRoute functions', () => {
+      const nested = {
+        nodeA: {
+          path: 'node-a',
+          children: {
+            nodeAA: {
+              path: 'node-a-a',
+            },
+          },
+        },
+      }
+      const flat = flattenRoutes(nested, {
+        joinRoute (ancestors, name, route) {
+          const [parentName] = ancestors[ancestors.length - 1]
+          const joinedName = parentName === ROOT ? name : `${parentName}_${name}`
+
+          return [joinedName, route]
+        },
+      })
+
+      expect(flat.nodeA).toEqual({path: 'node-a'})
+      expect(flat.nodeA_nodeAA).toEqual({path: 'node-a-a'})
+    })
   })
 })
