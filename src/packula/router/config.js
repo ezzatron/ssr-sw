@@ -6,7 +6,7 @@ export function flattenRoutes (nested, options = {}) {
   } = options
 
   const root = nested[ROOT]
-  const rootAncestors = [['', {...root, path: ''}]]
+  const rootAncestors = [[ROOT, {...root, path: ''}]]
   const toAdd = [[rootAncestors, nested]]
   const flat = {[ROOT]: root}
 
@@ -26,17 +26,22 @@ export function flattenRoutes (nested, options = {}) {
 }
 
 export function joinRoute (ancestors, name, route) {
+  const parentIndex = ancestors.length - 1
+
+  if (parentIndex < 0) throw new Error('No ancestors supplied')
+
+  const [parent] = ancestors[parentIndex]
   const {path} = route
 
-  if (typeof path !== 'string' || path.startsWith('/')) return [name, route]
+  if (typeof path !== 'string' || path.startsWith('/')) return [name, {...route, parent}]
 
-  for (let i = ancestors.length - 1; i >= 0; --i) {
+  for (let i = parentIndex; i >= 0; --i) {
     const {path: ancestorPath} = ancestors[i][1]
 
     if (typeof ancestorPath === 'string') {
-      return [name, {...route, path: `${ancestorPath}/${path}`}]
+      return [name, {...route, parent, path: `${ancestorPath}/${path}`}]
     }
   }
 
-  return [name, route]
+  return [name, {...route, parent}]
 }

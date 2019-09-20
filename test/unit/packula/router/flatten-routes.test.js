@@ -29,14 +29,14 @@ describe('Packula router config', () => {
       }
       const flat = flattenRoutes(nested)
 
-      expect(flat.nodeA).toEqual({path: '/node-a'})
-      expect(flat.nodeAA).toEqual({path: '/node-a/node-a-a'})
-      expect(flat.nodeAAA).toEqual({path: '/node-a/node-a-a/node-a-a-a'})
-      expect(flat.nodeAAB).toEqual({path: '/node-a-a-b'})
-      expect(flat.nodeAB).toEqual({path: '/node-a/node-a-b'})
-      expect(flat.nodeB).toEqual({path: '/node-b'})
-      expect(flat.nodeBA).toEqual({path: '/node-b/node-b-a'})
-      expect(flat.nodeBB).toEqual({path: '/node-b-b'})
+      expect(flat.nodeA).toEqual({parent: ROOT, path: '/node-a'})
+      expect(flat.nodeAA).toEqual({parent: 'nodeA', path: '/node-a/node-a-a'})
+      expect(flat.nodeAAA).toEqual({parent: 'nodeAA', path: '/node-a/node-a-a/node-a-a-a'})
+      expect(flat.nodeAAB).toEqual({parent: 'nodeAA', path: '/node-a-a-b'})
+      expect(flat.nodeAB).toEqual({parent: 'nodeA', path: '/node-a/node-a-b'})
+      expect(flat.nodeB).toEqual({parent: ROOT, path: '/node-b'})
+      expect(flat.nodeBA).toEqual({parent: 'nodeB', path: '/node-b/node-b-a'})
+      expect(flat.nodeBB).toEqual({parent: 'nodeB', path: '/node-b-b'})
     })
 
     test('supports routes with no defined path', () => {
@@ -63,8 +63,8 @@ describe('Packula router config', () => {
       }
       const flat = flattenRoutes(nested)
 
-      expect(flat.nodeAAA).toEqual({path: '/node-a/node-a-a-a'})
-      expect(flat.nodeBAA).toEqual({path: '/node-b-a-a'})
+      expect(flat.nodeAAA).toEqual({parent: 'nodeAA', path: '/node-a/node-a-a-a'})
+      expect(flat.nodeBAA).toEqual({parent: 'nodeBA', path: '/node-b-a-a'})
     })
 
     test('supports configuring the root route', () => {
@@ -76,7 +76,7 @@ describe('Packula router config', () => {
       const flat = flattenRoutes(nested)
 
       expect(flat[ROOT]).toBe(root)
-      expect(flat.nodeA).toEqual({path: '/node-a'})
+      expect(flat.nodeA).toEqual({parent: ROOT, path: '/node-a'})
     })
   })
 })
