@@ -6,16 +6,15 @@ export function flattenRoutes (nested, options = {}) {
     joinRouteName: joinRouteNameFn = joinRouteName,
   } = options
 
-  const root = nested[ROOT] || {}
-  const toAdd = [['', [root], nested]]
+  const root = nested[ROOT]
+  const rootWithPath = {...root, path: ''}
+  const toAdd = [['', [rootWithPath], nested]]
   const flat = {[ROOT]: root}
 
   for (let i = 0; i < toAdd.length; ++i) {
     const [parentName, ancestors, routes] = toAdd[i]
 
     for (const name in routes) {
-      if (name === ROOT) continue
-
       const {children, ...flatRoute} = routes[name]
       const joinedName = joinRouteNameFn(parentName, name)
       const joinedRoute = joinRouteFn(ancestors, flatRoute)
