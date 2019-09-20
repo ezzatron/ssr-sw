@@ -33,12 +33,12 @@ export function joinRoute (ancestors, name, route) {
   const [parent] = ancestors[parentIndex]
   const {path} = route
 
-  if (typeof path !== 'string' || path.startsWith('/')) return [name, {...route, parent}]
+  if (typeof path === 'string' && !path.startsWith('/')) {
+    for (let i = parentIndex; i >= 0; --i) {
+      const {path: ancestorPath} = ancestors[i][1]
 
-  for (let i = parentIndex; i >= 0; --i) {
-    const {path: ancestorPath} = ancestors[i][1]
+      if (typeof ancestorPath !== 'string') continue
 
-    if (typeof ancestorPath === 'string') {
       return [name, {...route, parent, path: `${ancestorPath}/${path}`}]
     }
   }
