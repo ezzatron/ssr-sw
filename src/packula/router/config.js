@@ -3,46 +3,40 @@ export const ROOT = Symbol('root')
 export function flattenRoutes (nested, options = {}) {
   const {
     joinRoute: joinRouteFn = joinRoute,
-    joinRouteName: joinRouteNameFn = joinRouteName,
   } = options
 
   const root = nested[ROOT]
-  const rootWithPath = {...root, path: ''}
-  const toAdd = [['', [rootWithPath], nested]]
+  const rootAncestors = [['', {...root, path: ''}]]
+  const toAdd = [[rootAncestors, nested]]
   const flat = {[ROOT]: root}
 
   for (let i = 0; i < toAdd.length; ++i) {
-    const [parentName, ancestors, routes] = toAdd[i]
+    const [ancestors, routes] = toAdd[i]
 
     for (const name in routes) {
       const {children, ...flatRoute} = routes[name]
-      const joinedName = joinRouteNameFn(parentName, name)
-      const joinedRoute = joinRouteFn(ancestors, flatRoute)
+      const joinResult = joinRouteFn(ancestors, name, flatRoute)
 
-      flat[joinedName] = joinedRoute
-      if (children) toAdd.push([joinedName, [...ancestors, joinedRoute], children])
+      flat[joinResult[0]] = joinResult[1]
+      if (children) toAdd.push([[...ancestors, joinResult], children])
     }
   }
 
   return flat
 }
 
-export function joinRoute (ancestors, route) {
+export function joinRoute (ancestors, name, route) {
   const {path} = route
 
-  if (typeof path !== 'string' || path.startsWith('/')) return route
+  if (typeof path !== 'string' || path.startsWith('/')) return [name, route]
 
   for (let i = ancestors.length - 1; i >= 0; --i) {
-    const {path: ancestorPath} = ancestors[i]
+    const {path: ancestorPath} = ancestors[i][1]
 
     if (typeof ancestorPath === 'string') {
-      return {...route, path: `${ancestorPath}/${path}`}
+      return [name, {...route, path: `${ancestorPath}/${path}`}]
     }
   }
 
-  return route
-}
-
-export function joinRouteName (parentName, name) {
-  return name
+  return [name, route]
 }
