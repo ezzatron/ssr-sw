@@ -117,5 +117,9 @@ describe('Packula router config', () => {
 
       expect(name).toBe('child')
     })
+
+    test('throws if no ancestors are supplied', () => {
+      expect(() => joinRoute([], {})).toThrow('No ancestors supplied')
+    })
   })
 })
