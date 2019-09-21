@@ -16,11 +16,21 @@ describe('Packula router', () => {
       expect(routes[ROOT]).toStrictEqual({})
     })
 
-    test('preserves any supplied root route', () => {
-      const root = {}
+    test('preserves any supplied root route config', () => {
+      const root = {a: 'b', x: 'y'}
       const {routes} = createRouter({[ROOT]: root})
 
-      expect(routes[ROOT]).toBe(root)
+      expect(routes[ROOT]).toStrictEqual(root)
+    })
+
+    test('sets the parents of any top-level routes to ROOT', () => {
+      const {routes} = createRouter({
+        routeA: {},
+        routeB: {},
+      })
+
+      expect(routes.routeA.parent).toBe(ROOT)
+      expect(routes.routeB.parent).toBe(ROOT)
     })
   })
 })

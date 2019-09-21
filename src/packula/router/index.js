@@ -1,8 +1,7 @@
 export const ROOT = Symbol('root')
 
 export function createRouter (routes) {
-  if (!routes || typeof routes !== 'object') throw new Error('Invalid routes')
-  if (!routes[ROOT]) routes[ROOT] = {}
+  routes = normalizeRoutes(routes)
 
   return {
     buildUrl (name, params = {}) {
@@ -19,4 +18,13 @@ export function createRouter (routes) {
 
     routes,
   }
+}
+
+function normalizeRoutes (routes) {
+  if (!routes || typeof routes !== 'object') throw new Error('Invalid routes')
+
+  const normalized = {[ROOT]: {...routes[ROOT]}}
+  for (const name in routes) normalized[name] = {parent: ROOT, ...routes[name]}
+
+  return normalized
 }
