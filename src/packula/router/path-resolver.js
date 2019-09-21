@@ -8,14 +8,14 @@ export function createPathResolver (router) {
     routePathFrom,
   }
 
-  function routePath (toName) {
-    const route = routes[toName]
-    if (!route) throw new Error(`Undefined route ${JSON.stringify(toName)}`)
+  function routePath (name) {
+    const route = routes[name]
+    if (!route) throw new Error(`Undefined route ${JSON.stringify(name)}`)
 
     const {path} = route
     if (typeof path === 'string') return path
 
-    throw new Error(`Route ${JSON.stringify(toName)} has no path`)
+    throw new Error(`Route ${JSON.stringify(name)} has no path`)
   }
 
   function routePathFrom (fromName, toName) {
