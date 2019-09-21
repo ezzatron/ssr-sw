@@ -1,7 +1,7 @@
 import {ROOT} from './symbols.js'
 
 export function createPathResolver (router) {
-  const {routes} = router
+  const {getRoute} = router
 
   return {
     routePath,
@@ -9,8 +9,7 @@ export function createPathResolver (router) {
   }
 
   function routePath (name) {
-    const route = routes[name]
-    if (!route) throw new Error(`Undefined route ${JSON.stringify(name)}`)
+    const route = getRoute(name)
 
     const {path} = route
     if (typeof path === 'string') return path

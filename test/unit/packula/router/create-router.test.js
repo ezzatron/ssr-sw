@@ -18,7 +18,7 @@ describe('Packula router', () => {
     })
 
     test('preserves any supplied root route config', () => {
-      const root = {a: 'b', x: 'y'}
+      const root = {a: 'b'}
       const {routes} = createRouter({[ROOT]: root})
 
       expect(routes[ROOT]).toStrictEqual(root)
@@ -32,6 +32,18 @@ describe('Packula router', () => {
 
       expect(routes.routeA.parent).toBe(ROOT)
       expect(routes.routeB.parent).toBe(ROOT)
+    })
+  })
+
+  describe('getRoute()', () => {
+    test('returns any defined route', () => {
+      const {getRoute} = createRouter({
+        routeA: {a: 'b'},
+        routeB: {c: 'd'},
+      })
+
+      expect(getRoute('routeA')).toStrictEqual({parent: ROOT, a: 'b'})
+      expect(getRoute('routeB')).toStrictEqual({parent: ROOT, c: 'd'})
     })
   })
 })

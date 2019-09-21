@@ -7,10 +7,14 @@ export function createRouter (routes) {
     buildUrl (name, params = {}) {
     },
 
-    resolveUrl (url) {
+    getRoute (name) {
+      const route = routes[name]
+      if (!route) throw new Error(`Undefined route ${JSON.stringify(name)}`)
+
+      return route
     },
 
-    routeNodes (toName, fromName = ROOT) {
+    resolveUrl (url) {
     },
 
     routes,
