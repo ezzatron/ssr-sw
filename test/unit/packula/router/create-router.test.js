@@ -45,5 +45,11 @@ describe('Packula router', () => {
       expect(getRoute('routeA')).toStrictEqual({parent: ROOT, a: 'b'})
       expect(getRoute('routeB')).toStrictEqual({parent: ROOT, c: 'd'})
     })
+
+    test('throws for undefined routes', () => {
+      const {getRoute} = createRouter({})
+
+      expect(() => getRoute('routeA')).toThrow('Undefined route "routeA"')
+    })
   })
 })
