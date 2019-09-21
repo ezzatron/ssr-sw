@@ -1,4 +1,4 @@
-import {ROOT} from './index.js'
+import {ROOT} from './symbols.js'
 
 export function flattenRoutes (nested, options = {}) {
   const {

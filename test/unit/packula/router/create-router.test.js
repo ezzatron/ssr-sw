@@ -1,4 +1,5 @@
-import {createRouter, ROOT} from '~/src/packula/router'
+import {createRouter} from '~/src/packula/router'
+import {ROOT} from '~/src/packula/router/symbols'
 
 describe('Packula router', () => {
   describe('createRouter()', () => {

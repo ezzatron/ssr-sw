@@ -1,5 +1,5 @@
 import {flattenRoutes} from '~/src/packula/router/config'
-import {ROOT} from '~/src/packula/router'
+import {ROOT} from '~/src/packula/router/symbols'
 
 describe('Packula router config', () => {
   describe('flattenRoutes()', () => {
