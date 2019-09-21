@@ -1,17 +1,20 @@
 export const ROOT = Symbol('root')
 
 export function createRouter (routes) {
+  if (!routes || typeof routes !== 'object') throw new Error('Invalid routes')
+  if (!routes[ROOT]) routes[ROOT] = {}
+
   return {
-    build (name, params = {}) {
+    buildUrl (name, params = {}) {
     },
 
-    nodes (toName, fromName = '') {
+    resolveUrl (url) {
     },
 
-    path (toName, fromName = '') {
+    routeNodes (to, from = ROOT) {
     },
 
-    resolve (url) {
+    routePath (to, from = ROOT) {
     },
 
     routes,
