@@ -1,3 +1,5 @@
+export const ROOT = Symbol('root')
+
 export function createRouter (routes) {
   return {
     build (name, params = {}) {

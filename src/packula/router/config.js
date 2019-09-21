@@ -1,4 +1,4 @@
-export const ROOT = Symbol('root')
+import {ROOT} from './index.js'
 
 export function flattenRoutes (nested, options = {}) {
   const {
