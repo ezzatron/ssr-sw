@@ -25,9 +25,9 @@ describe('Packula router path resolver', () => {
         routeB: {path: '/route-b'},
       }))
 
-      expect(routePath('routeA')).toEqual('/route-a')
-      expect(routePath('routeAA')).toEqual('/route-a/route-a-a')
-      expect(routePath('routeB')).toEqual('/route-b')
+      expect(routePath('routeA')).toBe('/route-a')
+      expect(routePath('routeAA')).toBe('/route-a/route-a-a')
+      expect(routePath('routeB')).toBe('/route-b')
     })
   })
 
@@ -73,9 +73,9 @@ describe('Packula router path resolver', () => {
         routeB: {path: '/route-b'},
       }))
 
-      expect(routePathFrom(ROOT, 'routeA')).toEqual('/route-a')
-      expect(routePathFrom(ROOT, 'routeAA')).toEqual('/route-a/route-a-a')
-      expect(routePathFrom(ROOT, 'routeB')).toEqual('/route-b')
+      expect(routePathFrom(ROOT, 'routeA')).toBe('/route-a')
+      expect(routePathFrom(ROOT, 'routeAA')).toBe('/route-a/route-a-a')
+      expect(routePathFrom(ROOT, 'routeB')).toBe('/route-b')
     })
 
     test('returns relative route paths when an ancestor is passed as the from parameter', () => {
@@ -85,9 +85,9 @@ describe('Packula router path resolver', () => {
         routeAAA: {path: '/route-a/route-a-a/route-a-a-a'},
       }))
 
-      expect(routePathFrom('routeA', 'routeAA')).toEqual('/route-a-a')
-      expect(routePathFrom('routeA', 'routeAAA')).toEqual('/route-a-a/route-a-a-a')
-      expect(routePathFrom('routeAA', 'routeAAA')).toEqual('/route-a-a-a')
+      expect(routePathFrom('routeA', 'routeAA')).toBe('/route-a-a')
+      expect(routePathFrom('routeA', 'routeAAA')).toBe('/route-a-a/route-a-a-a')
+      expect(routePathFrom('routeAA', 'routeAAA')).toBe('/route-a-a-a')
     })
 
     test('throws when a non-ancestor is passed as the from parameter', () => {
