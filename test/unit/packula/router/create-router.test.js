@@ -13,7 +13,7 @@ describe('Packula router', () => {
     test('adds a root route if necessary', () => {
       const {routes} = createRouter({})
 
-      expect(routes[ROOT]).toEqual({})
+      expect(routes[ROOT]).toStrictEqual({})
     })
 
     test('preserves any supplied root route', () => {
