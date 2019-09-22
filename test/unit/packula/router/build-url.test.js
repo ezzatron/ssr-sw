@@ -14,7 +14,7 @@ describe('Packula router', () => {
         routeA: {},
       }))
 
-      expect(() => buildUrl('routeA')).toThrow('Cannot build URL - route routeA has no path')
+      expect(() => buildUrl('routeA')).toThrow('Route routeA does not have a path')
     })
 
     test('throws when a required path param is not supplied', () => {

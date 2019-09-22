@@ -1,15 +1,13 @@
 import {tokensToFunction} from 'path-to-regexp'
 
 export function createUrlBuilder (router) {
-  const {getRoute, parsedRoutes} = router
+  const {getParsedRoute, parsedRoutes} = router
   const pathnameBuilders = createPathnameBuilders(parsedRoutes)
 
   return function buildUrl (name, params) {
-    getRoute(name) // throws a better exception if undefined
-    const parsedRoute = parsedRoutes[name]
-    if (!parsedRoute) throw new Error(`Cannot build URL - route ${name} has no path`)
+    const {tokensByKey} = getParsedRoute(name)
 
-    const [pathParams, searchParams] = splitParams(parsedRoute.tokensByKey, params)
+    const [pathParams, searchParams] = splitParams(tokensByKey, params)
     const pathname = pathnameBuilders[name](pathParams)
     const search = searchParams ? `?${searchParams.toString()}` : ''
 

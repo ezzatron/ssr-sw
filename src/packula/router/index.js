@@ -7,6 +7,14 @@ export function createRouter (routes) {
   const parsedRoutes = parseRoutes(routes)
 
   return {
+    getParsedRoute (name) {
+      if (!routes[name]) throw new Error(`Undefined route ${name}`)
+      const parsedRoute = parsedRoutes[name]
+      if (!parsedRoute) throw new Error(`Route ${name} does not have a path`)
+
+      return parsedRoute
+    },
+
     getRoute (name) {
       const route = routes[name]
       if (!route) throw new Error(`Undefined route ${name}`)
@@ -40,7 +48,11 @@ function parseRoutes (routes) {
 
     const tokens = parse(path)
     const tokensByKey = {}
-    for (const token of tokens) tokensByKey[token.name] = token
+
+    for (const token of tokens) {
+      const {name} = token
+      if (typeof name !== 'undefined') tokensByKey[name] = token
+    }
 
     parsed[name] = {tokens, tokensByKey}
   }
