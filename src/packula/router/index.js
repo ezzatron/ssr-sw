@@ -1,4 +1,4 @@
-import {parse, tokensToFunction} from 'path-to-regexp'
+import {parse} from 'path-to-regexp'
 
 import {ROOT} from './symbols.js'
 
@@ -7,18 +7,6 @@ export function createRouter (routes) {
   const parsedRoutes = parseRoutes(routes)
 
   return {
-    buildUrl (name, params) {
-      const parsed = parsedRoutes[name]
-      if (!parsed) throw new Error(`Undefined route ${JSON.stringify(name)}`)
-
-      const {buildPathname, splitParams} = parsed
-      const [pathParams, searchParams] = splitParams(params)
-      const pathname = buildPathname(pathParams)
-      const search = searchParams ? `?${searchParams.toString()}` : ''
-
-      return `${pathname}${search}`
-    },
-
     getRoute (name) {
       const route = routes[name]
       if (!route) throw new Error(`Undefined route ${JSON.stringify(name)}`)
@@ -29,6 +17,7 @@ export function createRouter (routes) {
     resolveUrl (url) {
     },
 
+    parsedRoutes,
     routes,
   }
 }
@@ -53,41 +42,7 @@ function parseRoutes (routes) {
     const tokensByKey = {}
     for (const token of tokens) tokensByKey[token.name] = token
 
-    parsed[name] = {
-      buildPathname: tokensToFunction(tokens),
-
-      splitParams (params) {
-        if (!params) return [{}]
-        if (!(params instanceof URLSearchParams)) params = new URLSearchParams(params)
-
-        const pathParams = {}
-        const searchParams = []
-
-        for (const entry of params) {
-          const [key] = entry
-          const token = tokensByKey[key]
-
-          if (token) {
-            const [, value] = entry
-
-            if (token.repeat) {
-              if (!pathParams[key]) pathParams[key] = []
-              pathParams[key].push(value)
-            } else if (pathParams[key]) {
-              searchParams.push(entry)
-            } else {
-              pathParams[key] = value
-            }
-          } else {
-            searchParams.push(entry)
-          }
-        }
-
-        if (searchParams.length < 1) return [pathParams]
-
-        return [pathParams, new URLSearchParams(searchParams)]
-      },
-    }
+    parsed[name] = {tokens, tokensByKey}
   }
 
   return parsed
