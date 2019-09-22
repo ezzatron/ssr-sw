@@ -7,7 +7,7 @@ describe('Packula router path resolver', () => {
     test('throws when an undefined route is passed', () => {
       const {routePath} = createPathResolver(createRouter({}))
 
-      expect(() => routePath('routeA')).toThrow('Undefined route "routeA"')
+      expect(() => routePath('routeA')).toThrow('Undefined route routeA')
     })
 
     test('throws when the route has no path', () => {
@@ -15,7 +15,7 @@ describe('Packula router path resolver', () => {
         routeA: {},
       }))
 
-      expect(() => routePath('routeA')).toThrow('Route "routeA" has no path')
+      expect(() => routePath('routeA')).toThrow('Route routeA has no path')
     })
 
     test('returns full route paths', () => {
@@ -37,7 +37,7 @@ describe('Packula router path resolver', () => {
         routeB: {path: '/route-b'},
       }))
 
-      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Undefined route "routeA"')
+      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Undefined route routeA')
     })
 
     test('throws when an undefined to route is passed', () => {
@@ -45,7 +45,7 @@ describe('Packula router path resolver', () => {
         routeA: {path: '/route-a'},
       }))
 
-      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Undefined route "routeB"')
+      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Undefined route routeB')
     })
 
     test('throws when the from route has no path', () => {
@@ -54,7 +54,7 @@ describe('Packula router path resolver', () => {
         routeB: {path: '/route-b'},
       }))
 
-      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Route "routeA" has no path')
+      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Route routeA has no path')
     })
 
     test('throws when the to route has no path', () => {
@@ -63,7 +63,7 @@ describe('Packula router path resolver', () => {
         routeB: {},
       }))
 
-      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Route "routeB" has no path')
+      expect(() => routePathFrom('routeA', 'routeB')).toThrow('Route routeB has no path')
     })
 
     test('returns full route paths when ROOT is passed as the from parameter', () => {
@@ -97,8 +97,8 @@ describe('Packula router path resolver', () => {
         routeACopy: {path: '/route-a'},
       }))
 
-      expect(() => routePathFrom('routeA', 'routeAA')).toThrow('Route path for "routeAA" ("/route-a-a") is not a descendent of "routeA" ("/route-a")')
-      expect(() => routePathFrom('routeA', 'routeACopy')).toThrow('Route path for "routeACopy" ("/route-a") is not a descendent of "routeA" ("/route-a")')
+      expect(() => routePathFrom('routeA', 'routeAA')).toThrow('Route path for routeAA (/route-a-a) is not a descendent of routeA (/route-a)')
+      expect(() => routePathFrom('routeA', 'routeACopy')).toThrow('Route path for routeACopy (/route-a) is not a descendent of routeA (/route-a)')
     })
   })
 })

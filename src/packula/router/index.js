@@ -9,7 +9,7 @@ export function createRouter (routes) {
   return {
     getRoute (name) {
       const route = routes[name]
-      if (!route) throw new Error(`Undefined route ${JSON.stringify(name)}`)
+      if (!route) throw new Error(`Undefined route ${name}`)
 
       return route
     },

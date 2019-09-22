@@ -6,7 +6,7 @@ describe('Packula router', () => {
     test('throws when an undefined route is passed', () => {
       const buildUrl = createUrlBuilder(createRouter({}))
 
-      expect(() => buildUrl('routeA')).toThrow('Undefined route "routeA"')
+      expect(() => buildUrl('routeA')).toThrow('Undefined route routeA')
     })
 
     test('throws when a route with no path is passed', () => {
@@ -14,7 +14,7 @@ describe('Packula router', () => {
         routeA: {},
       }))
 
-      expect(() => buildUrl('routeA')).toThrow('Cannot build URL - route "routeA" has no path')
+      expect(() => buildUrl('routeA')).toThrow('Cannot build URL - route routeA has no path')
     })
 
     test('throws when a required path param is not supplied', () => {

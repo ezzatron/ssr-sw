@@ -7,7 +7,7 @@ describe('Packula router transition resolver', () => {
     test('throws when an undefined route is passed', () => {
       const {routeNodes} = createTransitionResolver(createRouter({}))
 
-      expect(() => routeNodes('routeA')).toThrow('Undefined route "routeA"')
+      expect(() => routeNodes('routeA')).toThrow('Undefined route routeA')
     })
 
     test('returns route nodes', () => {
@@ -30,7 +30,7 @@ describe('Packula router transition resolver', () => {
         routeB: {path: '/route-b'},
       }))
 
-      expect(() => routeTransition('routeA', 'routeB')).toThrow('Undefined route "routeA"')
+      expect(() => routeTransition('routeA', 'routeB')).toThrow('Undefined route routeA')
     })
 
     test('throws when an undefined to route is passed', () => {
@@ -38,7 +38,7 @@ describe('Packula router transition resolver', () => {
         routeA: {path: '/route-a'},
       }))
 
-      expect(() => routeTransition('routeA', 'routeB')).toThrow('Undefined route "routeB"')
+      expect(() => routeTransition('routeA', 'routeB')).toThrow('Undefined route routeB')
     })
 
     test('returns correct route nodes when an empty value is passed as the from parameter', () => {

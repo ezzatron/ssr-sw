@@ -49,7 +49,7 @@ describe('Packula router', () => {
     test('throws for undefined routes', () => {
       const {getRoute} = createRouter({})
 
-      expect(() => getRoute('routeA')).toThrow('Undefined route "routeA"')
+      expect(() => getRoute('routeA')).toThrow('Undefined route routeA')
     })
   })
 })

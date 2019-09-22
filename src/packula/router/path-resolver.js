@@ -14,7 +14,7 @@ export function createPathResolver (router) {
     const {path} = route
     if (typeof path === 'string') return path
 
-    throw new Error(`Route ${JSON.stringify(name)} has no path`)
+    throw new Error(`Route ${name} has no path`)
   }
 
   function routePathFrom (fromName, toName) {
@@ -25,9 +25,6 @@ export function createPathResolver (router) {
 
     if (toPath.startsWith(`${fromPath}/`)) return toPath.substring(fromPath.length)
 
-    const toDescription = `${JSON.stringify(toName)} (${JSON.stringify(toPath)})`
-    const fromDescription = `${JSON.stringify(fromName)} (${JSON.stringify(fromPath)})`
-
-    throw new Error(`Route path for ${toDescription} is not a descendent of ${fromDescription}`)
+    throw new Error(`Route path for ${toName} (${toPath}) is not a descendent of ${fromName} (${fromPath})`)
   }
 }

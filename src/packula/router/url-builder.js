@@ -7,7 +7,7 @@ export function createUrlBuilder (router) {
   return function buildUrl (name, params) {
     getRoute(name) // throws a better exception if undefined
     const parsedRoute = parsedRoutes[name]
-    if (!parsedRoute) throw new Error(`Cannot build URL - route ${JSON.stringify(name)} has no path`)
+    if (!parsedRoute) throw new Error(`Cannot build URL - route ${name} has no path`)
 
     const [pathParams, searchParams] = splitParams(parsedRoute.tokensByKey, params)
     const pathname = pathnameBuilders[name](pathParams)
