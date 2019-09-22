@@ -4,7 +4,7 @@ import {ROOT} from '~/src/packula/router/symbols'
 
 describe('Packula router transition resolver', () => {
   describe('routeNodes()', () => {
-    test('throws when an undefined to route is passed', () => {
+    test('throws when an undefined route is passed', () => {
       const {routeNodes} = createTransitionResolver(createRouter({}))
 
       expect(() => routeNodes('routeA')).toThrow('Undefined route "routeA"')

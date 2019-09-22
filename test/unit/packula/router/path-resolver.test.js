@@ -4,7 +4,7 @@ import {ROOT} from '~/src/packula/router/symbols'
 
 describe('Packula router path resolver', () => {
   describe('routePath()', () => {
-    test('throws when an undefined to route is passed', () => {
+    test('throws when an undefined route is passed', () => {
       const {routePath} = createPathResolver(createRouter({}))
 
       expect(() => routePath('routeA')).toThrow('Undefined route "routeA"')
