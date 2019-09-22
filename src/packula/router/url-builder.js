@@ -22,7 +22,7 @@ function createPathnameBuilders (parsedRoutes) {
 
   for (const name in parsedRoutes) {
     const {tokens} = parsedRoutes[name]
-    builders[name] = tokensToFunction(tokens)
+    builders[name] = tokensToFunction(tokens, {validate: false})
   }
 
   return builders
