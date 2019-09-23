@@ -22,9 +22,6 @@ export function createRouter (routes) {
       return route
     },
 
-    resolveUrl (url) {
-    },
-
     parsedRoutes,
     routes,
   }

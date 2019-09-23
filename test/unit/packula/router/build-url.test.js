@@ -79,13 +79,13 @@ describe('Packula router', () => {
     test('can build URLs with repeating path params', () => {
       const buildUrl = createUrlBuilder(createRouter({
         routeA: {path: '/route-a/:a*'},
-        routeB: {path: '/route-b/:b+'},
+        routeB: {path: '/route-b/:a+'},
       }))
 
       expect(buildUrl('routeA', {a: 'value-a'})).toBe('/route-a/value-a')
-      expect(buildUrl('routeB', {b: 'value-a'})).toBe('/route-b/value-a')
+      expect(buildUrl('routeB', {a: 'value-a'})).toBe('/route-b/value-a')
       expect(buildUrl('routeA', [['a', 'value-a'], ['a', 'value-b']])).toBe('/route-a/value-a/value-b')
-      expect(buildUrl('routeB', [['b', 'value-a'], ['b', 'value-b']])).toBe('/route-b/value-a/value-b')
+      expect(buildUrl('routeB', [['a', 'value-a'], ['a', 'value-b']])).toBe('/route-b/value-a/value-b')
     })
 
     test('can build URLs with search params', () => {
