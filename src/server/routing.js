@@ -1,34 +1,29 @@
-import fetch from 'node-fetch'
-import {cloneRouter} from 'router5'
+import {UNKNOWN} from '~/src/packula/router/symbols'
 
-import dataPlugin from '~/src/router5-plugin-data/server.js'
-import routes from '~/src/routes.js'
-import {startRouter} from '~/src/routing.js'
+export function createRouterMiddleware (router, buildUrl, resolveUrl) {
+  const {getRoute} = router
 
-export function createRouterMiddleware (baseRouter) {
   return async function routerMiddleware (request, response, next) {
-    const router = cloneRouter(baseRouter)
-    router.usePlugin(dataPlugin(routes))
-    router.setDependency('fetch', fetch)
-    const routerState = await startRouter(router, request.originalUrl)
+    const routerState = resolveUrl(request.originalUrl)
+    const {name: routeName} = routerState
+    const route = routeName === UNKNOWN ? undefined : getRoute(routeName)
 
+    request.route = route
     request.router = router
     request.routerState = routerState
 
     const {
-      meta: {
-        options: {
-          redirected: isRedirect,
-        } = {},
+      options: {
+        redirect,
       } = {},
     } = routerState
 
-    if (!isRedirect) return next()
+    if (!redirect) return next()
 
-    const {name, params} = routerState
+    const {name, params} = redirect
 
     response.writeHead(302, {
-      location: router.buildPath(name, params),
+      location: buildUrl(name, params),
     })
     response.end()
   }

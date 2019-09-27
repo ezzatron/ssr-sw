@@ -1,69 +1,171 @@
+import {flattenRoutes} from '~/src/packula/router/config'
 import {persistentRoute} from '~/src/router5-plugin-data/index.js'
+import {ROOT} from '~/src/packula/router/symbols'
 
 const fetchCounts = {
   c: 0,
   d: 0,
 }
 
-export default [
-  {name: 'home', path: '/', redirectTo: 'dashboard'},
+export default flattenRoutes({
+  [ROOT]: {
+    options: {
+      ssr: true,
+    },
+  },
 
-  {name: 'dashboard', path: '/dashboard'},
-  {name: 'sign-in', path: '/sign-in'},
-  {name: 'sign-out', path: '/sign-out'},
+  home: {
+    path: '/',
+    options: {
+      redirect: 'dashboard',
+    },
+  },
 
-  {
-    name: 'a',
+  dashboard: {
+    path: '/dashboard',
+  },
+
+  signIn: {
+    path: '/sign-in',
+  },
+
+  signOut: {
+    path: '/sign-out',
+  },
+
+  clientOnly: {
+    path: '/client-only',
+    options: {
+      ssr: false,
+    },
+  },
+
+  serverOnly: {
+    path: '/server-only',
+    options: {
+      csr: false,
+    },
+  },
+
+  serverError: {
+    path: '/server-error',
+    options: {
+      csr: false,
+    },
+  },
+
+  noComponent: {
+    path: '/no-component',
+  },
+
+  api: {
+    path: '/api/v1',
+    options: {
+      csr: false,
+    },
+
+    children: {
+      apiSignIn: {
+        path: '/sign-in',
+      },
+
+      apiSignOut: {
+        path: '/sign-out',
+      },
+
+      apiSlow: {
+        path: '/slow',
+      },
+
+      apiUser: {
+        path: '/user',
+      },
+    },
+  },
+
+  a: {
     path: '/a',
+
     fetchData: ({fetch}) => ({
       a: randomPokemon(fetch),
     }),
-    serverHeaders: {
-      'X-Powered-By': 'Backula',
-    },
-  },
-  {
-    name: 'a.b',
-    path: '/b',
-    fetchData: ({fetch}, {data}) => ({
-      b: async (...args) => {
-        const a = await data.a
-        const b = await randomPokemon(fetch)(...args)
 
-        return `${a}, ${b}`
-      },
-    }),
-    serverHeaders: {
-      'X-Powered-By': 'Crackula',
-    },
-  },
-  {
-    name: 'a.b.c',
-    path: '/c',
-    fetchData: ({fetch}) => ({
-      c: {
-        // clean on deactivate unless fulfilled
+    children: {
+      b: {
+        path: '/b',
 
-        onActivate (clean, outcome) {
-          if (outcome) return
+        fetchData: ({fetch}, {data}) => ({
+          b: async (...args) => {
+            const a = await data.a
+            const b = await randomPokemon(fetch)(...args)
 
-          return randomPokemon(fetch)
+            return `${a}, ${b}`
+          },
+        }),
+
+        children: {
+          c: {
+            path: '/c',
+
+            fetchData: ({fetch}) => ({
+              c: {
+                // clean on deactivate unless fulfilled
+
+                onActivate (clean, outcome) {
+                  if (outcome) return
+
+                  return randomPokemon(fetch)
+                },
+
+                onDeactivate (clean, {status}) {
+                  status !== 'fulfilled' && clean()
+                },
+              },
+
+              slowC: {
+                // clean on deactivate unless fulfilled
+
+                onActivate (clean, outcome) {
+                  if (typeof window !== 'object') return () => ({})
+                  if (outcome) return
+
+                  return async ({signal}) => {
+                    if (typeof window !== 'object') return ++fetchCounts.c
+
+                    const response = await fetch(
+                      '/api/v1/slow',
+                      {
+                        signal,
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({echo: ++fetchCounts.c}),
+                      },
+                    )
+                    const {echo} = await response.json()
+
+                    if (echo % 2 !== 0) throw new Error('You done goofed.')
+
+                    return echo
+                  }
+                },
+
+                onDeactivate (clean, {status}) {
+                  status !== 'fulfilled' && clean()
+                },
+              },
+            }),
+          },
         },
-
-        onDeactivate (clean, {status}) {
-          status !== 'fulfilled' && clean()
-        },
       },
 
-      slowC: {
-        // clean on deactivate unless fulfilled
+      d: {
+        path: '/d',
 
-        onActivate (clean, outcome) {
-          if (typeof window !== 'object') return () => ({})
-          if (outcome) return
+        fetchData: persistentRoute(({fetch}) => ({
+          d: randomPokemon(fetch),
 
-          return async ({signal}) => {
-            if (typeof window !== 'object') return ++fetchCounts.c
+          slowD: async ({signal}) => {
+            if (typeof window !== 'object') return ++fetchCounts.d
 
             const response = await fetch(
               '/api/v1/slow',
@@ -71,7 +173,7 @@ export default [
                 signal,
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({echo: ++fetchCounts.c}),
+                body: JSON.stringify({echo: ++fetchCounts.d}),
               },
             )
             const {echo} = await response.json()
@@ -79,56 +181,12 @@ export default [
             if (echo % 2 !== 0) throw new Error('You done goofed.')
 
             return echo
-          }
-        },
-
-        onDeactivate (clean, {status}) {
-          status !== 'fulfilled' && clean()
-        },
+          },
+        })),
       },
-    }),
-    serverHeaders: {
-      'X-Powered-By': 'Sackula',
     },
   },
-  {
-    name: 'a.d',
-    path: '/d',
-    fetchData: persistentRoute(({fetch}) => ({
-      d: randomPokemon(fetch),
-
-      slowD: async ({signal}) => {
-        if (typeof window !== 'object') return ++fetchCounts.d
-
-        const response = await fetch(
-          '/api/v1/slow',
-          {
-            signal,
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({echo: ++fetchCounts.d}),
-          },
-        )
-        const {echo} = await response.json()
-
-        if (echo % 2 !== 0) throw new Error('You done goofed.')
-
-        return echo
-      },
-    })),
-  },
-
-  {name: 'client-only', path: '/client-only', isServer: false},
-  {name: 'server-only', path: '/server-only', isClient: false},
-  {name: 'server-error', path: '/server-error', isClient: false},
-  {name: 'no-component', path: '/no-component'},
-
-  {name: 'api', path: '/api', isClient: false},
-  {name: 'api.v1', path: '/v1', isClient: false},
-  {name: 'api.v1.sign-in', path: '/sign-in', isClient: false},
-  {name: 'api.v1.sign-out', path: '/sign-out', isClient: false},
-  {name: 'api.v1.user', path: '/user', isClient: false},
-]
+})
 
 function randomPokemon (fetch) {
   return async ({signal}) => {

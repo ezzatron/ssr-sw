@@ -2,12 +2,12 @@ import bodyParser from 'body-parser'
 
 import {asyncMiddleware} from './express.js'
 
-export function createApiV1 (createAppRouter) {
+export function createApi (createAppRouter, routePath) {
   const app = createAppRouter()
 
   app.use(bodyParser.json())
 
-  app.get('/user', asyncMiddleware(async (request, response) => {
+  app.get(routePath('apiUser'), asyncMiddleware(async (request, response) => {
     const {userId} = request.signedCookies
     const user = userId ? findUser(userId) : null
 
@@ -17,7 +17,7 @@ export function createApiV1 (createAppRouter) {
     response.json(user)
   }))
 
-  app.post('/sign-in', asyncMiddleware(async (request, response) => {
+  app.post(routePath('apiSignIn'), asyncMiddleware(async (request, response) => {
     await new Promise(resolve => setTimeout(resolve, 300))
 
     const {userId} = request.body
@@ -33,14 +33,14 @@ export function createApiV1 (createAppRouter) {
     response.json(user)
   }))
 
-  app.post('/sign-out', asyncMiddleware(async (request, response) => {
+  app.post(routePath('apiSignOut'), asyncMiddleware(async (request, response) => {
     response.clearCookie('userId', {httpOnly: true, signed: true})
 
     response.setHeader('Cache-Control', 'no-cache')
     response.end()
   }))
 
-  app.post('/slow', asyncMiddleware(async (request, response) => {
+  app.post(routePath('apiSlow'), asyncMiddleware(async (request, response) => {
     await new Promise(resolve => setTimeout(resolve, 3000))
 
     response.setHeader('Cache-Control', 'no-cache')

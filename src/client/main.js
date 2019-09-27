@@ -4,47 +4,33 @@ import {hydrate, render} from 'react-dom'
 import {loadableReady} from '@loadable/component'
 
 import App from './component/App.js'
-import dataPlugin from '~/src/router5-plugin-data/client.js'
 import routes from '~/src/routes.js'
-import {createRouter, startRouter} from '~/src/routing.js'
+import {createRouter} from '~/src/packula/router'
 
 async function main () {
   const appDataElement = document.getElementById('__APP_DATA__')
   const appData = appDataElement ? JSON.parse(appDataElement.innerText) : {}
-  const {routeData, routerState, shouldHydrate} = appData
+  const {routerState, shouldHydrate} = appData
 
-  const router = createRouter(routes, [
-    dataPlugin(routes, routeData),
-  ])
-  router.setDependency('fetch', fetch)
+  const router = createRouter(routes)
+  const appProps = {router, routerState}
+  const app = <App {...appProps} />
 
   if (shouldHydrate) {
-    await Promise.all([
-      startRouter(router, routerState),
-      new Promise(loadableReady),
-    ])
+    await new Promise(loadableReady)
 
-    hydrate(
-      <App router={router} />,
-      document.getElementById('root'),
-    )
+    hydrate(app, document.getElementById('root'))
 
     return
   }
 
-  await Promise.all([
-    startRouter(router, routerState),
-    new Promise(resolve => {
-      if (document.readyState !== 'loading') return resolve()
+  await new Promise(resolve => {
+    if (document.readyState !== 'loading') return resolve()
 
-      document.addEventListener('DOMContentLoaded', resolve)
-    }),
-  ])
+    document.addEventListener('DOMContentLoaded', resolve)
+  })
 
-  render(
-    <App router={router} />,
-    document.getElementById('root'),
-  )
+  render(app, document.getElementById('root'))
 }
 
 main().catch(error => { console.error(error) })
