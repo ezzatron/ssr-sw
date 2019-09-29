@@ -2,7 +2,7 @@ import {flattenRoutes} from '~/src/packula/router/config'
 import {normalizeRoutes} from '~/src/packula/router/normalization'
 import {ROOT} from '~/src/packula/router/symbols'
 
-describe('Packula router config', () => {
+describe('Packula router', () => {
   describe('flattenRoutes()', () => {
     test('flattens nested routes', () => {
       const nested = {

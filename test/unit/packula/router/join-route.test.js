@@ -1,6 +1,6 @@
 import {joinRoute} from '~/src/packula/router/config'
 
-describe('Packula router config', () => {
+describe('Packula router', () => {
   describe('joinRoute()', () => {
     test('sets the parent property to the parent route name', () => {
       const [, route] = joinRoute(
