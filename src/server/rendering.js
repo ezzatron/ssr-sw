@@ -31,15 +31,9 @@ export function createRenderMiddleware (clientStats) {
 
     if (!route || (!isGet && !isHead)) return next()
 
-    const {
-      options: {
-        ssr = true,
-      } = {},
-    } = route
-
     let html
 
-    if (ssr) {
+    if (router.getRouteOption(route.name, 'ssr')) {
       // TODO: re-add router data
       // await router.waitForData()
 

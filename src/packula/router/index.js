@@ -22,6 +22,20 @@ export function createRouter (routes) {
       return route
     },
 
+    getRouteOption (name, key, defaultValue) {
+      do {
+        const route = routes[name]
+        if (!route) throw new Error(`Undefined route ${name}`)
+
+        const {options: {[key]: value}, parent} = route
+        if (typeof value !== 'undefined') return value
+
+        name = parent
+      } while (name)
+
+      return defaultValue
+    },
+
     parsedRoutes,
     routes,
   }

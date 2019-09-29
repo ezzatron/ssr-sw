@@ -10,6 +10,7 @@ const fetchCounts = {
 export default flattenRoutes({
   [ROOT]: {
     options: {
+      csr: true,
       ssr: true,
     },
   },
