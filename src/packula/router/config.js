@@ -14,8 +14,9 @@ export function flattenRoutes (nested, options = {}) {
     const [ancestors, routes] = toAdd[i]
 
     for (const name in routes) {
-      const {children, ...flatRoute} = routes[name]
-      const joinResult = joinRouteFn(ancestors, name, flatRoute)
+      const route = routes[name]
+      const {children} = route
+      const joinResult = joinRouteFn(ancestors, name, route)
 
       flat[joinResult[0]] = joinResult[1]
       if (children) toAdd.push([[...ancestors, joinResult], children])

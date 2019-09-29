@@ -53,17 +53,18 @@ describe('Packula router config', () => {
       expect(route.parent).toBe('parent')
     })
 
-    test('retains additional route properties', () => {
+    test('retains route options', () => {
+      const options = {a: 'b'}
       const [, route] = joinRoute(
         [
           ['grandparent', {path: 'grandparent'}],
           ['parent', {path: 'parent'}],
         ],
         'child',
-        {path: '/child', additional: 'additional'},
+        {path: '/child', options},
       )
 
-      expect(route.additional).toBe('additional')
+      expect(route.options).toBe(options)
     })
 
     test('does not modify the route path if it is absolute', () => {

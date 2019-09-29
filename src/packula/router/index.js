@@ -1,6 +1,6 @@
 import {parse} from 'path-to-regexp'
 
-import {ROOT} from './symbols.js'
+import {normalizeRoutes} from './normalization.js'
 
 export function createRouter (routes) {
   routes = normalizeRoutes(routes)
@@ -25,15 +25,6 @@ export function createRouter (routes) {
     parsedRoutes,
     routes,
   }
-}
-
-function normalizeRoutes (routes) {
-  if (!routes || typeof routes !== 'object') throw new Error('Invalid routes')
-
-  const normalized = {[ROOT]: {...routes[ROOT]}}
-  for (const name in routes) normalized[name] = {parent: ROOT, ...routes[name]}
-
-  return normalized
 }
 
 function parseRoutes (routes) {

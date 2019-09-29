@@ -14,14 +14,14 @@ describe('Packula router', () => {
     test('adds a root route if necessary', () => {
       const {routes} = createRouter({})
 
-      expect(routes[ROOT]).toStrictEqual({})
+      expect(routes[ROOT]).toStrictEqual({options: {}})
     })
 
-    test('preserves any supplied root route config', () => {
-      const root = {a: 'b'}
+    test('preserves any supplied root route options', () => {
+      const root = {options: {a: 'b'}}
       const {routes} = createRouter({[ROOT]: root})
 
-      expect(routes[ROOT]).toStrictEqual(root)
+      expect(routes[ROOT].options).toBe(root.options)
     })
 
     test('sets the parents of any top-level routes to ROOT', () => {
@@ -60,12 +60,12 @@ describe('Packula router', () => {
   describe('getRoute()', () => {
     test('returns any defined route', () => {
       const {getRoute} = createRouter({
-        routeA: {a: 'b'},
-        routeB: {c: 'd'},
+        routeA: {options: {a: 'b'}},
+        routeB: {options: {c: 'd'}},
       })
 
-      expect(getRoute('routeA')).toStrictEqual({parent: ROOT, a: 'b'})
-      expect(getRoute('routeB')).toStrictEqual({parent: ROOT, c: 'd'})
+      expect(getRoute('routeA')).toStrictEqual({parent: ROOT, options: {a: 'b'}})
+      expect(getRoute('routeB')).toStrictEqual({parent: ROOT, options: {c: 'd'}})
     })
 
     test('throws for undefined routes', () => {
