@@ -1,10 +1,39 @@
 export function createState (init) {
   const subscribers = new Set()
-  let current = init
+  let stack = [init]
+  let position = 0
 
-  const state = {
+  return {
+    get () {
+      return stack[position]
+    },
+
+    go (offset) {
+      const nextPosition = position + offset
+      if (!(nextPosition in stack)) return
+
+      position = nextPosition
+      publish()
+    },
+
+    push (value) {
+      const discard = position - stack.length + 1
+      if (discard) stack = stack.slice(0, discard)
+
+      stack.push(value)
+      ++position
+      publish()
+    },
+
+    replace (value) {
+      stack[position] = value
+      publish()
+    },
+
     subscribe (subscriber, known) {
       subscribers.add(subscriber)
+
+      const current = stack[position]
       if (known !== current) subscriber(current)
 
       return function unsubscribe () {
@@ -13,16 +42,8 @@ export function createState (init) {
     },
   }
 
-  Object.defineProperty(state, 'current', {
-    get () {
-      return current
-    },
-
-    set (next) {
-      current = next
-      subscribers.forEach(subscriber => { subscriber(next) })
-    },
-  })
-
-  return state
+  function publish () {
+    const current = stack[position]
+    subscribers.forEach(subscriber => subscriber(current))
+  }
 }
