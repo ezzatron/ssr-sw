@@ -16,7 +16,7 @@ export function createRouterMiddleware (router, buildUrl, resolveUrl) {
       options: {
         redirect,
       } = {},
-    } = routerState
+    } = route
 
     if (!redirect) return next()
 

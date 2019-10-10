@@ -5,16 +5,15 @@ import {loadableReady} from '@loadable/component'
 
 import App from './component/App.js'
 import routes from '~/src/routes.js'
-import {createRouter} from '~/src/packula/router'
+import {createMemoryRouter} from '~/src/packula/router/memory'
 
 async function main () {
   const appDataElement = document.getElementById('__APP_DATA__')
   const appData = appDataElement ? JSON.parse(appDataElement.innerText) : {}
   const {routerState, shouldHydrate} = appData
 
-  const router = createRouter(routes)
-  const appProps = {router, routerState}
-  const app = <App {...appProps} />
+  const router = createMemoryRouter(routes, routerState)
+  const app = <App router={router} />
 
   if (shouldHydrate) {
     await new Promise(loadableReady)

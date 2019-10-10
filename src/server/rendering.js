@@ -44,8 +44,7 @@ export function createRenderMiddleware (clientStats) {
       }
 
       const webExtractor = new ChunkExtractor({stats: clientStats})
-      const appProps = {router, routerState}
-      const jsx = webExtractor.collectChunks(<App {...appProps} />)
+      const jsx = webExtractor.collectChunks(<App router={router} />)
       const appHtml = renderToString(jsx)
       const linkElements = webExtractor.getLinkElements()
       const scriptTags = webExtractor.getScriptTags()
