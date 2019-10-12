@@ -16,76 +16,76 @@ export default flattenRoutes({
   },
 
   home: {
-    path: '/',
+    path: '',
     options: {
       redirect: 'dashboard',
     },
   },
 
   dashboard: {
-    path: '/dashboard',
+    path: 'dashboard',
   },
 
   signIn: {
-    path: '/sign-in',
+    path: 'sign-in',
   },
 
   signOut: {
-    path: '/sign-out',
+    path: 'sign-out',
   },
 
   clientOnly: {
-    path: '/client-only',
+    path: 'client-only',
     options: {
       ssr: false,
     },
   },
 
   serverOnly: {
-    path: '/server-only',
+    path: 'server-only',
     options: {
       csr: false,
     },
   },
 
   serverError: {
-    path: '/server-error',
+    path: 'server-error',
     options: {
       csr: false,
     },
   },
 
   noComponent: {
-    path: '/no-component',
+    path: 'no-component',
   },
 
   api: {
-    path: '/api/v1',
+    path: 'api/v1',
     options: {
       csr: false,
     },
 
     children: {
       apiSignIn: {
-        path: '/sign-in',
+        path: 'sign-in',
       },
 
       apiSignOut: {
-        path: '/sign-out',
+        path: 'sign-out',
       },
 
       apiSlow: {
-        path: '/slow',
+        path: 'slow',
       },
 
       apiUser: {
-        path: '/user',
+        path: 'user',
       },
     },
   },
 
   a: {
-    path: '/a',
+    path: 'a',
 
     fetchData: ({fetch}) => ({
       a: randomPokemon(fetch),
@@ -93,7 +93,7 @@ export default flattenRoutes({
 
     children: {
       b: {
-        path: '/b',
+        path: 'b',
 
         fetchData: ({fetch}, {data}) => ({
           b: async (...args) => {
@@ -106,7 +106,7 @@ export default flattenRoutes({
 
         children: {
           c: {
-            path: '/c',
+            path: 'c',
 
             fetchData: ({fetch}) => ({
               c: {
@@ -160,7 +160,7 @@ export default flattenRoutes({
       },
 
       d: {
-        path: '/d',
+        path: 'd',
 
         fetchData: persistentRoute(({fetch}) => ({
           d: randomPokemon(fetch),

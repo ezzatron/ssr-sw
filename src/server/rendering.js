@@ -33,7 +33,7 @@ export function createRenderMiddleware (clientStats) {
 
     let html
 
-    if (router.getRouteOption(route.name, 'ssr')) {
+    if (router.getRouteOption(routerState.name, 'ssr')) {
       // TODO: re-add router data
       // await router.waitForData()
 

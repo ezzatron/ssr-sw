@@ -12,6 +12,8 @@ export function createRouterMiddleware (router, buildUrl, resolveUrl) {
     request.router = router
     request.routerState = routerState
 
+    if (!route) return next()
+
     const {
       options: {
         redirect,
