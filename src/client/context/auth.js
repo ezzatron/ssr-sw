@@ -1,7 +1,7 @@
 import {createContext, useCallback, useContext, useMemo, useState} from 'react'
-import {useRouter} from 'react-router5'
 
 import {useAsyncEffect} from './async.js'
+import {useRouter} from '~/src/packula/router/react'
 
 export const ANONYMOUS = 'anonymous'
 export const AUTHENTICATED = 'authenticated'
@@ -16,9 +16,9 @@ export function AuthProvider (props) {
   const {children} = props
 
   const router = useRouter()
-  const signInEndpoint = router.buildPath('api.v1.sign-in')
-  const signOutEndpoint = router.buildPath('api.v1.sign-out')
-  const userEndpoint = router.buildPath('api.v1.user')
+  const signInEndpoint = router.buildUrl('api.v1.sign-in')
+  const signOutEndpoint = router.buildUrl('api.v1.sign-out')
+  const userEndpoint = router.buildUrl('api.v1.user')
 
   const [state, setState] = useState({status: INIT})
 

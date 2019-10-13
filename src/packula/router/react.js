@@ -1,4 +1,4 @@
-import {createContext} from 'react'
+import {createContext, useContext} from 'react'
 
 const RouterContext = createContext()
 
@@ -8,4 +8,8 @@ export function RouterProvider (props) {
   return <RouterContext.Provider value={router}>
     {children}
   </RouterContext.Provider>
+}
+
+export function useRouter () {
+  return useContext(RouterContext)
 }

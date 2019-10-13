@@ -1,11 +1,11 @@
 import {useCallback, useRef} from 'react'
-import {useRouter} from 'react-router5'
 
 import styles from './SignOutLink.css'
+import {useRouter} from '~/src/packula/router/react'
 
 export default function SignOutLink () {
   const router = useRouter()
-  const signOutAction = router.buildPath('sign-out')
+  const signOutAction = router.buildUrl('sign-out')
 
   const formEl = useRef(null)
   const handleClick = useCallback(event => {
