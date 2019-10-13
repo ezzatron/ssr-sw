@@ -5,27 +5,27 @@ describe('Packula router', () => {
     test('handles initial state', () => {
       const state = createState('a')
 
-      expect(state.get()).toBe('a')
+      expect(state.get()).toStrictEqual({current: 'a'})
     })
 
     test('handles undefined initial state', () => {
       const state = createState()
 
-      expect(state.get()).toBeUndefined()
+      expect(state.get()).toStrictEqual({current: undefined})
     })
 
     test('handles pushing state', () => {
       const state = createState('a')
       state.push('b')
 
-      expect(state.get()).toBe('b')
+      expect(state.get()).toStrictEqual({current: 'b', previous: 'a'})
     })
 
     test('handles replacing state', () => {
       const state = createState('a')
       state.replace('b')
 
-      expect(state.get()).toBe('b')
+      expect(state.get()).toStrictEqual({current: 'b', previous: 'a'})
     })
 
     test('overwrites history when replacing', () => {
@@ -34,7 +34,7 @@ describe('Packula router', () => {
       state.replace('c')
       state.go(-1)
 
-      expect(state.get()).toBe('a')
+      expect(state.get()).toStrictEqual({current: 'a', previous: 'c'})
     })
 
     test('ignores attempts to traverse backwards to undefined states', () => {
@@ -43,7 +43,7 @@ describe('Packula router', () => {
       state.push('c')
       state.go(-111)
 
-      expect(state.get()).toBe('c')
+      expect(state.get()).toStrictEqual({current: 'c', previous: 'b'})
     })
 
     test('ignores attempts to traverse forwards to undefined states', () => {
@@ -53,7 +53,7 @@ describe('Packula router', () => {
       state.go(-2)
       state.go(111)
 
-      expect(state.get()).toBe('a')
+      expect(state.get()).toStrictEqual({current: 'a', previous: 'c'})
     })
 
     test('can go back to earlier states', () => {
@@ -62,7 +62,7 @@ describe('Packula router', () => {
       state.push('c')
       state.go(-2)
 
-      expect(state.get()).toBe('a')
+      expect(state.get()).toStrictEqual({current: 'a', previous: 'c'})
     })
 
     test('can go forward to later states', () => {
@@ -72,7 +72,7 @@ describe('Packula router', () => {
       state.go(-2)
       state.go(1)
 
-      expect(state.get()).toBe('b')
+      expect(state.get()).toStrictEqual({current: 'b', previous: 'a'})
     })
 
     test('overwrites history when pushing after going back to earlier states', () => {
@@ -84,7 +84,7 @@ describe('Packula router', () => {
       state.push('e')
       state.go(-1)
 
-      expect(state.get()).toBe('d')
+      expect(state.get()).toStrictEqual({current: 'd', previous: 'e'})
     })
 
     test('immediately publishes an update if the known state does not match the current state', () => {
@@ -92,7 +92,9 @@ describe('Packula router', () => {
       const updates = []
       state.subscribe(current => { updates.push(current) }, 'x')
 
-      expect(updates).toStrictEqual(['a'])
+      expect(updates).toStrictEqual([
+        {current: 'a'},
+      ])
     })
 
     test('publishes updates to subscribers on stack traversal', () => {
@@ -104,7 +106,10 @@ describe('Packula router', () => {
       state.go(-1)
       state.go(1)
 
-      expect(updates).toStrictEqual(['b', 'c'])
+      expect(updates).toStrictEqual([
+        {current: 'b', previous: 'c'},
+        {current: 'c', previous: 'b'},
+      ])
     })
 
     test('publishes updates to subscribers on push', () => {
@@ -114,7 +119,10 @@ describe('Packula router', () => {
       state.push('b')
       state.push('c')
 
-      expect(updates).toStrictEqual(['b', 'c'])
+      expect(updates).toStrictEqual([
+        {current: 'b', previous: 'a'},
+        {current: 'c', previous: 'b'},
+      ])
     })
 
     test('publishes updates to subscribers on replace', () => {
@@ -124,7 +132,10 @@ describe('Packula router', () => {
       state.replace('b')
       state.replace('c')
 
-      expect(updates).toStrictEqual(['b', 'c'])
+      expect(updates).toStrictEqual([
+        {current: 'b', previous: 'a'},
+        {current: 'c', previous: 'b'},
+      ])
     })
 
     test('allows unsubscription from updates', () => {
@@ -135,7 +146,9 @@ describe('Packula router', () => {
       unsubscribe()
       state.push('c')
 
-      expect(updates).toStrictEqual(['b'])
+      expect(updates).toStrictEqual([
+        {current: 'b', previous: 'a'},
+      ])
     })
   })
 })
