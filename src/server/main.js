@@ -6,16 +6,12 @@ import {createApi} from './api.js'
 import {createPathResolver} from '~/src/packula/router/path-resolver'
 import {createRenderMiddleware} from './rendering.js'
 import {createRouterMiddleware} from './routing.js'
-import {createRouter} from '~/src/packula/router'
-import {createUrlBuilder} from '~/src/packula/router/url-builder'
-import {createUrlResolver} from '~/src/packula/router/url-resolver'
+import {createMemoryRouter} from '~/src/packula/router/memory'
 
 export default function createApp (options) {
   const {clientStats, createAppRouter, secret} = options
 
-  const router = createRouter(routes)
-  const buildUrl = createUrlBuilder(router)
-  const resolveUrl = createUrlResolver(router)
+  const router = createMemoryRouter(routes)
   const {routePath, routePathFrom} = createPathResolver(router)
 
   const app = createAppRouter()
@@ -31,7 +27,7 @@ export default function createApp (options) {
   })
 
   app.use(routePath('api'), createApi(createAppRouter, routePathFrom.bind(null, 'api')))
-  app.use(asyncMiddleware(createRouterMiddleware(router, buildUrl, resolveUrl)))
+  app.use(asyncMiddleware(createRouterMiddleware(router)))
   app.use(asyncMiddleware(createRenderMiddleware(clientStats)))
 
   return app

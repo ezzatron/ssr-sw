@@ -1,7 +1,5 @@
-import {UNKNOWN} from '~/src/packula/router/symbols'
-
-export function createRouterMiddleware (router, buildUrl, resolveUrl) {
-  const {getRoute} = router
+export function createRouterMiddleware (router) {
+  const {buildUrl, getRoute, resolveUrl, UNKNOWN} = router
 
   return async function routerMiddleware (request, response, next) {
     const routerState = resolveUrl(request.originalUrl)
