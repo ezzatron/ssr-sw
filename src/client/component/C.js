@@ -1,10 +1,10 @@
-import RouteData from './RouteData.js'
+// import RouteData from './RouteData.js'
 
 export default function C () {
   return <>
     <h3>C</h3>
 
-    <RouteData name='c' />
-    <RouteData name='slowC' />
+    {/* <RouteData name='c' /> */}
+    {/* <RouteData name='slowC' /> */}
   </>
 }

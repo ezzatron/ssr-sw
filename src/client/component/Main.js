@@ -1,9 +1,8 @@
 import loadable from '@loadable/component'
-import {startsWithSegment} from 'router5-helpers'
-import {useRouteNode} from 'react-router5'
 
 import Loading from './Loading.js'
 import NotFound from './NotFound.js'
+import {useRouteNode} from '~/src/packula/router/react'
 
 const loadableOptions = {
   fallback: <Loading />,
@@ -16,15 +15,14 @@ const SignIn = loadable(() => import('./SignIn.js'), loadableOptions)
 const SignOut = loadable(() => import('./SignOut.js'), loadableOptions)
 
 export default function Main () {
-  const {route} = useRouteNode('')
-  const testRoute = startsWithSegment(route)
+  const {name, params} = useRouteNode()
 
-  if (testRoute('dashboard')) return <Dashboard />
-  if (testRoute('sign-in')) return <SignIn />
-  if (testRoute('sign-out')) return <SignOut />
+  if (name === 'dashboard') return <Dashboard params={params} />
+  if (name === 'sign-in') return <SignIn params={params} />
+  if (name === 'sign-out') return <SignOut params={params} />
 
-  if (testRoute('a')) return <A />
-  if (testRoute('client-only')) return <ClientOnly />
+  if (name === 'a') return <A params={params} />
+  if (name === 'client-only') return <ClientOnly params={params} />
 
   return <NotFound />
 }

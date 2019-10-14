@@ -1,9 +1,8 @@
 import loadable from '@loadable/component'
-import {startsWithSegment} from 'router5-helpers'
-import {useRouteNode} from 'react-router5'
 
 import Loading from './Loading.js'
-import RouteData from './RouteData.js'
+// import RouteData from './RouteData.js'
+import {useRouteNode} from '~/src/packula/router/react'
 
 const loadableOptions = {
   fallback: <Loading />,
@@ -12,14 +11,13 @@ const loadableOptions = {
 const C = loadable(() => import('./C.js'), loadableOptions)
 
 export default function B () {
-  const {route} = useRouteNode('a.b')
-  const testRoute = startsWithSegment(route)
+  const {name, params} = useRouteNode('a')
 
   return <>
     <h2>B</h2>
 
-    <RouteData name='b' />
+    {/* <RouteData name='b' />  */}
 
-    {testRoute('a.b.c') && <C />}
+    {name === 'c' && <C params={params} />}
   </>
 }
